@@ -1,0 +1,166 @@
+---
+title: "Analyzing a Human Protein Complex Map"
+author: "Qingzhou Zhang"
+date: "`r Sys.Date()`"
+output: BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{Analyzing a Human Protein Complex Map with ComplexMap}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+Protein complexes are the functional machinery of the cell. High-throughput experimental methods, such as co-fractionation followed by mass spectrometry (CF-MS), can identify hundreds of putative protein complexes in a single experiment. The `ComplexMap` package provides a comprehensive workflow to process, analyze, annotate, and visualize such a dataset.
+
+This vignette demonstrates a typical workflow using a dataset of human soluble protein complexes identified via co-fractionation, originally published in 2012 [A census of human soluble protein complexes](https://doi.org/10.1016/j.cell.2012.08.011). We will perform quality control, refine the list, perform functional enrichment, and build a network-based "map" of the functional landscape of these complexes.
+
+First, let's load the `ComplexMap` package, along with `dplyr` for data manipulation.
+
+```{r setup, message=FALSE}
+library(ComplexMap)
+library(dplyr)
+```
+
+# Step 1: Loading Data
+
+The `ComplexMap` package includes two key example datasets: `demoComplexes` and `referenceComplexes`.
+
+* `demoComplexes`: A dataset containing a list of 622 putative protein complexes identified in our study using an integrative global proteomic profiling approach. 
+
+* `referenceComplexes`: A reference dataset containing 324 merged CORUM protein complexes used in training protein-protein interaction scoring and clustering optimization procedures in the study. These complexes were curated from the CORUM database and merged to reduce redundancy for benchmarking purposes.
+
+We load these datasets directly.
+
+```{r load-data}
+# Load the example datasets shipped with the package
+data("demoComplexes")
+data("referenceComplexes")
+```
+
+# Step 2: Quality Control
+
+Before any analysis, it's crucial to assess the quality of the input complex list. The `qcComplexList()` function provides a summary of basic statistics, complex sizes, and pairwise redundancy.
+
+```{r qc}
+qcComplexList(demoComplexes)
+```
+
+The QC report tells us we have 622 complexes composed of 2649 unique proteins. It also warns if there some complexes are highly redundant (Jaccard similarity >= 0.8), suggesting that our next step, refinement, is necessary.
+
+# Step 3: Refining the Complex List
+
+The initial list of complexes may contain very small complexes or highly overlapping ones that represent slight variations of the same biological entity. The `refineComplexList()` function addresses this by filtering by size and merging redundant complexes.
+
+Here, we will merge any complexes that have a Jaccard similarity of 0.75 or higher.
+
+```{r refine}
+# We use a slightly lower mergeThreshold to be more aggressive for this demo
+refinedComplexes <- refineComplexList(demoComplexes, mergeThreshold = 0.75)
+
+# Let's see how many complexes we have now
+length(refinedComplexes)
+```
+
+After refinement, the list has been consolidated to `r length(refinedComplexes)` complexes, which provides a cleaner basis for downstream analysis.
+
+# Step 4: Functional Enrichment
+
+To understand the biological role of each complex, we can perform a functional enrichment analysis. We first need a gene set database, such as the BioCarta pathways. The package includes a helper function to access an example GMT file.
+
+```{r enrichment}
+# Get the path to the example GMT file
+gmtPath <- getExampleGmt()
+biocartaGmt <- getGmtFromFile(gmtPath)
+
+# Run enrichment analysis on the refined complex list
+enrichments <- runComplexEnrichment(refinedComplexes, biocartaGmt)
+
+# View the enrichment results for the first complex with significant terms
+if (length(enrichments) > 0) {
+  head(enrichments[])
+}
+```
+
+The analysis found significant terms for `r length(enrichments)` of our refined complexes. The output is a list where each element is a data frame of significant functional terms for the corresponding complex.
+
+# Step 5: Building the Complex Network
+
+To visualize the relationships between complexes, we build a similarity network. An edge is drawn between two complexes if they are similar, either by sharing proteins (compositional similarity) or by sharing functions (functional similarity).
+
+The `buildComplexNetwork()` function calculates these similarities and creates an edge list. We'll use a "combined" mode, which creates a weighted average of both similarity types.
+
+```{r build-network}
+networkEdges <- buildComplexNetwork(
+  complexes = refinedComplexes,
+  enrichments = enrichments,
+  mode = "combined",
+  similarityMethod = "jaccard"
+)
+
+glimpse(networkEdges)
+```
+
+The resulting `tibble` contains `r nrow(networkEdges)` edges, each with calculated similarity scores and a final `weight` that will be used for visualization.
+
+# Step 6: Generating Node Attributes for Visualization
+
+Before plotting, we need to generate attributes for each node (complex) in the network, such as size, color, and a primary functional label. The `generateNodeAttributes()` function is designed for this. It clusters enriched terms into "functional domains" and calculates a unique "blended" color for each complex based on its functional profile.
+
+```{r gen-attributes}
+nodeAttributes <- generateNodeAttributes(
+  complexes = refinedComplexes,
+  enrichments = enrichments
+)
+
+glimpse(nodeAttributes)
+```
+
+# Step 7: Computing Network Topology
+
+With the nodes and edges defined, the final step before plotting is to calculate the network layout. The `computeMapTopology()` function uses a force-directed algorithm to determine the (x, y) coordinates for each node and calculates centrality metrics like degree and betweenness.
+
+```{r compute-topology}
+mapLayout <- computeMapTopology(nodeAttributes, networkEdges)
+
+glimpse(mapLayout)
+```
+The `mapLayout` data frame is now the "master" table, containing all the information needed for plotting.
+
+# Step 8: Visualization
+
+`ComplexMap` provides three ways to visualize the final network.
+
+### 8.1 Static Plot with Direct Labels
+
+This plot is excellent for publications, where labels are placed directly onto the plot.
+
+```{r vis-direct-labels, fig.width=10, fig.height=10, fig.alt="A network plot of protein complexes with functional domain labels placed directly on the map."}
+# ggrepel is required for this plot
+if (requireNamespace("ggrepel", quietly = TRUE)) {
+  visualizeMapDirectLabels(mapLayout, networkEdges)
+}
+```
+
+### 8.2 Static Plot with a Legend
+
+This version is useful when direct labels are too cluttered. It uses a discrete color legend to represent the functional domains.
+
+```{r vis-legend, fig.width=10, fig.height=10, fig.alt="A network plot of protein complexes where node color corresponds to a functional domain listed in a legend."}
+visualizeMapWithLegend(mapLayout, networkEdges)
+```
+
+### 8.3 Interactive Plot
+
+For deep exploration, an interactive HTML widget is ideal. You can zoom, pan, and hover over nodes to see detailed tooltips.
+
+```{r vis-interactive}
+# visNetwork is required for this plot
+if (requireNamespace("visNetwork", quietly = TRUE)) {
+  visualizeMapInteractive(mapLayout, networkEdges)
+}
+```
+
+# Conclusion
+
+This vignette has demonstrated the full workflow of the `ComplexMap` package, from raw complex list to insightful, publication-quality visualizations. By integrating quality control, refinement, enrichment, and network analysis, `ComplexMap` provides a powerful and user-friendly platform for exploring the landscape of protein complexes.

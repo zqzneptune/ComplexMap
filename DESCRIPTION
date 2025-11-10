@@ -1,0 +1,63 @@
+Package: ComplexMap
+Title: A Toolset for the Functional Analysis and Visualization of Protein Complex Data
+Version: 0.99.0
+Authors@R: 
+    person(given = "Qingzhou",
+           family = "Zhang",
+           role = c("aut", "cre"),
+           email = "zqzneptune@hotmail.com",
+           comment = c(ORCID = "0000-0001-9540-2624"))
+Description: Provides a comprehensive workflow for the quality control, 
+    refinement, functional enrichment, and network-based analysis of protein 
+    complex datasets. ComplexMap allows for the quantitative evaluation of 
+    predicted complexes against a reference and provides powerful static and 
+    interactive visualization methods to explore the functional landscape of 
+    a protein complex map.
+URL: https://zqzneptune.github.io/ComplexMap
+License: MIT + file LICENSE
+Encoding: UTF-8
+RoxygenNote: 7.3.3
+Depends:
+    R (>= 4.3)
+Imports:
+    AnnotationDbi,
+    clue,
+    dplyr,
+    future,
+    future.apply,
+    ggplot2,
+    ggraph,
+    GO.db,
+    grDevices,
+    igraph,
+    magrittr,
+    Matrix,
+    msigdbr,
+    parallel,
+    RColorBrewer,
+    reactome.db,
+    rlang,
+    scales,
+    stats,
+    stringr,
+    tibble,
+    tidygraph,
+    utils,
+    visNetwork
+Suggests:
+    BiocStyle,
+    ggrepel,
+    knitr,
+    org.Hs.eg.db,
+    philentropy,
+    progressr,
+    rmarkdown
+BiocViews:
+    Software,
+    Proteomics,
+    NetworkAnalysis,
+    Visualization,
+    Enrichment,
+    GeneSetEnrichment
+LazyData: true
+VignetteBuilder: knitr

@@ -181,7 +181,7 @@ access an example GMT file.</p>
 <code class="sourceCode R"><span><span class="co"># Get the path to the example GMT file</span></span>
 <span><span class="va">gmtPath</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getExampleGmt.html">getExampleGmt</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">biocartaGmt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getGmtFromFile.html">getGmtFromFile</a></span><span class="op">(</span><span class="va">gmtPath</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Fetching gene sets from local file: /private/var/folders/gb/q0_2jm654r9_t3r2hb11v3tm0000gn/T/RtmpRDLivv/temp_libpath56fe7094c310/ComplexMap/extdata/c2.cp.biocarta.v2025.1.Hs.symbols.gmt</span></span></code></pre>
+<pre><code><span><span class="co">## Fetching gene sets from local file: /private/var/folders/gb/q0_2jm654r9_t3r2hb11v3tm0000gn/T/Rtmpx4UtqW/temp_libpath4393b14db1b/ComplexMap/extdata/c2.cp.biocarta.v2025.1.Hs.symbols.gmt</span></span></code></pre>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Run enrichment analysis on the refined complex list</span></span>
 <span><span class="va">enrichments</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/runComplexEnrichment.html">runComplexEnrichment</a></span><span class="op">(</span><span class="va">refinedComplexes</span>, <span class="va">biocartaGmt</span><span class="op">)</span></span></code></pre></div>
@@ -362,7 +362,7 @@ directly onto the plot.</p>
 <span>  <span class="fu"><a href="../reference/visualizeMapDirectLabels.html">visualizeMapDirectLabels</a></span><span class="op">(</span><span class="va">mapLayout</span>, <span class="va">networkEdges</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <pre><code><span><span class="co">## Visualizing ComplexMap with direct labels...</span></span></code></pre>
-<p><img src="vignette_01-workflow_files/figure-html/vis-direct-labels-1.png" class="r-plt" alt="A network plot of protein complexes with functional domain labels placed directly on the map." width="960"></p>
+<p><img src="vignette_01-workflow_files/figure-html/vis-direct-labels-1.png" class="r-plt" alt="A network plot of protein complexes with functional domain labels placed directly on the map." width="1536"></p>
 </div>
 <div class="section level4">
 <h4 id="static-plot-with-a-legend">8.2 Static Plot with a Legend<a class="anchor" aria-label="anchor" href="#static-plot-with-a-legend"></a>
@@ -372,7 +372,7 @@ a discrete color legend to represent the functional domains.</p>
 <div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/visualizeMapWithLegend.html">visualizeMapWithLegend</a></span><span class="op">(</span><span class="va">mapLayout</span>, <span class="va">networkEdges</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Visualizing ComplexMap with a color legend...</span></span></code></pre>
-<p><img src="vignette_01-workflow_files/figure-html/vis-legend-1.png" class="r-plt" alt="A network plot of protein complexes where node color corresponds to a functional domain listed in a legend." width="960"></p>
+<p><img src="vignette_01-workflow_files/figure-html/vis-legend-1.png" class="r-plt" alt="A network plot of protein complexes where node color corresponds to a functional domain listed in a legend." width="1536"></p>
 </div>
 <div class="section level4">
 <h4 id="interactive-plot">8.3 Interactive Plot<a class="anchor" aria-label="anchor" href="#interactive-plot"></a>

@@ -149,7 +149,7 @@ visualizeMapDirectLabels <- function(
 #'
 #' @export
 #' @importFrom tibble deframe
-#' @importFrom ggplot2 scale_color_manual guides
+#' @importFrom ggplot2 scale_color_manual guides scale_fill_manual element_blank
 #'
 visualizeMapWithLegend <- function(
     layoutDf, edgesDf,

@@ -1,4 +1,4 @@
-# ComplexMap ![](reference/figures/ComplexMap_logo.png)
+# ComplexMap ![ComplexMap hex logo](reference/figures/ComplexMap_logo.png)
 
 `ComplexMap` provides a comprehensive workflow for the quality control,
 refinement, functional enrichment, and network-based analysis of protein

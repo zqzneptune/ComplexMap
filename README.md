@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# ComplexMap <img src="man/figures/ComplexMap_logo.png" align="right" height="139" />
+# ComplexMap <img src="man/figures/ComplexMap_logo.png" alt="ComplexMap hex logo" align="right" width ="139" />
 
 <!-- badges: start -->
 

@@ -71,7 +71,7 @@ Load the GMT from the file path
 gmtFromFile <- getGmtFromFile(gmtPath)
 ```
 
-    ## Fetching gene sets from local file: /private/var/folders/gb/q0_2jm654r9_t3r2hb11v3tm0000gn/T/RtmpRDLivv/temp_libpath56fe7094c310/ComplexMap/extdata/c2.cp.biocarta.v2025.1.Hs.symbols.gmt
+    ## Fetching gene sets from local file: /private/var/folders/gb/q0_2jm654r9_t3r2hb11v3tm0000gn/T/Rtmpx4UtqW/temp_libpath4393b14db1b/ComplexMap/extdata/c2.cp.biocarta.v2025.1.Hs.symbols.gmt
 
 Let’s inspect the identifiers
 

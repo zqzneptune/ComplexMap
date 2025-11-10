@@ -135,7 +135,7 @@ The `mapLayout` data frame is now the "master" table, containing all the informa
 
 This plot is excellent for publications, where labels are placed directly onto the plot.
 
-```{r vis-direct-labels, fig.width=10, fig.height=10, fig.alt="A network plot of protein complexes with functional domain labels placed directly on the map."}
+```{r vis-direct-labels, fig.width=16, fig.height=12, fig.alt="A network plot of protein complexes with functional domain labels placed directly on the map."}
 # ggrepel is required for this plot
 if (requireNamespace("ggrepel", quietly = TRUE)) {
   visualizeMapDirectLabels(mapLayout, networkEdges)
@@ -146,7 +146,7 @@ if (requireNamespace("ggrepel", quietly = TRUE)) {
 
 This version is useful when direct labels are too cluttered. It uses a discrete color legend to represent the functional domains.
 
-```{r vis-legend, fig.width=10, fig.height=10, fig.alt="A network plot of protein complexes where node color corresponds to a functional domain listed in a legend."}
+```{r vis-legend, fig.width=16, fig.height=12, fig.alt="A network plot of protein complexes where node color corresponds to a functional domain listed in a legend."}
 visualizeMapWithLegend(mapLayout, networkEdges)
 ```
 

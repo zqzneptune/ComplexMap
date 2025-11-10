@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   vignette_00-perp-input: vignette_00-perp-input.html
   vignette_01-workflow: vignette_01-workflow.html
-last_built: 2025-11-10T20:20Z
+last_built: 2025-11-10T22:04Z
 urls:
   reference: https://zqzneptune.github.io/ComplexMap/reference
   article: https://zqzneptune.github.io/ComplexMap/articles

@@ -58,12 +58,8 @@ utils::globalVariables(c("betweenness", "degree"))
 #' print(masterLayout)
 #'
 #' @export
-#' @importFrom igraph graph_from_data_frame E betweenness degree
-#' @importFrom ggraph create_layout
-#' @importFrom dplyr mutate arrange desc
 #'
-computeMapTopology <- function(nodeAttributes, network, verbose = TRUE) {
-  
+computeMapTopology <- function(nodeAttributes, network, verbose=TRUE) {
   if (verbose) {
     message("Computing map topology (layout and centrality)...")
   }
@@ -74,37 +70,41 @@ computeMapTopology <- function(nodeAttributes, network, verbose = TRUE) {
     # Return a dataframe with the right columns but no data
     return(
       nodeAttributes %>%
-        mutate(x = NA_real_, y = NA_real_,
-               betweenness = NA_real_, degree = NA_integer_)
+        dplyr::mutate(
+          x = NA_real_, y = NA_real_,
+          betweenness = NA_real_, degree = NA_integer_
+        )
     )
   }
   
   # Create the graph object, ensuring the node ID column is correctly identified
   # igraph uses the first column of the vertices df as the name by default.
   # Assuming the first column of nodeAttributes holds the complex IDs.
-  graphObj <- graph_from_data_frame(
-    d = network, vertices = nodeAttributes, directed = FALSE
+  graphObj <- igraph::graph_from_data_frame(
+    d=network, vertices=nodeAttributes, directed=FALSE
   )
   
   # 1. Compute the force-directed layout
-  layoutData <- create_layout(graphObj, layout = 'fr', weights = E(graphObj)$weight)
+  layoutData <- ggraph::create_layout(
+    graphObj, layout='fr', weights=igraph::E(graphObj)$weight
+  )
   
   # 2. Compute centrality metrics
-  betweennessScores <- betweenness(graphObj, normalized = TRUE)
-  degreeScores <- degree(graphObj)
+  betweennessScores <- igraph::betweenness(graphObj, normalized=TRUE)
+  degreeScores <- igraph::degree(graphObj)
   
   # 3. Combine everything into the final master dataframe
   # The first column of nodeAttributes must be the complex_id for this to work
   idColName <- names(nodeAttributes)[1]
   
   masterLayoutDf <- nodeAttributes %>%
-    mutate(
+    dplyr::mutate(
       x = layoutData$x,
       y = layoutData$y,
-      betweenness = betweennessScores[!!rlang::sym(idColName)], # Match by name
+      betweenness = betweennessScores[!!rlang::sym(idColName)],
       degree = degreeScores[!!rlang::sym(idColName)]
     ) %>%
-    arrange(desc(betweenness), desc(degree))
+    dplyr::arrange(dplyr::desc(betweenness), dplyr::desc(degree))
   
   if (verbose) {
     message("Topology computation complete.")

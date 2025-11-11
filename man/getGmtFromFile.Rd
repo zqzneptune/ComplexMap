@@ -4,10 +4,12 @@
 \alias{getGmtFromFile}
 \title{Read a GMT File from a Local Path}
 \usage{
-getGmtFromFile(filepath)
+getGmtFromFile(filepath, verbose = TRUE)
 }
 \arguments{
 \item{filepath}{The path to the local .gmt file.}
+
+\item{verbose}{A logical value indicating whether to print progress messages.}
 }
 \value{
 A named list where names are gene set names and values are character

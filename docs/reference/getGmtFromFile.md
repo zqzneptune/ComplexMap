@@ -6,7 +6,7 @@ named-list format.
 ## Usage
 
 ``` r
-getGmtFromFile(filepath)
+getGmtFromFile(filepath, verbose = TRUE)
 ```
 
 ## Arguments
@@ -14,6 +14,10 @@ getGmtFromFile(filepath)
 - filepath:
 
   The path to the local .gmt file.
+
+- verbose:
+
+  A logical value indicating whether to print progress messages.
 
 ## Value
 

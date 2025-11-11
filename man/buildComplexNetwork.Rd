@@ -7,7 +7,7 @@
 buildComplexNetwork(
   complexes,
   enrichments,
-  mode = "functional",
+  mode = "combined",
   similarityMethod = "jaccard",
   alpha = 0.5,
   nCores = NULL,
@@ -41,8 +41,8 @@ and a progress bar.}
 }
 \value{
 A `tibble` representing the network edges. Each row includes the source
-and target_complex_id  complexes, their similarity scores, shared component counts,
-the final calculated `weight`, and the `similarity_mode`.
+and target_complex_id complexes, their similarity scores, shared component
+counts, the final calculated `weight`, and the `similarity_mode`.
 }
 \description{
 Constructs a network of complexes where edges represent similarity. The

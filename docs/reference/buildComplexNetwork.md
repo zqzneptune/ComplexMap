@@ -10,7 +10,7 @@ functional annotations (functional), or a weighted combination of both.
 buildComplexNetwork(
   complexes,
   enrichments,
-  mode = "functional",
+  mode = "combined",
   similarityMethod = "jaccard",
   alpha = 0.5,
   nCores = NULL,

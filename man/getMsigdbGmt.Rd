@@ -4,12 +4,14 @@
 \alias{getMsigdbGmt}
 \title{Fetch Gene Sets from MSigDB}
 \usage{
-getMsigdbGmt(species = "Homo sapiens", collection = "H")
+getMsigdbGmt(species = "Homo sapiens", collection = "H", verbose = TRUE)
 }
 \arguments{
 \item{species}{The scientific name for the species (e.g., "Homo sapiens").}
 
 \item{collection}{The MSigDB collection code (e.g., "H" for hallmark).}
+
+\item{verbose}{A logical value indicating whether to print progress messages.}
 }
 \value{
 A named list where names are gene set names and values are character

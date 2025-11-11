@@ -6,7 +6,7 @@ a named list (GMT format).
 ## Usage
 
 ``` r
-getMsigdbGmt(species = "Homo sapiens", collection = "H")
+getMsigdbGmt(species = "Homo sapiens", collection = "H", verbose = TRUE)
 ```
 
 ## Arguments
@@ -18,6 +18,10 @@ getMsigdbGmt(species = "Homo sapiens", collection = "H")
 - collection:
 
   The MSigDB collection code (e.g., "H" for hallmark).
+
+- verbose:
+
+  A logical value indicating whether to print progress messages.
 
 ## Value
 

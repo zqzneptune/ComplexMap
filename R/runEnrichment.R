@@ -52,17 +52,12 @@ utils::globalVariables(c("Term", "Count", "Ratio", "Fold"))
 #' print(enrichment)
 #'
 #' @export
-#' @importFrom dplyr filter all_of
-#' @importFrom rlang sym
-#' @importFrom magrittr %>%
-#' @importFrom stats phyper p.adjust
 #'
 runComplexEnrichment <- function(complexList,
                                  gmt,
-                                 pAdjustMethod = "Benjamini",
-                                 pValueCutoff = 0.05,
-                                 verbose = TRUE) {
-  
+                                 pAdjustMethod="Benjamini",
+                                 pValueCutoff=0.05,
+                                 verbose=TRUE) {
   if (verbose) {
     message(
       sprintf("Running enrichment for %d complexes...", length(complexList))
@@ -73,31 +68,24 @@ runComplexEnrichment <- function(complexList,
   
   for (complexId in names(complexList)) {
     complexGenes <- complexList[[complexId]]
-    
-    # Use the internal helper function for the core calculation
-    result <- .runHypergeometricTest(geneSet = complexGenes, gmt = gmt)
+    result <- .runHypergeometricTest(geneSet=complexGenes, gmt=gmt)
     
     if (!is.null(result) && nrow(result) > 0) {
-      # Check if the chosen p-adjust method exists as a column
       validMethods <- c("Benjamini", "Bonferroni", "FDR")
       if (!pAdjustMethod %in% validMethods) {
-        stop(
-          sprintf("pAdjustMethod '%s' not found. Choose one of: %s",
-                  pAdjustMethod, paste(validMethods, collapse = ", "))
-        )
+        stop(sprintf("pAdjustMethod '%s' not found. Choose from: %s",
+                     pAdjustMethod, paste(validMethods, collapse=", ")))
       }
       
-      # Filter for significant results using dplyr and NSE
       significantResult <- result %>%
-        filter(!!sym(pAdjustMethod) < pValueCutoff)
+        dplyr::filter(!!rlang::sym(pAdjustMethod) < pValueCutoff)
       
       if (nrow(significantResult) > 0) {
-        # Select and rename columns for a clean output format
         enrichmentResults[[complexId]] <- significantResult %>%
           dplyr::select(
             ID = Term,
             Description = Term,
-            p.adjust = all_of(pAdjustMethod),
+            p.adjust = dplyr::all_of(pAdjustMethod),
             Count,
             Ratio,
             Fold
@@ -115,46 +103,34 @@ runComplexEnrichment <- function(complexList,
   return(enrichmentResults)
 }
 
-# Internal helper to perform a hypergeometric test for one gene set.
-# Not exported.
-#
-# @param geneSet A character vector of genes in the query set (e.g., complex).
-# @param gmt A named list representing the gene set universe.
-# @return A data.frame with raw enrichment statistics, or NULL.
+#' @keywords internal
+#' @noRd
 .runHypergeometricTest <- function(geneSet, gmt) {
-  
-  gsUniverse <- unique.default(unlist(gmt, use.names = FALSE))
+  gsUniverse <- unique.default(unlist(gmt, use.names=FALSE))
   popTotal <- length(gsUniverse)
   listTotal <- length(intersect(geneSet, gsUniverse))
   
-  if (listTotal == 0) {
-    return(NULL) # No overlap between the complex and the universe
-  }
+  if (listTotal == 0) return(NULL)
   
-  # Filter GMT to include only terms with at least one overlapping gene
-  hasOverlap <- vapply(gmt,
-                       function(termGenes) length(intersect(termGenes, geneSet)) > 0,
-                       logical(1)
+  hasOverlap <- vapply(
+    gmt,
+    function(termGenes) length(intersect(termGenes, geneSet)) > 0,
+    logical(1)
   )
   gmtFiltered <- gmt[hasOverlap]
   
-  if (length(gmtFiltered) == 0) {
-    return(NULL) # No gene sets found with overlapping genes
-  }
+  if (length(gmtFiltered) == 0) return(NULL)
   
-  # Calculate enrichment statistics using vectorized operations
-  popHits <- lengths(gmtFiltered) # Size of each term in the universe
-  count <- lengths(lapply(gmtFiltered, intersect, geneSet)) # Overlap size
+  popHits <- lengths(gmtFiltered)
+  count <- lengths(lapply(gmtFiltered, intersect, geneSet))
   ratio <- count / listTotal
   fold <- (count / listTotal) / (popHits / popTotal)
   
-  # Hypergeometric test p-value: P(X >= count)
-  pValue <- phyper(
-    count - 1, popHits, popTotal - popHits, listTotal, lower.tail = FALSE
+  pValue <- stats::phyper(
+    count - 1, popHits, popTotal - popHits, listTotal, lower.tail=FALSE
   )
   
-  # Pre-calculate all common adjusted p-values
-  df <- data.frame(
+  data.frame(
     Term = names(gmtFiltered),
     Count = count,
     Ratio = ratio,
@@ -163,11 +139,10 @@ runComplexEnrichment <- function(complexList,
     ListTotal = listTotal,
     PopHits = popHits,
     PopTotal = popTotal,
-    Benjamini = p.adjust(pValue, method = "BH"),
-    Bonferroni = p.adjust(pValue, method = "bonferroni"),
-    FDR = p.adjust(pValue, method = "fdr"),
+    Benjamini = stats::p.adjust(pValue, method="BH"),
+    Bonferroni = stats::p.adjust(pValue, method="bonferroni"),
+    FDR = stats::p.adjust(pValue, method="fdr"),
     stringsAsFactors = FALSE,
     row.names = NULL
   )
-  return(df)
 }

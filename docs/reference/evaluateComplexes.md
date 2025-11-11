@@ -50,17 +50,28 @@ calculations.
 
 \- \*\*PPV, Sn, and Acc\*\* are calculated based on the confusion matrix
 between predicted and reference complexes, as described in the
-literature. - \*\*MMR\*\* is calculated by first deriving an overlap
-score matrix, where each entry \`(i, j)\` is \`\|intersection_ij\|^2 /
-(\|pred_i\| \* \|ref_j\|)\`. The \[Hungarian
+literature (e.g., Zhang et al., 2012).
+
+\- \*\*MMR\*\* is calculated by first deriving an overlap score matrix,
+where the score for a predicted complex (P) and a reference complex (R)
+is \`\|P ∩ R\|² / (\|P\| \* \|R\|)\`. The \[Hungarian
 algorithm\](https://en.wikipedia.org/wiki/Hungarian_algorithm) is then
-used to solve the maximum weight bipartite matching problem, finding the
-optimal one-to-one mapping between predicted and reference sets.
+used to solve the maximum weight bipartite matching problem. This
+approach is based on the method described by Nepusz et al. (2012).
 
 The parallel computation uses \`parallel::mclapply\`, which is not
 available on Windows. On Windows, the calculation will run sequentially.
-For cross-platform parallel execution in a package, consider using the
-\`BiocParallel\` package.
+
+## References
+
+Nepusz, T., Yu, H. & Paccanaro, A. (2012). Detecting overlapping protein
+complexes in protein-protein interaction networks. \*Nature Methods\*,
+9, 471–472. [doi:10.1038/nmeth.1938](https://doi.org/10.1038/nmeth.1938)
+
+Zhang XF, Dai DQ, Ou-Yang L, Wu MY (2012). Exploring Overlapping
+Functional Units with Various Structure in Protein Interaction Networks.
+\*PLOS ONE\*, 7(8): e43092.
+[doi:10.1371/journal.pone.0043092](https://doi.org/10.1371/journal.pone.0043092)
 
 ## Author
 

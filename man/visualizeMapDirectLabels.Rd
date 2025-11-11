@@ -12,14 +12,14 @@ visualizeMapDirectLabels(
   bgColor = "black",
   edgeColor = "white",
   nodeSizeRange = c(2, 10),
-  labelFillColor = alpha("white", 0.7),
+  labelFillColor = ggplot2::alpha("white", 0.7),
   fontFamily = "sans",
   verbose = TRUE
 )
 }
 \arguments{
-\item{layoutDf}{A data frame containing node attributes and layout coordinates,
-typically from `computeMapTopology`.}
+\item{layoutDf}{A data frame containing node attributes and layout
+coordinates, typically from `computeMapTopology`.}
 
 \item{edgesDf}{A data frame containing the network edges.}
 
@@ -48,10 +48,10 @@ Creates a static visualization of the complex network using `ggraph`, where
 functional domain labels are placed directly on the plot near the nodes.
 }
 \details{
-This function is designed for clarity when domains are distinct. For large, dense
-domains (more than 2 complexes), a single label is placed at the domain's
-centroid. For smaller domains, each complex is labeled individually. It uses
-the pre-computed layout from `computeMapTopology`.
+This function is designed for clarity when domains are distinct. For large,
+dense domains (more than 2 complexes), a single label is placed at the
+domain's centroid. For smaller domains, each complex is labeled
+individually. It uses the pre-computed layout from `computeMapTopology`.
 }
 \examples{
 # --- Sample Data ---
@@ -60,7 +60,9 @@ nodes <- tibble::tibble(
   primaryFunctionalDomain = c("DNA Repair", "DNA Repair", "Metabolism"),
   sizeMapping = c(3, 4, 3.5), colorHex = c("#FF0000", "#FF0000", "#0000FF")
 )
-edges <- tibble::tibble(source_complex_id = "C1", target_complex_id = "C2", weight = 0.8)
+edges <- tibble::tibble(
+  source_complex_id = "C1", target_complex_id = "C2", weight = 0.8
+)
 
 # --- Generate Plot ---
 if (requireNamespace("ggrepel", quietly = TRUE)) {

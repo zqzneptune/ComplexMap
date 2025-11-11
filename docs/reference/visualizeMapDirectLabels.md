@@ -15,7 +15,7 @@ visualizeMapDirectLabels(
   bgColor = "black",
   edgeColor = "white",
   nodeSizeRange = c(2, 10),
-  labelFillColor = alpha("white", 0.7),
+  labelFillColor = ggplot2::alpha("white", 0.7),
   fontFamily = "sans",
   verbose = TRUE
 )
@@ -89,7 +89,9 @@ nodes <- tibble::tibble(
   primaryFunctionalDomain = c("DNA Repair", "DNA Repair", "Metabolism"),
   sizeMapping = c(3, 4, 3.5), colorHex = c("#FF0000", "#FF0000", "#0000FF")
 )
-edges <- tibble::tibble(source_complex_id = "C1", target_complex_id = "C2", weight = 0.8)
+edges <- tibble::tibble(
+  source_complex_id = "C1", target_complex_id = "C2", weight = 0.8
+)
 
 # --- Generate Plot ---
 if (requireNamespace("ggrepel", quietly = TRUE)) {

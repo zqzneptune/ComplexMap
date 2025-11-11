@@ -18,8 +18,8 @@ visualizeMapWithLegend(
 )
 }
 \arguments{
-\item{layoutDf}{A data frame containing node attributes and layout coordinates,
-typically from `computeMapTopology`.}
+\item{layoutDf}{A data frame containing node attributes and layout
+coordinates, typically from `computeMapTopology`.}
 
 \item{edgesDf}{A data frame containing the network edges.}
 
@@ -48,9 +48,9 @@ Creates a static visualization of the complex network using `ggraph`, where
 functional domains are represented by a discrete color scale in a legend.
 }
 \details{
-This plot is useful for overviews where direct labels would be too cluttered.
-It maps the `primaryFunctionalDomain` to node color and displays a legend.
-It uses the pre-computed layout from `computeMapTopology`.
+This plot is useful for overviews where direct labels would be too
+cluttered. It maps the `primaryFunctionalDomain` to node color and displays
+a legend. It uses the pre-computed layout from `computeMapTopology`.
 }
 \examples{
 # --- Sample Data ---
@@ -59,7 +59,9 @@ nodes <- tibble::tibble(
   primaryFunctionalDomain = c("DNA Repair", "DNA Repair", "Unenriched"),
   sizeMapping = c(3, 4, 3.5), colorHex = c("#FF0000", "#FF0000", "#CCCCCC")
 )
-edges <- tibble::tibble(source_complex_id = "C1", target_complex_id = "C2", weight = 0.8)
+edges <- tibble::tibble(
+  source_complex_id = "C1", target_complex_id = "C2", weight = 0.8
+)
 
 # --- Generate Plot ---
 visualizeMapWithLegend(nodes, edges)

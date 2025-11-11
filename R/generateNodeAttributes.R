@@ -1,4 +1,4 @@
-utils::globalVariables(c("domainId", "Description", "p.adjust", "complexId", 
+utils::globalVariables(c("domainId", "Description", "p.adjust", "complexId",
                          "primaryFunctionalDomain", "topEnrichedFunctions",
                          "colorHex", "proteinCount"))
 #' Generate Node Attributes for a Complex Network
@@ -60,17 +60,10 @@ utils::globalVariables(c("domainId", "Description", "p.adjust", "complexId",
 #' print(nodeAttrs)
 #'
 #' @export
-#' @importFrom dplyr bind_rows left_join group_by summarise mutate group_map coalesce
-#' @importFrom tibble tibble
-#' @importFrom stats hclust as.dist cutree setNames
-#' @importFrom grDevices colorRampPalette col2rgb rgb
-#' @importFrom RColorBrewer brewer.pal
-#' @importFrom utils head
 #'
 generateNodeAttributes <- function(complexes, enrichments,
-                                   similarityMethod = "jaccard",
-                                   verbose = TRUE) {
-  
+                                   similarityMethod="jaccard",
+                                   verbose=TRUE) {
   if (verbose) {
     message("Generating core node attributes (function and color)...")
     message(
@@ -79,16 +72,17 @@ generateNodeAttributes <- function(complexes, enrichments,
     )
   }
   
-  allTermsDf <- bind_rows(enrichments, .id = "complexId")
+  allTermsDf <- dplyr::bind_rows(enrichments, .id="complexId")
   
   # Handle case with no enriched terms across all complexes
   if (nrow(allTermsDf) == 0) {
     if (verbose) message("No enriched terms found; returning basic attributes.")
+    proteinStr <- vapply(complexes, paste, collapse=",", FUN.VALUE=character(1))
     return(
-      tibble(
+      tibble::tibble(
         complexId = names(complexes),
         proteinCount = lengths(complexes),
-        proteins = vapply(complexes, paste, collapse = ",", FUN.VALUE = character(1)),
+        proteins = proteinStr,
         primaryFunctionalDomain = "Unenriched",
         topEnrichedFunctions = NA_character_,
         colorHex = "#CCCCCC",
@@ -100,108 +94,122 @@ generateNodeAttributes <- function(complexes, enrichments,
   # --- 1. Cluster functional terms into domains ---
   enrichedComplexIds <- names(enrichments)
   allTerms <- unique(allTermsDf$ID)
-  termComplexMatrix <- matrix(0L, nrow = length(allTerms), ncol = length(enrichedComplexIds),
-                              dimnames = list(allTerms, enrichedComplexIds))
+  termComplexMatrix <- matrix(
+    0L, nrow=length(allTerms), ncol=length(enrichedComplexIds),
+    dimnames=list(allTerms, enrichedComplexIds)
+  )
   
   # Efficiently populate the binary term-complex matrix
   idsList <- lapply(enrichments, function(x) x$ID)
-  termIdx <- match(unlist(idsList, use.names = FALSE), allTerms)
+  termIdx <- match(unlist(idsList, use.names=FALSE), allTerms)
   countsPerComplex <- lengths(idsList)
-  complexIdx <- rep(seq_along(enrichedComplexIds), times = countsPerComplex)
+  complexIdx <- rep(seq_along(enrichedComplexIds), times=countsPerComplex)
   if (length(termIdx) > 0) termComplexMatrix[cbind(termIdx, complexIdx)] <- 1L
   
   if (nrow(termComplexMatrix) > 1) {
-    # The philentropy package must be installed for this to work
-    if (!requireNamespace("philentropy", quietly = TRUE)) {
-      stop("Package 'philentropy' is required for term clustering.", call. = FALSE)
+    if (!requireNamespace("philentropy", quietly=TRUE)) {
+      stop("Package 'philentropy' is required for term clustering.",
+           call.=FALSE)
     }
-    distMatrix <- philentropy::distance(termComplexMatrix, method = similarityMethod, use.row.names = TRUE)
+    distMatrix <- philentropy::distance(
+      termComplexMatrix, method=similarityMethod, use.row.names=TRUE
+    )
     
     # Check if there is more than one unique row to cluster
     if (nrow(distMatrix) > 1 && any(distMatrix[lower.tri(distMatrix)] > 0)) {
-      hc <- hclust(as.dist(distMatrix), method = "average")
+      hc <- stats::hclust(stats::as.dist(distMatrix), method="average")
       numDomains <- min(15, nrow(distMatrix))
-      termDomains <- cutree(hc, k = numDomains)
+      termDomains <- stats::cutree(hc, k=numDomains)
     } else {
-      # Not enough data to cluster, assign each term to its own domain
       numDomains <- nrow(termComplexMatrix)
-      termDomains <- setNames(seq_len(numDomains), rownames(termComplexMatrix))
+      termDomains <- stats::setNames(
+        seq_len(numDomains), rownames(termComplexMatrix)
+      )
     }
   } else {
     numDomains <- 1
-    termDomains <- setNames(1, rownames(termComplexMatrix))
+    termDomains <- stats::setNames(1, rownames(termComplexMatrix))
   }
   
-  termToDomainMap <- tibble(term = names(termDomains), domainId = termDomains)
+  termToDomainMap <- tibble::tibble(term=names(termDomains), domainId=termDomains)
   
   # --- 2. Create domain labels and color palette ---
   domainLabels <- allTermsDf %>%
-    left_join(termToDomainMap, by = c("ID" = "term")) %>%
-    group_by(domainId) %>%
-    summarise(
-      domainLabel = if (any(!is.na(Description))) Description[1] else NA_character_,
-      .groups = "drop"
+    dplyr::left_join(termToDomainMap, by=c("ID"="term")) %>%
+    dplyr::group_by(domainId) %>%
+    dplyr::summarise(
+      domainLabel=if (any(!is.na(Description))) Description[1] else NA_character_,
+      .groups="drop"
     )
   
-  # Generate exactly numDomains colors
-  basePalette <- brewer.pal(n = 9, name = "Set1") # Get a base set of colors
+  basePalette <- RColorBrewer::brewer.pal(n=9, name="Set1")
   if (numDomains > length(basePalette)) {
-    palette <- colorRampPalette(basePalette)(numDomains)
+    palette <- grDevices::colorRampPalette(basePalette)(numDomains)
   } else {
     palette <- basePalette[seq_len(numDomains)]
   }
-  domainColors <- tibble(domainId = seq_len(numDomains), baseColor = palette) %>%
-    left_join(domainLabels, by = "domainId")
+  domainColors <- tibble::tibble(
+    domainId = seq_len(numDomains), baseColor = palette
+  ) %>%
+    dplyr::left_join(domainLabels, by="domainId")
   
-  # --- 3. Calculate per-complex attributes (primary domain, blended color) ---
-  allEnrichDf <- bind_rows(
+  # --- 3. Calculate per-complex attributes ---
+  allEnrichDf <- dplyr::bind_rows(
     lapply(names(enrichments), function(cid) {
       df <- enrichments[[cid]]
-      # Ensure p.adjust column exists to prevent errors
       if (!"p.adjust" %in% names(df)) df$p.adjust <- NA_real_
-      df %>% mutate(complexId = cid, score = -log10(p.adjust))
+      df %>% dplyr::mutate(complexId=cid, score=-log10(p.adjust))
     })
   ) %>%
-    left_join(termToDomainMap, by = c("ID" = "term")) %>%
-    left_join(domainColors, by = "domainId")
+    dplyr::left_join(termToDomainMap, by=c("ID"="term")) %>%
+    dplyr::left_join(domainColors, by="domainId")
   
   complexSummary <- allEnrichDf %>%
-    group_by(complexId) %>%
-    group_map(.keep = TRUE, .f = function(df, key) {
-      # Determine primary domain and top functions
-      primary <- if (nrow(df) > 0 && any(!is.na(df$score))) df$domainLabel[which.max(df$score)][1] else NA_character_
-      topFunc <- if (nrow(df) > 0 && "Description" %in% names(df)) paste(head(df$Description[order(df$p.adjust)], 3), collapse = ", ") else NA_character_
+    dplyr::group_by(complexId) %>%
+    dplyr::group_map(.keep=TRUE, .f=function(df, key) {
+      primary <- if (nrow(df) > 0 && any(!is.na(df$score))) {
+        df$domainLabel[which.max(df$score)][1]
+      } else NA_character_
+      topFuncs <- if (nrow(df) > 0 && "Description" %in% names(df)) {
+        paste(utils::head(df$Description[order(df$p.adjust)], 3),
+              collapse=", ")
+      } else NA_character_
       
-      # Calculate blended color based on weighted scores
-      colorHex <- "#CCCCCC" # Default for unenriched
+      colorHex <- "#CCCCCC"
       valid <- !is.na(df$baseColor) & !is.na(df$score) & is.finite(df$score)
-      if (any(valid) && sum(df$score[valid], na.rm = TRUE) > 0) {
-        rgbMat <- t(col2rgb(df$baseColor[valid, drop = TRUE]))
-        weights <- df$score[valid] / sum(df$score[valid], na.rm = TRUE)
-        rgbVal <- colSums(rgbMat * weights, na.rm = TRUE)
-        colorHex <- rgb(rgbVal[1], rgbVal[2], rgbVal[3], maxColorValue = 255)
+      if (any(valid) && sum(df$score[valid], na.rm=TRUE) > 0) {
+        rgbMat <- t(grDevices::col2rgb(df$baseColor[valid, drop=TRUE]))
+        weights <- df$score[valid] / sum(df$score[valid], na.rm=TRUE)
+        rgbVal <- colSums(rgbMat * weights, na.rm=TRUE)
+        colorHex <- grDevices::rgb(
+          rgbVal[1], rgbVal[2], rgbVal[3], maxColorValue=255
+        )
       }
-      tibble(
+      tibble::tibble(
         complexId = unique(df$complexId),
         primaryFunctionalDomain = as.character(primary),
-        topEnrichedFunctions = as.character(topFunc),
+        topEnrichedFunctions = as.character(topFuncs),
         colorHex = colorHex
       )
-    }) %>% bind_rows()
+    }) %>% dplyr::bind_rows()
   
   # --- 4. Combine with base attributes and finalize ---
-  complexMeta <- tibble(
+  complexMeta <- tibble::tibble(
     complexId = names(complexes),
     proteinCount = lengths(complexes),
-    proteins = vapply(complexes, paste, collapse = ",", FUN.VALUE = character(1))
+    proteins = vapply(complexes, paste, collapse=",", FUN.VALUE=character(1))
   )
   
   finalDf <- complexMeta %>%
-    left_join(complexSummary, by = "complexId") %>%
-    mutate(
-      primaryFunctionalDomain = coalesce(primaryFunctionalDomain, "Unenriched"),
-      topEnrichedFunctions = coalesce(topEnrichedFunctions, NA_character_),
-      colorHex = coalesce(colorHex, "#CCCCCC"),
+    dplyr::left_join(complexSummary, by="complexId") %>%
+    dplyr::mutate(
+      primaryFunctionalDomain = dplyr::coalesce(
+        primaryFunctionalDomain, "Unenriched"
+      ),
+      topEnrichedFunctions = dplyr::coalesce(
+        topEnrichedFunctions, NA_character_
+      ),
+      colorHex = dplyr::coalesce(colorHex, "#CCCCCC"),
       sizeMapping = log2(pmax(1, proteinCount))
     )
   

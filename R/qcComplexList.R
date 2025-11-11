@@ -48,11 +48,9 @@
 #' qcComplexList(sampleList)
 #'
 #' @export
-#' @importFrom Matrix sparseMatrix t
-#' @importFrom utils capture.output
 #'
-qcComplexList <- function(complexList, redundancyThreshold = 0.8,
-                          verbose = TRUE) {
+qcComplexList <- function(complexList, redundancyThreshold=0.8,
+                          verbose=TRUE) {
   
   if (verbose) {
     message("\n--- Running Quality Control on Complex List ---")
@@ -65,7 +63,7 @@ qcComplexList <- function(complexList, redundancyThreshold = 0.8,
     return(invisible(complexList))
   }
   
-  allProteins <- unique.default(unlist(complexList, use.names = FALSE))
+  allProteins <- unique.default(unlist(complexList, use.names=FALSE))
   numProteins <- length(allProteins)
   complexSizes <- lengths(complexList)
   
@@ -75,8 +73,7 @@ qcComplexList <- function(complexList, redundancyThreshold = 0.8,
     message(sprintf("    - Total number of unique proteins: %d",
                     numProteins))
     message("\n[2] Complex Size Distribution:")
-    # Format summary output into a message
-    summaryStats <- capture.output(summary(complexSizes))
+    summaryStats <- utils::capture.output(summary(complexSizes))
     for (line in summaryStats) {
       message("    ", line)
     }
@@ -89,46 +86,37 @@ qcComplexList <- function(complexList, redundancyThreshold = 0.8,
     )
   }
   
-  if (verbose) {
-    message("\n[3] Redundancy Analysis:")
-  }
+  if (verbose) message("\n[3] Redundancy Analysis:")
   
   if (numComplexes < 2) {
-    if (verbose) {
-      message("    - Skipping: not enough complexes to analyze.")
-    }
+    if (verbose) message("    - Skipping: not enough complexes to analyze.")
   } else {
-    # Efficiently create a sparse binary membership matrix
-    proteinIndex <- setNames(seq_along(allProteins), allProteins)
-    i_indices <- rep(seq_along(complexList), times = complexSizes)
-    j_indices <- proteinIndex[unlist(complexList, use.names = FALSE)]
+    proteinIndex <- stats::setNames(seq_along(allProteins), allProteins)
+    i_indices <- rep(seq_along(complexList), times=complexSizes)
+    j_indices <- proteinIndex[unlist(complexList, use.names=FALSE)]
     
-    membershipMatrix <- sparseMatrix(
-      i = i_indices,
-      j = j_indices,
-      x = 1,
-      dims = c(numComplexes, numProteins)
+    membershipMatrix <- Matrix::sparseMatrix(
+      i=i_indices, j=j_indices, x=1,
+      dims=c(numComplexes, numProteins)
     )
     
-    # Compute intersection and union using matrix operations
-    intersectionMatrix <- membershipMatrix %*% t(membershipMatrix)
+    intersectionMatrix <- membershipMatrix %*% Matrix::t(membershipMatrix)
     sizeSumMatrix <- outer(complexSizes, complexSizes, "+")
     unionMatrix <- sizeSumMatrix - intersectionMatrix
     
-    # Calculate Jaccard matrix and extract unique pairwise scores
     jaccardMatrix <- intersectionMatrix / unionMatrix
     diag(jaccardMatrix) <- 0
     simScores <- jaccardMatrix[upper.tri(jaccardMatrix)]
     
     if (verbose) {
       message("    - Distribution of Jaccard similarity scores:")
-      summaryStats <- capture.output(summary(simScores))
+      summaryStats <- utils::capture.output(summary(simScores))
       for (line in summaryStats) {
         message("    ", line)
       }
     }
     
-    numRedundant <- sum(simScores >= redundancyThreshold, na.rm = TRUE)
+    numRedundant <- sum(simScores >= redundancyThreshold, na.rm=TRUE)
     if (numRedundant > 0) {
       nPairs <- length(simScores)
       percentRedundant <- (numRedundant / nPairs) * 100
@@ -144,8 +132,6 @@ qcComplexList <- function(complexList, redundancyThreshold = 0.8,
     }
   }
   
-  if (verbose) {
-    message("\n--- QC Complete ---\n")
-  }
+  if (verbose) message("\n--- QC Complete ---\n")
   return(invisible(complexList))
 }

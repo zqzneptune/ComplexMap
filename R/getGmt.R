@@ -1,4 +1,4 @@
-utils::globalVariables(c("ONTOLOGY", "ENTREZID", "TERM", 
+utils::globalVariables(c("ONTOLOGY", "ENTREZID", "TERM",
                          "gs_name", "gene_symbol"))
 #' Fetch Gene Sets from MSigDB
 #'
@@ -7,21 +7,22 @@ utils::globalVariables(c("ONTOLOGY", "ENTREZID", "TERM",
 #'
 #' @param species The scientific name for the species (e.g., "Homo sapiens").
 #' @param collection The MSigDB collection code (e.g., "H" for hallmark).
+#' @param verbose A logical value indicating whether to print progress messages.
 #'
 #' @return A named list where names are gene set names and values are character
 #'   vectors of gene symbols.
 #'
 #' @export
-#' @importFrom msigdbr msigdbr
-#' @importFrom dplyr group_by summarise
-#' @importFrom tibble deframe
 #'
-getMsigdbGmt <- function(species = "Homo sapiens", collection = "H") {
-  message("Fetching MSigDB sets (Species: ", species, ", Cat: ", collection, ")")
-  msigdbr(species = species, collection = collection) %>%
-    group_by(gs_name) %>%
-    summarise(genes = list(gene_symbol), .groups = 'drop') %>%
-    deframe()
+getMsigdbGmt <- function(species="Homo sapiens", collection="H", verbose=TRUE) {
+  if (verbose) {
+    message("Fetching MSigDB sets (Species: ", species,
+            ", Cat: ", collection, ")")
+  }
+  msigdbr::msigdbr(species=species, collection=collection) %>%
+    dplyr::group_by(gs_name) %>%
+    dplyr::summarise(genes=list(gene_symbol), .groups='drop') %>%
+    tibble::deframe()
 }
 
 #' Read a GMT File from a Local Path
@@ -30,20 +31,20 @@ getMsigdbGmt <- function(species = "Homo sapiens", collection = "H") {
 #' standard named-list format.
 #'
 #' @param filepath The path to the local .gmt file.
+#' @param verbose A logical value indicating whether to print progress messages.
 #'
 #' @return A named list where names are gene set names and values are character
 #'   vectors of genes.
 #'
 #' @export
 #'
-getGmtFromFile <- function(filepath) {
-  message("Fetching gene sets from local file: ", filepath)
+getGmtFromFile <- function(filepath, verbose=TRUE) {
+  if (verbose) message("Fetching gene sets from local file: ", filepath)
   gmtLines <- readLines(filepath)
   gmtList <- lapply(gmtLines, function(line) {
     parts <- strsplit(line, "\t")[[1]]
-    # The first two elements are name/description, the rest are genes
     genes <- parts[-c(1, 2)]
-    return(genes[genes != ""]) # Return non-empty gene symbols
+    return(genes[genes != ""])
   })
   names(gmtList) <- vapply(gmtLines, function(line) {
     strsplit(line, "\t")[[1]][1]
@@ -61,39 +62,45 @@ getGmtFromFile <- function(filepath) {
 #' @param ontology The GO ontology to fetch. One of "BP", "MF", or "CC".
 #' @param minGmtSize The minimum number of genes for a GO term to be included.
 #' @param maxGmtSize The maximum number of genes for a GO term to be included.
+#' @param verbose A logical value indicating whether to print progress messages.
 #'
 #' @return A named list where names are GO terms and values are character
 #'   vectors of Entrez IDs.
 #'
 #' @export
-#' @importFrom AnnotationDbi keys
 #'
-getGoGmt <- function(speciesDb, ontology = "BP", minGmtSize = 10,
-                     maxGmtSize = 500) {
-  message("Fetching GO (", ontology, ") gene sets from Bioconductor...")
-  go_to_entrez <- AnnotationDbi::select(speciesDb,
-                                        keys = keys(speciesDb, keytype = "GO"),
-                                        columns = c("ENTREZID", "ONTOLOGY"), keytype = "GO") %>%
-    filter(ONTOLOGY == ontology)
+getGoGmt <- function(speciesDb, ontology="BP", minGmtSize=10,
+                     maxGmtSize=500, verbose=TRUE) {
+  if (verbose) {
+    message("Fetching GO (", ontology, ") gene sets from Bioconductor...")
+  }
+  goKeys <- AnnotationDbi::keys(speciesDb, keytype="GO")
+  go_to_entrez <- AnnotationDbi::select(
+    speciesDb, keys=goKeys, columns=c("ENTREZID", "ONTOLOGY"), keytype="GO"
+  ) %>%
+    dplyr::filter(ONTOLOGY == ontology)
   
-  go_to_term <- AnnotationDbi::select(GO.db::GO.db,
-                                      keys = unique(go_to_entrez$GO),
-                                      columns = "TERM", keytype = "GOID")
+  go_to_term <- AnnotationDbi::select(
+    GO.db::GO.db, keys=unique(go_to_entrez$GO),
+    columns="TERM", keytype="GOID"
+  )
   
   gmtUnfiltered <- go_to_entrez %>%
-    left_join(go_to_term, by = c("GO" = "GOID")) %>%
-    filter(!is.na(ENTREZID) & !is.na(TERM)) %>%
-    group_by(TERM) %>%
-    summarise(genes = list(unique(ENTREZID)), .groups = 'drop') %>%
-    deframe()
+    dplyr::left_join(go_to_term, by=c("GO"="GOID")) %>%
+    dplyr::filter(!is.na(ENTREZID) & !is.na(TERM)) %>%
+    dplyr::group_by(TERM) %>%
+    dplyr::summarise(genes=list(unique(ENTREZID)), .groups='drop') %>%
+    tibble::deframe()
   
   gmtFiltered <- Filter(function(genes) {
     num_genes <- length(genes)
     num_genes >= minGmtSize && num_genes <= maxGmtSize
   }, gmtUnfiltered)
   
-  message("Retained ", length(gmtFiltered), " GO terms (size ",
-          minGmtSize, "-", maxGmtSize, ") out of ", length(gmtUnfiltered))
+  if (verbose) {
+    message("Retained ", length(gmtFiltered), " GO terms (size ",
+            minGmtSize, "-", maxGmtSize, ") out of ", length(gmtUnfiltered))
+  }
   return(gmtFiltered)
 }
 
@@ -104,15 +111,17 @@ getGoGmt <- function(speciesDb, ontology = "BP", minGmtSize = 10,
 #'
 #' @param speciesDb An AnnotationDb object for the target species (e.g.,
 #'   `org.Hs.eg.db`). This is used to filter pathways for the correct species.
+#' @param verbose A logical value indicating whether to print progress messages.
 #'
 #' @return A named list where names are Reactome pathway names and values are
 #'   character vectors of Entrez IDs.
 #'
 #' @export
-#' @importFrom reactome.db reactomePATHID2EXTID reactomePATHID2NAME
 #'
-getReactomeGmt <- function(speciesDb) {
-  message("Fetching Reactome pathway gene sets from Bioconductor...")
+getReactomeGmt <- function(speciesDb, verbose=TRUE) {
+  if (verbose) {
+    message("Fetching Reactome pathway gene sets from Bioconductor...")
+  }
   reactomeToEntrez <- as.list(reactome.db::reactomePATHID2EXTID)
   reactomeToName <- as.list(reactome.db::reactomePATHID2NAME)
   
@@ -121,21 +130,21 @@ getReactomeGmt <- function(speciesDb) {
   
   gmt <- lapply(names(reactomeToEntrez), function(pathId) {
     pathwayName <- reactomeToName[[pathId]]
+    isCorrectSpecies <- !is.null(pathwayName) &&
+      grepl(speciesName, pathwayName, ignore.case=TRUE)
     
-    if (!is.null(pathwayName) && grepl(speciesName, pathwayName, ignore.case = TRUE)) {
+    if (isCorrectSpecies) {
       return(reactomeToEntrez[[pathId]])
     }
-    
     return(NULL)
   })
   
   names(gmt) <- vapply(names(reactomeToEntrez), function(id) {
-    
     name <- reactomeToName[[id]]
     if (is.null(name)) "" else name
   }, character(1))
   
-  # Remove the NULL entries for pathways from other species or with missing names
+  # Remove the NULL entries for pathways from other species
   Filter(Negate(is.null), gmt)
 }
 
@@ -162,5 +171,5 @@ getReactomeGmt <- function(speciesDb) {
 #'
 getExampleGmt <- function() {
   system.file("extdata", "c2.cp.biocarta.v2025.1.Hs.symbols.gmt",
-              package = "ComplexMap", mustWork = TRUE)
+              package="ComplexMap", mustWork=TRUE)
 }

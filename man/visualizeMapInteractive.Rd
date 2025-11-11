@@ -38,10 +38,10 @@ Creates a dynamic, zoomable, and explorable HTML widget of the complex
 network using the `visNetwork` package.
 }
 \details{
-This function is ideal for data exploration. Nodes can be clicked and dragged,
-and hovering over a node reveals a detailed tooltip with its attributes. The
-coordinates from the static layout are rescaled and used to provide an
-initial, non-random arrangement.
+This function is ideal for data exploration. Nodes can be clicked and
+dragged, and hovering over a node reveals a detailed tooltip with its
+attributes. The coordinates from the static layout are rescaled and used
+to provide an initial, non-random arrangement.
 }
 \examples{
 # --- Sample Data ---

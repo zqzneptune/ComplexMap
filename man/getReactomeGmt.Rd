@@ -4,11 +4,13 @@
 \alias{getReactomeGmt}
 \title{Fetch Reactome Pathway Gene Sets}
 \usage{
-getReactomeGmt(speciesDb)
+getReactomeGmt(speciesDb, verbose = TRUE)
 }
 \arguments{
 \item{speciesDb}{An AnnotationDb object for the target species (e.g.,
 `org.Hs.eg.db`). This is used to filter pathways for the correct species.}
+
+\item{verbose}{A logical value indicating whether to print progress messages.}
 }
 \value{
 A named list where names are Reactome pathway names and values are

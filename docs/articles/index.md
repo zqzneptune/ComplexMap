@@ -2,7 +2,9 @@
 
 ### All vignettes
 
-- [Preparing Input
-  Data](https://zqzneptune.github.io/ComplexMap/articles/vignette_00-perp-input.md):
-- [Analyzing a Human Protein Complex
-  Map](https://zqzneptune.github.io/ComplexMap/articles/vignette_01-workflow.md):
+- [1. Preparing Your Input
+  Data](https://zqzneptune.github.io/ComplexMap/articles/vignette_01-prep-input.md):
+- [2. Start a Typical
+  Workflow](https://zqzneptune.github.io/ComplexMap/articles/vignette_02-workflow.md):
+- [3. Explore Advanced
+  Analyses](https://zqzneptune.github.io/ComplexMap/articles/vignette_03-advanced-analysis.md):

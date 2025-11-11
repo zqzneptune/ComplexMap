@@ -9,7 +9,7 @@ functional domains are represented by a discrete color scale in a legend."></hea
 
     <a class="navbar-brand me-2" href="../index.html">ComplexMap</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -20,9 +20,11 @@ functional domains are represented by a discrete color scale in a legend."></hea
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/vignette_00-perp-input.html">Preparing Input Data</a></li>
-    <li><a class="dropdown-item" href="../articles/vignette_01-workflow.html">Analyzing a Human Protein Complex Map</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/vignette_01-prep-input.html">1. Preparing Your Input Data</a></li>
+    <li><a class="dropdown-item" href="../articles/vignette_02-workflow.html">2. Start a Typical Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/vignette_03-advanced-analysis.html">3. Explore Advanced Analyses</a></li>
   </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://zqzneptune.github.io" aria-label="Home page"><span class="fa fa-home"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/zqzneptune/ComplexMap" aria-label="GitHub repository"><span class="fa fa-github"></span></a></li>
       </ul></div>
@@ -64,8 +66,8 @@ functional domains are represented by a discrete color scale in a legend.</p>
 
 
 <dl><dt id="arg-layoutdf">layoutDf<a class="anchor" aria-label="anchor" href="#arg-layoutdf"></a></dt>
-<dd><p>A data frame containing node attributes and layout coordinates,
-typically from `computeMapTopology`.</p></dd>
+<dd><p>A data frame containing node attributes and layout
+coordinates, typically from `computeMapTopology`.</p></dd>
 
 
 <dt id="arg-edgesdf">edgesDf<a class="anchor" aria-label="anchor" href="#arg-edgesdf"></a></dt>
@@ -111,9 +113,9 @@ node size.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This plot is useful for overviews where direct labels would be too cluttered.
-It maps the `primaryFunctionalDomain` to node color and displays a legend.
-It uses the pre-computed layout from `computeMapTopology`.</p>
+    <p>This plot is useful for overviews where direct labels would be too
+cluttered. It maps the `primaryFunctionalDomain` to node color and displays
+a legend. It uses the pre-computed layout from `computeMapTopology`.</p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
@@ -128,7 +130,9 @@ It uses the pre-computed layout from `computeMapTopology`.</p>
 <span class="r-in"><span>  primaryFunctionalDomain <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DNA Repair"</span>, <span class="st">"DNA Repair"</span>, <span class="st">"Unenriched"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  sizeMapping <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">3.5</span><span class="op">)</span>, colorHex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#FF0000"</span>, <span class="st">"#FF0000"</span>, <span class="st">"#CCCCCC"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>source_complex_id <span class="op">=</span> <span class="st">"C1"</span>, target_complex_id <span class="op">=</span> <span class="st">"C2"</span>, weight <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  source_complex_id <span class="op">=</span> <span class="st">"C1"</span>, target_complex_id <span class="op">=</span> <span class="st">"C2"</span>, weight <span class="op">=</span> <span class="fl">0.8</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Generate Plot ---</span></span></span>
 <span class="r-in"><span><span class="fu">visualizeMapWithLegend</span><span class="op">(</span><span class="va">nodes</span>, <span class="va">edges</span><span class="op">)</span></span></span>

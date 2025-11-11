@@ -88,7 +88,9 @@ nodes <- tibble::tibble(
   primaryFunctionalDomain = c("DNA Repair", "DNA Repair", "Unenriched"),
   sizeMapping = c(3, 4, 3.5), colorHex = c("#FF0000", "#FF0000", "#CCCCCC")
 )
-edges <- tibble::tibble(source_complex_id = "C1", target_complex_id = "C2", weight = 0.8)
+edges <- tibble::tibble(
+  source_complex_id = "C1", target_complex_id = "C2", weight = 0.8
+)
 
 # --- Generate Plot ---
 visualizeMapWithLegend(nodes, edges)

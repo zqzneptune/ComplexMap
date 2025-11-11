@@ -1,11 +1,4 @@
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 # ComplexMap <img src="man/figures/ComplexMap_logo.png" alt="ComplexMap hex logo" align="right" width ="139" />
-
-<!-- badges: start -->
-
-<!-- badges: end -->
 
 `ComplexMap` provides a comprehensive workflow for the quality control,
 refinement, functional enrichment, and network-based analysis of protein
@@ -88,3 +81,16 @@ mapLayout <- computeMapTopology(nodeAttributes, networkEdges, verbose = FALSE)
 
 For a more detailed walkthrough, please see the package vignette:
 `browseVignettes("ComplexMap")`.
+
+For a more detailed walkthrough, you can build the vignette while installing:
+
+
+```r
+# First, make sure devtools is installed
+install.packages("devtools")
+
+# Then install the GitHub package with vignettes
+devtools::install_github("zqzneptune/ComplexMap", build_vignettes = TRUE)
+```
+
+Then check out the package vignette: `browseVignettes("ComplexMap")`.

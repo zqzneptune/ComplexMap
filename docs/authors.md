@@ -7,6 +7,9 @@
 
 ## Citation
 
+Source:
+[`DESCRIPTION`](https://github.com/zqzneptune/ComplexMap/blob/HEAD/DESCRIPTION)
+
 Zhang Q (2025). *ComplexMap: A Toolset for the Functional Analysis and
 Visualization of Protein Complex Data*. R package version 0.99.0,
 <https://zqzneptune.github.io/ComplexMap>.

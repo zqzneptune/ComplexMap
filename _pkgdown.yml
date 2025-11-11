@@ -2,3 +2,11 @@ url: https://zqzneptune.github.io/ComplexMap
 template:
   bootstrap: 5
 
+navbar:
+  right:
+    - icon: fa-home
+      href: https://zqzneptune.github.io
+      aria-label: "Home page"
+    - icon: fa-github
+      href: https://github.com/zqzneptune/ComplexMap
+      aria-label: "GitHub repository"

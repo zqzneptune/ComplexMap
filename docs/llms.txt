@@ -85,6 +85,20 @@ mapLayout <- computeMapTopology(nodeAttributes, networkEdges, verbose = FALSE)
 For a more detailed walkthrough, please see the package vignette:
 `browseVignettes("ComplexMap")`.
 
+For a more detailed walkthrough, you can build the vignette while
+installing:
+
+``` r
+
+# First, make sure devtools is installed
+install.packages("devtools")
+
+# Then install the GitHub package with vignettes
+devtools::install_github("zqzneptune/ComplexMap", build_vignettes = TRUE)
+```
+
+Then check out the package vignette: `browseVignettes("ComplexMap")`.
+
 # Package index
 
 ## All functions

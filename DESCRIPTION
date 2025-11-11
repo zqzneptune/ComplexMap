@@ -13,7 +13,8 @@ Description: Provides a comprehensive workflow for the quality control,
     predicted complexes against a reference and provides powerful static and 
     interactive visualization methods to explore the functional landscape of 
     a protein complex map.
-URL: https://zqzneptune.github.io/ComplexMap
+URL: https://zqzneptune.github.io/ComplexMap, https://github.com/zqzneptune/ComplexMap
+BugReports: https://github.com/zqzneptune/ComplexMap/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.3

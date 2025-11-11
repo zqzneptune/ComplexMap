@@ -1,3 +1,5 @@
+# Ignore the .Rproj file itself (optional, but often recommended for collaboration)
+*.Rproj
 inst/doc
 .Rproj.user
 .Rhistory

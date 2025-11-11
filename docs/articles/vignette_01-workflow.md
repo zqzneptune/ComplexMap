@@ -21,7 +21,6 @@ First, let’s load the `ComplexMap` package, along with `dplyr` for data
 manipulation.
 
 ``` r
-
 library(ComplexMap)
 library(dplyr)
 ```
@@ -44,7 +43,6 @@ The `ComplexMap` package includes two key example datasets:
 We load these datasets directly.
 
 ``` r
-
 # Load the example datasets shipped with the package
 data("demoComplexes")
 data("referenceComplexes")
@@ -59,7 +57,6 @@ function provides a summary of basic statistics, complex sizes, and
 pairwise redundancy.
 
 ``` r
-
 qcComplexList(demoComplexes)
 ```
 
@@ -115,7 +112,6 @@ Here, we will merge any complexes that have a Jaccard similarity of 0.75
 or higher.
 
 ``` r
-
 # We use a slightly lower mergeThreshold to be more aggressive for this demo
 refinedComplexes <- refineComplexList(demoComplexes, mergeThreshold = 0.75)
 ```
@@ -135,7 +131,6 @@ refinedComplexes <- refineComplexList(demoComplexes, mergeThreshold = 0.75)
     ## --- Refinement Complete ---
 
 ``` r
-
 # Let's see how many complexes we have now
 length(refinedComplexes)
 ```
@@ -153,16 +148,14 @@ as the BioCarta pathways. The package includes a helper function to
 access an example GMT file.
 
 ``` r
-
 # Get the path to the example GMT file
 gmtPath <- getExampleGmt()
 biocartaGmt <- getGmtFromFile(gmtPath)
 ```
 
-    ## Fetching gene sets from local file: /private/var/folders/gb/q0_2jm654r9_t3r2hb11v3tm0000gn/T/Rtmpx4UtqW/temp_libpath4397f75503b/ComplexMap/extdata/c2.cp.biocarta.v2025.1.Hs.symbols.gmt
+    ## Fetching gene sets from local file: /tmp/RtmpXXrxdv/temp_libpath31341c885c94/ComplexMap/extdata/c2.cp.biocarta.v2025.1.Hs.symbols.gmt
 
 ``` r
-
 # Run enrichment analysis on the refined complex list
 enrichments <- runComplexEnrichment(refinedComplexes, biocartaGmt)
 ```
@@ -172,7 +165,6 @@ enrichments <- runComplexEnrichment(refinedComplexes, biocartaGmt)
     ## Annotation complete. Found terms for 239 complexes.
 
 ``` r
-
 # View the enrichment results for the first complex with significant terms
 if (length(enrichments) > 0) {
   head(enrichments[])
@@ -249,7 +241,6 @@ use a “combined” mode, which creates a weighted average of both
 similarity types.
 
 ``` r
-
 networkEdges <- buildComplexNetwork(
   complexes = refinedComplexes,
   enrichments = enrichments,
@@ -260,7 +251,7 @@ networkEdges <- buildComplexNetwork(
 
     ## Building complex network using 'jaccard' similarity...
 
-    ## Using 7 cores for parallel processing.
+    ## Using 11 cores for parallel processing.
 
     ## Processing 129795 complex pairs...
 
@@ -273,7 +264,6 @@ networkEdges <- buildComplexNetwork(
     ## Network construction complete: 1390 edges retained.
 
 ``` r
-
 glimpse(networkEdges)
 ```
 
@@ -302,7 +292,6 @@ function is designed for this. It clusters enriched terms into
 complex based on its functional profile.
 
 ``` r
-
 nodeAttributes <- generateNodeAttributes(
   complexes = refinedComplexes,
   enrichments = enrichments
@@ -316,7 +305,6 @@ nodeAttributes <- generateNodeAttributes(
     ## Metric: 'jaccard' with unit: 'log'; comparing: 231 vectors
 
 ``` r
-
 glimpse(nodeAttributes)
 ```
 
@@ -340,7 +328,6 @@ coordinates for each node and calculates centrality metrics like degree
 and betweenness.
 
 ``` r
-
 mapLayout <- computeMapTopology(nodeAttributes, networkEdges)
 ```
 
@@ -349,7 +336,6 @@ mapLayout <- computeMapTopology(nodeAttributes, networkEdges)
     ## Topology computation complete.
 
 ``` r
-
 glimpse(mapLayout)
 ```
 
@@ -380,7 +366,6 @@ This plot is excellent for publications, where labels are placed
 directly onto the plot.
 
 ``` r
-
 # ggrepel is required for this plot
 if (requireNamespace("ggrepel", quietly = TRUE)) {
   visualizeMapDirectLabels(mapLayout, networkEdges)
@@ -399,7 +384,6 @@ This version is useful when direct labels are too cluttered. It uses a
 discrete color legend to represent the functional domains.
 
 ``` r
-
 visualizeMapWithLegend(mapLayout, networkEdges)
 ```
 
@@ -415,7 +399,6 @@ For deep exploration, an interactive HTML widget is ideal. You can zoom,
 pan, and hover over nodes to see detailed tooltips.
 
 ``` r
-
 # visNetwork is required for this plot
 if (requireNamespace("visNetwork", quietly = TRUE)) {
   visualizeMapInteractive(mapLayout, networkEdges)

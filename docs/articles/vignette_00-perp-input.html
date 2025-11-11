@@ -127,7 +127,7 @@ package. This file uses Gene Symbols.</p>
 <p>Load the GMT from the file path</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gmtFromFile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getGmtFromFile.html">getGmtFromFile</a></span><span class="op">(</span><span class="va">gmtPath</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Fetching gene sets from local file: /private/var/folders/gb/q0_2jm654r9_t3r2hb11v3tm0000gn/T/Rtmpx4UtqW/temp_libpath4397f75503b/ComplexMap/extdata/c2.cp.biocarta.v2025.1.Hs.symbols.gmt</span></span></code></pre>
+<pre><code><span><span class="co">## Fetching gene sets from local file: /tmp/RtmpXXrxdv/temp_libpath31341c885c94/ComplexMap/extdata/c2.cp.biocarta.v2025.1.Hs.symbols.gmt</span></span></code></pre>
 <p>Let’s inspect the identifiers</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Name of the first gene set:</span></span>
@@ -224,7 +224,7 @@ symbols.</p>
 <pre><code><span><span class="co">## 'select()' returned 1:many mapping between keys and columns</span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## 'select()' returned 1:1 mapping between keys and columns</span></span></code></pre>
-<pre><code><span><span class="co">## Retained 2942 GO terms (size 10-500) out of 12173</span></span></code></pre>
+<pre><code><span><span class="co">## Retained 2948 GO terms (size 10-500) out of 12255</span></span></code></pre>
 <pre><code><span><span class="co">## $`2-oxoglutarate metabolic process`</span></span>
 <span><span class="co">##  [1] "1291"   "1738"   "1743"   "2805"   "2806"   "3417"   "3418"   "4967"  </span></span>
 <span><span class="co">##  [9] "5264"   "6898"   "51166"  "55753"  "56267"  "79944"  "84706"  "92259" </span></span>
@@ -347,35 +347,36 @@ annotations, which also use Entrez IDs.</p>
 <span><span class="co">## [425] "5526"   "5527"   "5528"   "5529"   "55423"  "5547"   "5552"   "55582" </span></span>
 <span><span class="co">## [433] "55604"  "55605"  "55614"  "55619"  "5566"   "55664"  "55669"  "5567"  </span></span>
 <span><span class="co">## [441] "5568"   "5573"   "5575"   "5576"   "5577"   "5578"   "5579"   "5580"  </span></span>
-<span><span class="co">## [449] "5581"   "5582"   "5583"   "5590"   "5592"   "5592"   "5593"   "5593"  </span></span>
-<span><span class="co">## [457] "5594"   "5595"   "55970"  "55970"  "5624"   "5627"   "56301"  "5657"  </span></span>
-<span><span class="co">## [465] "5660"   "5669"   "5670"   "5671"   "5672"   "5673"   "5675"   "5676"  </span></span>
-<span><span class="co">## [473] "5678"   "5680"   "56992"  "56992"  "57113"  "57126"  "5739"   "5739"  </span></span>
-<span><span class="co">## [481] "57406"  "5747"   "57572"  "5768"   "5770"   "5777"   "5781"   "58494" </span></span>
-<span><span class="co">## [489] "5868"   "5874"   "5879"   "5880"   "5889"   "5890"   "5894"   "5906"  </span></span>
-<span><span class="co">## [497] "5908"   "5919"   "59345"  "59345"  "60"     "6281"   "634"    "6382"  </span></span>
-<span><span class="co">## [505] "6383"   "6385"   "6401"   "6402"   "6403"   "6404"   "6414"   "64145" </span></span>
-<span><span class="co">## [513] "64147"  "64147"  "6464"   "64780"  "64805"  "64837"  "6520"   "653604"</span></span>
-<span><span class="co">## [521] "6543"   "6546"   "6547"   "6566"   "66005"  "6647"   "6654"   "6678"  </span></span>
-<span><span class="co">## [529] "6693"   "6694"   "6714"   "6717"   "6786"   "6810"   "6813"   "6814"  </span></span>
-<span><span class="co">## [537] "682"    "6850"   "6850"   "6915"   "7010"   "7010"   "7018"   "7035"  </span></span>
-<span><span class="co">## [545] "7040"   "7042"   "7043"   "7044"   "7056"   "7057"   "7066"   "7076"  </span></span>
-<span><span class="co">## [553] "7078"   "708"    "7094"   "710"    "7102"   "7114"   "7123"   "7157"  </span></span>
-<span><span class="co">## [561] "7222"   "7225"   "7273"   "7277"   "7278"   "7280"   "7409"   "7409"  </span></span>
-<span><span class="co">## [569] "7410"   "7410"   "7414"   "7422"   "7423"   "7424"   "7441"   "7450"  </span></span>
-<span><span class="co">## [577] "7465"   "747"    "7525"   "7534"   "7804"   "7846"   "7873"   "78991" </span></span>
-<span><span class="co">## [585] "7975"   "7975"   "79861"  "80005"  "801"    "80228"  "805"    "80739" </span></span>
-<span><span class="co">## [593] "808"    "81"     "81027"  "813"    "813949" "8140"   "8165"   "81704" </span></span>
-<span><span class="co">## [601] "81928"  "81930"  "81930"  "829"    "829"    "830"    "830"    "832"   </span></span>
-<span><span class="co">## [609] "832"    "8350"   "8351"   "8352"   "8353"   "8354"   "8355"   "8356"  </span></span>
-<span><span class="co">## [617] "8357"   "8358"   "83692"  "83700"  "83706"  "83953"  "8407"   "84617" </span></span>
-<span><span class="co">## [625] "84643"  "84790"  "84876"  "8503"   "8515"   "8525"   "8526"   "8527"  </span></span>
-<span><span class="co">## [633] "85440"  "857"    "8654"   "87"     "8793"   "8795"   "8797"   "88"    </span></span>
-<span><span class="co">## [641] "8832"   "8968"   "89953"  "9002"   "9002"   "9046"   "9056"   "9057"  </span></span>
-<span><span class="co">## [649] "90952"  "90990"  "9123"   "9127"   "914"    "9162"   "91768"  "928"   </span></span>
-<span><span class="co">## [657] "9371"   "9371"   "94121"  "94235"  "94235"  "9463"   "948"    "9493"  </span></span>
-<span><span class="co">## [665] "9564"   "9585"   "960"    "961"    "962"    "9630"   "9630"   "965"   </span></span>
-<span><span class="co">## [673] "967"    "9672"   "972"    "9732"   "9749"   "9927"   "9948"   "998"</span></span></code></pre>
+<span><span class="co">## [449] "5581"   "5582"   "5583"   "5588"   "5590"   "5592"   "5592"   "5593"  </span></span>
+<span><span class="co">## [457] "5593"   "5594"   "5595"   "55970"  "55970"  "5624"   "5627"   "56301" </span></span>
+<span><span class="co">## [465] "5657"   "5660"   "5669"   "5670"   "5671"   "5672"   "5673"   "5675"  </span></span>
+<span><span class="co">## [473] "5676"   "5678"   "5680"   "56992"  "56992"  "57113"  "57126"  "5739"  </span></span>
+<span><span class="co">## [481] "5739"   "57406"  "5747"   "57572"  "5768"   "5770"   "5777"   "5781"  </span></span>
+<span><span class="co">## [489] "58494"  "5868"   "5874"   "5879"   "5880"   "5889"   "5890"   "5894"  </span></span>
+<span><span class="co">## [497] "5906"   "5908"   "5919"   "59345"  "59345"  "60"     "6281"   "634"   </span></span>
+<span><span class="co">## [505] "6382"   "6383"   "6385"   "6401"   "6402"   "6403"   "6404"   "6414"  </span></span>
+<span><span class="co">## [513] "64145"  "64147"  "64147"  "6464"   "64780"  "64805"  "64837"  "6520"  </span></span>
+<span><span class="co">## [521] "653604" "6543"   "6546"   "6547"   "6566"   "66005"  "6647"   "6654"  </span></span>
+<span><span class="co">## [529] "6678"   "6693"   "6694"   "6714"   "6717"   "6786"   "6810"   "6813"  </span></span>
+<span><span class="co">## [537] "6814"   "682"    "6850"   "6850"   "6915"   "7010"   "7010"   "7018"  </span></span>
+<span><span class="co">## [545] "7035"   "7040"   "7042"   "7043"   "7044"   "7056"   "7057"   "7066"  </span></span>
+<span><span class="co">## [553] "7076"   "7078"   "708"    "7094"   "710"    "7102"   "7114"   "7123"  </span></span>
+<span><span class="co">## [561] "7157"   "7222"   "7225"   "7273"   "7277"   "7278"   "7280"   "7409"  </span></span>
+<span><span class="co">## [569] "7409"   "7410"   "7410"   "7414"   "7422"   "7423"   "7424"   "7441"  </span></span>
+<span><span class="co">## [577] "7450"   "7465"   "747"    "7525"   "7534"   "7804"   "7846"   "7873"  </span></span>
+<span><span class="co">## [585] "78991"  "7975"   "7975"   "79861"  "80005"  "801"    "80228"  "805"   </span></span>
+<span><span class="co">## [593] "80739"  "808"    "81"     "81027"  "813"    "813949" "8140"   "8165"  </span></span>
+<span><span class="co">## [601] "81704"  "81928"  "81930"  "81930"  "829"    "829"    "830"    "830"   </span></span>
+<span><span class="co">## [609] "832"    "832"    "8350"   "8351"   "8352"   "8353"   "8354"   "8355"  </span></span>
+<span><span class="co">## [617] "8356"   "8357"   "8358"   "83692"  "83700"  "83706"  "83953"  "8407"  </span></span>
+<span><span class="co">## [625] "84617"  "84643"  "84790"  "84876"  "8503"   "8515"   "8525"   "8526"  </span></span>
+<span><span class="co">## [633] "8527"   "85440"  "857"    "8654"   "87"     "8793"   "8795"   "8797"  </span></span>
+<span><span class="co">## [641] "88"     "8832"   "8968"   "89953"  "9002"   "9002"   "9046"   "9056"  </span></span>
+<span><span class="co">## [649] "9057"   "90952"  "90990"  "9123"   "9127"   "914"    "9162"   "91768" </span></span>
+<span><span class="co">## [657] "928"    "9371"   "9371"   "94121"  "94235"  "94235"  "9463"   "948"   </span></span>
+<span><span class="co">## [665] "9493"   "9564"   "9585"   "960"    "961"    "962"    "9630"   "9630"  </span></span>
+<span><span class="co">## [673] "965"    "967"    "9672"   "972"    "9732"   "9749"   "9927"   "9948"  </span></span>
+<span><span class="co">## [681] "998"</span></span></code></pre>
 <p><strong>Identifier Mismatch!</strong> Like the GO example,
 <code>reactome.db</code> provides <strong>Entrez IDs</strong>.</p>
 <p><strong>Solution:</strong> The solution is the same as for Gene

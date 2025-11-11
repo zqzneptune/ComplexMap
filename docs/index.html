@@ -53,79 +53,89 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="complexmap-">ComplexMap <img src="reference/figures/ComplexMap_logo.png" alt="ComplexMap hex logo" align="right" width="139"><a class="anchor" aria-label="anchor" href="#complexmap-"></a>
 </h1></div>
-<p><code>ComplexMap</code> provides a comprehensive workflow for the quality control, refinement, functional enrichment, and network-based analysis of protein complex datasets. It allows for the quantitative evaluation of predicted complexes against a reference and provides powerful static and interactive visualization methods to explore the functional landscape of a protein complex map.</p>
-<p>This package is designed to guide a user from a raw list of putative protein complexes to a functionally annotated, publication-quality network visualization.</p>
+<p><strong>ComplexMap</strong> provides an end-to-end workflow for <strong>quality control</strong>, <strong>refinement</strong>, <strong>functional enrichment</strong>, and <strong>network-based analysis</strong> of protein complex datasets.</p>
+<p>With this package, you can:</p>
+<ul>
+<li><p>Quantitatively evaluate predicted complexes against a reference set</p></li>
+<li><p>Perform functional enrichment analysis</p></li>
+<li><p>Generate <strong>static</strong> and <strong>interactive visualizations</strong> to explore the functional landscape of protein complex maps</p></li>
+</ul>
+<p>Designed to take you from a <strong>raw list of putative protein complexes</strong> to a <strong>functionally annotated, publication-ready network visualization</strong>, ComplexMap streamlines complex analysis for researchers.</p>
+<hr>
 <div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+<h2 id="installation">
+<strong>Installation</strong><a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of <code>ComplexMap</code> from GitHub.</p>
+<p>You can install the development version of <strong>ComplexMap</strong> from GitHub.</p>
 <div class="section level3">
-<h3 id="id_1-prerequisite-dependencies">1. Prerequisite Dependencies<a class="anchor" aria-label="anchor" href="#id_1-prerequisite-dependencies"></a>
+<h3 id="id_1-install-dependencies">
+<strong>1. Install Dependencies</strong><a class="anchor" aria-label="anchor" href="#id_1-install-dependencies"></a>
 </h3>
-<p>Before installing <code>ComplexMap</code>, you must first install its dependencies from CRAN and Bioconductor.</p>
+<p>Before installing ComplexMap, make sure you have the required packages from <strong>CRAN</strong> and <strong>Bioconductor</strong>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Install dependencies from CRAN</span></span>
+<code class="sourceCode R"><span><span class="co"># CRAN dependencies</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"dplyr"</span>, <span class="st">"tibble"</span>, <span class="st">"magrittr"</span>, <span class="st">"rlang"</span>, <span class="st">"stringr"</span>, <span class="st">"Matrix"</span>, </span>
-<span>    <span class="st">"igraph"</span>, <span class="st">"ggraph"</span>, <span class="st">"tidygraph"</span>, <span class="st">"ggplot2"</span>, <span class="st">"ggrepel"</span>, </span>
-<span>    <span class="st">"RColorBrewer"</span>, <span class="st">"scales"</span>, <span class="st">"clue"</span>, <span class="st">"future"</span>, <span class="st">"future.apply"</span>, </span>
-<span>    <span class="st">"philentropy"</span>, <span class="st">"visNetwork"</span>, <span class="st">"devtools"</span></span>
+<span>  <span class="st">"dplyr"</span>, <span class="st">"tibble"</span>, <span class="st">"magrittr"</span>, <span class="st">"rlang"</span>, <span class="st">"stringr"</span>, <span class="st">"Matrix"</span>, </span>
+<span>  <span class="st">"igraph"</span>, <span class="st">"ggraph"</span>, <span class="st">"tidygraph"</span>, <span class="st">"ggplot2"</span>, <span class="st">"ggrepel"</span>, </span>
+<span>  <span class="st">"RColorBrewer"</span>, <span class="st">"scales"</span>, <span class="st">"clue"</span>, <span class="st">"future"</span>, <span class="st">"future.apply"</span>, </span>
+<span>  <span class="st">"philentropy"</span>, <span class="st">"visNetwork"</span>, <span class="st">"devtools"</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Install dependencies from Bioconductor</span></span>
+<span><span class="co"># Bioconductor dependencies</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://bioconductor.github.io/BiocManager/" class="external-link">"BiocManager"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://bioconductor.github.io/BiocManager/reference/install.html" class="external-link">install</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"msigdbr"</span>, <span class="st">"AnnotationDbi"</span>, <span class="st">"GO.db"</span>, <span class="st">"reactome.db"</span>, </span>
-<span>    <span class="st">"org.Hs.eg.db"</span> <span class="co"># Example organism database</span></span>
+<span>  <span class="st">"msigdbr"</span>, <span class="st">"AnnotationDbi"</span>, <span class="st">"GO.db"</span>, <span class="st">"reactome.db"</span>, </span>
+<span>  <span class="st">"org.Hs.eg.db"</span> <span class="co"># Example organism database</span></span>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="id_2-main-package-installation">2. Main Package Installation<a class="anchor" aria-label="anchor" href="#id_2-main-package-installation"></a>
+<h3 id="id_2-install-complexmap">
+<strong>2. Install ComplexMap</strong><a class="anchor" aria-label="anchor" href="#id_2-install-complexmap"></a>
 </h3>
-<p>Once the dependencies are installed, you can install <code>ComplexMap</code> directly from the <code>zqzneptune</code> GitHub repository.</p>
+<p>Once dependencies are installed, install ComplexMap from GitHub:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"zqzneptune/ComplexMap"</span><span class="op">)</span></span></code></pre></div>
+<hr>
 </div>
 </div>
 <div class="section level2">
-<h2 id="a-quick-example">A Quick Example<a class="anchor" aria-label="anchor" href="#a-quick-example"></a>
+<h2 id="quick-start-example">
+<strong>Quick Start Example</strong><a class="anchor" aria-label="anchor" href="#quick-start-example"></a>
 </h2>
-<p>Here is a minimal example showing the core workflow: from a list of complexes to a functional network map.</p>
+<p>Here’s a minimal example of the core workflow: from a list of complexes to a functional network map.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://zqzneptune.github.io/ComplexMap">ComplexMap</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 1. Load the example complex list and a GMT for enrichment</span></span>
+<span><span class="co"># 1. Load example data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"demoComplexes"</span><span class="op">)</span></span>
 <span><span class="va">gmtPath</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/getExampleGmt.html">getExampleGmt</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">gmt</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/getGmtFromFile.html">getGmtFromFile</a></span><span class="op">(</span><span class="va">gmtPath</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 2. Refine the list (merge redundant complexes)</span></span>
+<span><span class="co"># 2. Refine complexes</span></span>
 <span><span class="va">refinedComplexes</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/refineComplexList.html">refineComplexList</a></span><span class="op">(</span><span class="va">demoComplexes</span>, mergeThreshold <span class="op">=</span> <span class="fl">0.75</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 3. Perform functional enrichment</span></span>
+<span><span class="co"># 3. Functional enrichment</span></span>
 <span><span class="va">enrichments</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/runComplexEnrichment.html">runComplexEnrichment</a></span><span class="op">(</span><span class="va">refinedComplexes</span>, <span class="va">gmt</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 4. Build the network</span></span>
+<span><span class="co"># 4. Build network</span></span>
 <span><span class="va">networkEdges</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/buildComplexNetwork.html">buildComplexNetwork</a></span><span class="op">(</span><span class="va">refinedComplexes</span>, <span class="va">enrichments</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 5. Generate node attributes and layout for plotting</span></span>
+<span><span class="co"># 5. Generate node attributes and layout</span></span>
 <span><span class="va">nodeAttributes</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/generateNodeAttributes.html">generateNodeAttributes</a></span><span class="op">(</span><span class="va">refinedComplexes</span>, <span class="va">enrichments</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">mapLayout</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/computeMapTopology.html">computeMapTopology</a></span><span class="op">(</span><span class="va">nodeAttributes</span>, <span class="va">networkEdges</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 6. Visualize the final map with a legend</span></span>
-<span></span>
-<span><span class="co"># visualizeMapWithLegend(mapLayout, networkEdges, verbose = FALSE)</span></span></code></pre></div>
-<p>For a more detailed walkthrough, please see the package vignette: <code>browseVignettes("ComplexMap")</code>.</p>
-<p>For a more detailed walkthrough, you can build the vignette while installing:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># First, make sure devtools is installed</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Then install the GitHub package with vignettes</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"zqzneptune/ComplexMap"</span>, build_vignettes <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p>Then check out the package vignette: <code>browseVignettes("ComplexMap")</code>.</p>
+<span><span class="co"># 6. Visualize the final map</span></span>
+<span><span class="fu"><a href="reference/visualizeMapWithLegend.html">visualizeMapWithLegend</a></span><span class="op">(</span><span class="va">mapLayout</span>, <span class="va">networkEdges</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="learn-more">
+<strong>Learn More</strong><a class="anchor" aria-label="anchor" href="#learn-more"></a>
+</h2>
+<p>For a <strong>full walkthrough</strong>, detailed function documentation, and tutorials, visit:<br>
+👉 <a href="https://zqzneptune.github.io/ComplexMap/" class="uri">https://zqzneptune.github.io/ComplexMap/</a></p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

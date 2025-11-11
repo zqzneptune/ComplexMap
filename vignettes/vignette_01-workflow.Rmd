@@ -2,7 +2,7 @@
 title: "Analyzing a Human Protein Complex Map"
 author: "Qingzhou Zhang"
 date: "`r Sys.Date()`"
-output: BiocStyle::html_document
+output: html_document
 vignette: >
   %\VignetteIndexEntry{Analyzing a Human Protein Complex Map with ComplexMap}
   %\VignetteEngine{knitr::rmarkdown}

@@ -46,7 +46,6 @@ Imports:
     utils,
     visNetwork
 Suggests:
-    BiocStyle,
     ggrepel,
     knitr,
     org.Hs.eg.db,

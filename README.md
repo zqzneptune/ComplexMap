@@ -1,96 +1,88 @@
 # ComplexMap <img src="man/figures/ComplexMap_logo.png" alt="ComplexMap hex logo" align="right" width ="139" />
 
-`ComplexMap` provides a comprehensive workflow for the quality control,
-refinement, functional enrichment, and network-based analysis of protein
-complex datasets. It allows for the quantitative evaluation of predicted
-complexes against a reference and provides powerful static and
-interactive visualization methods to explore the functional landscape of
-a protein complex map.
+**ComplexMap** provides an end-to-end workflow for **quality control**, **refinement**, **functional enrichment**, and **network-based analysis** of protein complex datasets.  
 
-This package is designed to guide a user from a raw list of putative
-protein complexes to a functionally annotated, publication-quality
-network visualization.
+With this package, you can:  
 
-## Installation
+- Quantitatively evaluate predicted complexes against a reference set  
 
-You can install the development version of `ComplexMap` from GitHub.
+- Perform functional enrichment analysis  
 
-### 1. Prerequisite Dependencies
+- Generate **static** and **interactive visualizations** to explore the functional landscape of protein complex maps  
 
-Before installing `ComplexMap`, you must first install its dependencies
-from CRAN and Bioconductor.
+Designed to take you from a **raw list of putative protein complexes** to a **functionally annotated, publication-ready network visualization**, ComplexMap streamlines complex analysis for researchers.
 
-``` r
-# Install dependencies from CRAN
+---
+
+## **Installation**
+
+You can install the development version of **ComplexMap** from GitHub.
+
+### **1. Install Dependencies**
+
+Before installing ComplexMap, make sure you have the required packages from **CRAN** and **Bioconductor**:
+
+```r
+# CRAN dependencies
 install.packages(c(
-    "dplyr", "tibble", "magrittr", "rlang", "stringr", "Matrix", 
-    "igraph", "ggraph", "tidygraph", "ggplot2", "ggrepel", 
-    "RColorBrewer", "scales", "clue", "future", "future.apply", 
-    "philentropy", "visNetwork", "devtools"
+  "dplyr", "tibble", "magrittr", "rlang", "stringr", "Matrix", 
+  "igraph", "ggraph", "tidygraph", "ggplot2", "ggrepel", 
+  "RColorBrewer", "scales", "clue", "future", "future.apply", 
+  "philentropy", "visNetwork", "devtools"
 ))
 
-# Install dependencies from Bioconductor
+# Bioconductor dependencies
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
 BiocManager::install(c(
-    "msigdbr", "AnnotationDbi", "GO.db", "reactome.db", 
-    "org.Hs.eg.db" # Example organism database
+  "msigdbr", "AnnotationDbi", "GO.db", "reactome.db", 
+  "org.Hs.eg.db" # Example organism database
 ))
 ```
 
-### 2. Main Package Installation
+### **2. Install ComplexMap**
 
-Once the dependencies are installed, you can install `ComplexMap`
-directly from the `zqzneptune` GitHub repository.
+Once dependencies are installed, install ComplexMap from GitHub:
 
-``` r
+```r
 devtools::install_github("zqzneptune/ComplexMap")
 ```
 
-## A Quick Example
+---
 
-Here is a minimal example showing the core workflow: from a list of
-complexes to a functional network map.
+## **Quick Start Example**
 
-``` r
+Here’s a minimal example of the core workflow: from a list of complexes to a functional network map.
+
+```r
 library(ComplexMap)
 
-# 1. Load the example complex list and a GMT for enrichment
+# 1. Load example data
 data("demoComplexes")
 gmtPath <- getExampleGmt()
 gmt <- getGmtFromFile(gmtPath)
 
-# 2. Refine the list (merge redundant complexes)
+# 2. Refine complexes
 refinedComplexes <- refineComplexList(demoComplexes, mergeThreshold = 0.75, verbose = FALSE)
 
-# 3. Perform functional enrichment
+# 3. Functional enrichment
 enrichments <- runComplexEnrichment(refinedComplexes, gmt, verbose = FALSE)
 
-# 4. Build the network
+# 4. Build network
 networkEdges <- buildComplexNetwork(refinedComplexes, enrichments, verbose = FALSE)
 
-# 5. Generate node attributes and layout for plotting
+# 5. Generate node attributes and layout
 nodeAttributes <- generateNodeAttributes(refinedComplexes, enrichments, verbose = FALSE)
 mapLayout <- computeMapTopology(nodeAttributes, networkEdges, verbose = FALSE)
 
-# 6. Visualize the final map with a legend
-
-# visualizeMapWithLegend(mapLayout, networkEdges, verbose = FALSE)
+# 6. Visualize the final map
+visualizeMapWithLegend(mapLayout, networkEdges, verbose = FALSE)
 ```
 
-For a more detailed walkthrough, please see the package vignette:
-`browseVignettes("ComplexMap")`.
+---
 
-For a more detailed walkthrough, you can build the vignette while installing:
+## **Learn More**
 
-
-```r
-# First, make sure devtools is installed
-install.packages("devtools")
-
-# Then install the GitHub package with vignettes
-devtools::install_github("zqzneptune/ComplexMap", build_vignettes = TRUE)
-```
-
-Then check out the package vignette: `browseVignettes("ComplexMap")`.
+For a **full walkthrough**, detailed function documentation, and tutorials, visit:  
+👉 https://zqzneptune.github.io/ComplexMap/

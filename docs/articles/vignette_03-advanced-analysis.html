@@ -60,7 +60,7 @@
                         <h4 data-toc-skip class="author">Qingzhou
 Zhang</h4>
             
-            <h4 data-toc-skip class="date">2025-11-11</h4>
+            <h4 data-toc-skip class="date">2025-11-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/zqzneptune/ComplexMap/blob/HEAD/vignettes/vignette_03-advanced-analysis.Rmd" class="external-link"><code>vignettes/vignette_03-advanced-analysis.Rmd</code></a></small>
       <div class="d-none name"><code>vignette_03-advanced-analysis.Rmd</code></div>
@@ -176,6 +176,7 @@ metrics for this purpose.</p>
 <span><span class="va">evaluationMetrics</span> <span class="op">&lt;-</span> <span class="fu">ComplexMap</span><span class="fu">::</span><span class="fu"><a href="../reference/evaluateComplexes.html">evaluateComplexes</a></span><span class="op">(</span></span>
 <span>  predictedComplexes <span class="op">=</span> <span class="va">refinedComplexes</span>,</span>
 <span>  referenceComplexes <span class="op">=</span> <span class="va">referenceComplexes</span>,</span>
+<span>  nCores <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -301,8 +302,8 @@ easily imported into Cytoscape.</p>
 <span><span class="co"># Export the network</span></span>
 <span><span class="fu">ComplexMap</span><span class="fu">::</span><span class="fu"><a href="../reference/exportNetwork.html">exportNetwork</a></span><span class="op">(</span><span class="va">cm_obj</span>, filePrefix <span class="op">=</span> <span class="va">file_prefix</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Exporting network in Cytoscape format to:</span></span>
-<span><span class="co">#&gt;  -&gt; /tmp/RtmpoZ5SOn/human_complex_map_nodes.tsv</span></span>
-<span><span class="co">#&gt;  -&gt; /tmp/RtmpoZ5SOn/human_complex_map_edges.tsv</span></span>
+<span><span class="co">#&gt;  -&gt; /var/folders/x8/ngpdbcfd3pj5sf3r9kkxgs740000gn/T//RtmpZDxIxh/human_complex_map_nodes.tsv</span></span>
+<span><span class="co">#&gt;  -&gt; /var/folders/x8/ngpdbcfd3pj5sf3r9kkxgs740000gn/T//RtmpZDxIxh/human_complex_map_edges.tsv</span></span>
 <span><span class="co">#&gt; Export complete.</span></span>
 <span></span>
 <span><span class="co"># List the files that were created</span></span>

@@ -28,6 +28,7 @@ This vignette covers these advanced topics:
 We will use the package’s built-in datasets for this demonstration.
 
 ``` r
+
 # Load the experimental and reference complex lists
 utils::data("demoComplexes", package = "ComplexMap")
 utils::data("referenceComplexes", package = "ComplexMap")
@@ -49,6 +50,7 @@ on our raw input data to get a detailed report on complex sizes and
 redundancy.
 
 ``` r
+
 # Run the QC function with verbose output
 ComplexMap::qcComplexList(demoComplexes)
 #> 
@@ -86,6 +88,7 @@ This allows us to inspect the set of complexes *after* merging but
 parameter tuning.
 
 ``` r
+
 message("Number of complexes before refinement: ", length(demoComplexes))
 #> Number of complexes before refinement: 622
 
@@ -115,10 +118,12 @@ We will compare our `refinedComplexes` against the `referenceComplexes`
 (a curated subset of CORUM).
 
 ``` r
+
 # Evaluate the refined complexes against the reference set
 evaluationMetrics <- ComplexMap::evaluateComplexes(
   predictedComplexes = refinedComplexes,
   referenceComplexes = referenceComplexes,
+  nCores = 2,
   verbose = FALSE
 )
 
@@ -161,6 +166,7 @@ enabling direct queries.
 First, let’s generate a `ComplexMap` object.
 
 ``` r
+
 gmtPath <- ComplexMap::getExampleGmt()
 gmt <- ComplexMap::getGmtFromFile(gmtPath, verbose = FALSE)
 
@@ -177,6 +183,7 @@ Now, we generate the themes and add the theme assignments to our node
 table.
 
 ``` r
+
 # Generate the theme summary to get theme labels
 theme_summary <- ComplexMap::summarizeThemes(cm_obj, verbose = FALSE)
 
@@ -201,6 +208,7 @@ With the prepared object, we can now find all complexes belonging to a
 specific theme, for example, the “26S Proteasome”.
 
 ``` r
+
 # To make the example robust, we query for a theme label that we know
 # exists because we just generated it in the `theme_summary` table.
 query_label <- theme_summary$themeLabel
@@ -251,6 +259,7 @@ function writes the node and edge tables to disk as tab-separated files
 (`.tsv`), which can be easily imported into Cytoscape.
 
 ``` r
+
 # Use a temporary directory for this example
 temp_dir <- tempdir()
 file_prefix <- file.path(temp_dir, "human_complex_map")
@@ -258,8 +267,8 @@ file_prefix <- file.path(temp_dir, "human_complex_map")
 # Export the network
 ComplexMap::exportNetwork(cm_obj, filePrefix = file_prefix)
 #> Exporting network in Cytoscape format to:
-#>  -> /tmp/RtmpoZ5SOn/human_complex_map_nodes.tsv
-#>  -> /tmp/RtmpoZ5SOn/human_complex_map_edges.tsv
+#>  -> /var/folders/x8/ngpdbcfd3pj5sf3r9kkxgs740000gn/T//RtmpZDxIxh/human_complex_map_nodes.tsv
+#>  -> /var/folders/x8/ngpdbcfd3pj5sf3r9kkxgs740000gn/T//RtmpZDxIxh/human_complex_map_edges.tsv
 #> Export complete.
 
 # List the files that were created

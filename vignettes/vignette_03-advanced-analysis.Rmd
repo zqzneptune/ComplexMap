@@ -84,6 +84,7 @@ We will compare our `refinedComplexes` against the `referenceComplexes` (a curat
 evaluationMetrics <- ComplexMap::evaluateComplexes(
   predictedComplexes = refinedComplexes,
   referenceComplexes = referenceComplexes,
+  nCores = 2,
   verbose = FALSE
 )
 

@@ -4,7 +4,7 @@ author: "Qingzhou Zhang"
 date: "`r Sys.Date()`"
 output: html_document
 vignette: >
-  %\VetteIndexEntry{Analyzing a Human Protein Complex Map with ComplexMap}
+  %\VignetteIndexEntry{Analyzing a Human Protein Complex Map with ComplexMap}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

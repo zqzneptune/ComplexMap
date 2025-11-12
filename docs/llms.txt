@@ -42,6 +42,7 @@ installer will automatically handle all required dependencies from CRAN
 and Bioconductor.
 
 ``` r
+
 # If you don't have remotes installed: install.packages("remotes")
 remotes::install_github("zqzneptune/ComplexMap")
 ```
@@ -55,6 +56,7 @@ human protein complex dataset and generating a functional map with a
 single command.
 
 ``` r
+
 library(ComplexMap)
 
 # 1. Load the example complex list and a gene set file
@@ -100,6 +102,7 @@ Identify the major biological themes (network modules) using community
 detection.
 
 ``` r
+
 theme_summary <- ComplexMap::summarizeThemes(cm_obj, verbose = FALSE)
 
 # Show the 10 largest themes
@@ -111,6 +114,7 @@ dplyr::slice_max(theme_summary, n = 10, order_by = nodeCount)
 Programmatically find specific complexes of interest.
 
 ``` r
+
 # Find the complex with the ID "CpxMap_0001"
 result <- ComplexMap::queryMap(cm_obj, query = "CpxMap_0001", type = "complex")
 

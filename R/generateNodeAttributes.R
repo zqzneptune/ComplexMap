@@ -67,8 +67,10 @@ generateNodeAttributes <- function(complexes, enrichments,
   if (verbose) {
     message("Generating core node attributes (function and color)...")
     message(
-      sprintf("    -> Clustering terms using '%s' similarity.",
-              similarityMethod)
+      sprintf(
+        "    -> Clustering terms using '%s' similarity.",
+        similarityMethod
+      )
     )
   }
   
@@ -77,7 +79,8 @@ generateNodeAttributes <- function(complexes, enrichments,
   # Handle case with no enriched terms across all complexes
   if (nrow(allTermsDf) == 0) {
     if (verbose) message("No enriched terms found; returning basic attributes.")
-    proteinStr <- vapply(complexes, paste, collapse=",", FUN.VALUE=character(1))
+    proteinStr <- 
+      vapply(complexes, paste, collapse=",", FUN.VALUE=character(1))
     return(
       tibble::tibble(
         complexId = names(complexes),
@@ -131,7 +134,8 @@ generateNodeAttributes <- function(complexes, enrichments,
     termDomains <- stats::setNames(1, rownames(termComplexMatrix))
   }
   
-  termToDomainMap <- tibble::tibble(term=names(termDomains), domainId=termDomains)
+  termToDomainMap <- 
+    tibble::tibble(term=names(termDomains), domainId=termDomains)
   
   # --- 2. Create domain labels and color palette ---
   domainLabels <- allTermsDf %>%

@@ -45,8 +45,9 @@ utils::globalVariables(c("themeId", "primaryFunctionalDomain"))
 summarizeThemes <- function(complexMapObject, method="louvain", verbose=TRUE) {
   if (verbose) {
     message(
-      sprintf("Summarizing themes using the '%s' community algorithm...",
-              method)
+      sprintf(
+        "Summarizing themes using the '%s' community algorithm...",
+        method)
     )
   }
   

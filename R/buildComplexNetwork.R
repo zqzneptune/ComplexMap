@@ -116,12 +116,13 @@ buildComplexNetwork <- function(complexes, enrichments,
   
   if (verbose) {
     message(
-      sprintf("Building complex network using '%s' similarity...",
-              similarityMethod)
+      sprintf(
+        "Building complex network using '%s' similarity...",
+        similarityMethod
+      )
     )
   }
   
-  # --- BUGFIX START ---
   # Handle edge case where there are not enough complexes to form pairs
   if (length(complexes) < 2) {
     if (verbose) {
@@ -139,7 +140,6 @@ buildComplexNetwork <- function(complexes, enrichments,
       similarity_mode = character()
     ))
   }
-  # --- BUGFIX END ---
   
   # --- 1. Setup Parallel Processing ---
   if (is.null(nCores)) {
@@ -160,8 +160,6 @@ buildComplexNetwork <- function(complexes, enrichments,
   if (verbose) message(sprintf("Processing %d complex pairs...", nPairs))
   
   pairIndices <- utils::combn(nComplexes, 2, simplify=FALSE)
-  
-  # ... (rest of the function remains identical)
   
   # Split pairs into chunks for efficient parallel processing
   if (length(pairIndices) > 0) {

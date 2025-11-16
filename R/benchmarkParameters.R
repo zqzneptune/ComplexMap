@@ -25,7 +25,7 @@
 #' @param threshold_range A numeric vector of `mergeThreshold` values to test.
 #'   Defaults to `seq(0.5, 1.0, by = 0.05)`.
 #' @param ... Additional arguments to be passed down to `refineComplexList`,
-#'   such as `similarityMethod` (e.g., "jaccard" or "overlap"), `minSize`,
+#'   such as `similarityMethod` (e.g., "jaccard" or "matching_score"), `minSize`,
 #'   or `maxSize`.
 #'
 #' @return
@@ -42,12 +42,12 @@
 #' data(referenceComplexes)
 #'
 #' \dontrun{
-#' # Run benchmarking over a range of thresholds using the "overlap" method
+#' # Run benchmarking over a range of thresholds using the "matching_score" method
 #' benchmark_results <- benchmarkParameters(
 #'   complexList = demoComplexes,
 #'   referenceComplexes = referenceComplexes,
 #'   threshold_range = seq(0.7, 1.0, by = 0.05),
-#'   similarityMethod = "overlap"
+#'   similarityMethod = "matching_score"
 #' )
 #'
 #' print(benchmark_results)

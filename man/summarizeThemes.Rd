@@ -7,8 +7,7 @@
 summarizeThemes(complexMapObject, method = "louvain", verbose = TRUE)
 }
 \arguments{
-\item{complexMapObject}{A `ComplexMap` object returned by
-`createComplexMap()`.}
+\item{complexMapObject}{A `ComplexMap` object returned by `createComplexMap()`.}
 
 \item{method}{A character string specifying the community detection algorithm
 to use. Must be a valid `igraph` clustering function (e.g., "louvain",
@@ -17,12 +16,8 @@ to use. Must be a valid `igraph` clustering function (e.g., "louvain",
 \item{verbose}{A logical value indicating whether to print progress messages.}
 }
 \value{
-A `tibble` where each row represents a summarized theme. The tibble
-  contains the following columns:
-  - `themeId`: A unique integer identifier for the theme.
-  - `themeLabel`: A descriptive label for the theme.
-  - `nodeCount`: The number of nodes (complexes) in the theme.
-  - `edgeCount`: The number of internal edges within the theme.
+A `tibble` where each row represents a summarized theme, containing
+  `themeId`, `themeLabel`, `nodeCount`, and `edgeCount`.
 }
 \description{
 This function analyzes the network structure within a `ComplexMap` object to
@@ -31,15 +26,16 @@ algorithms to find densely connected clusters of nodes (themes).
 }
 \details{
 The function performs the following steps:
-1.  It constructs an `igraph` graph object from the node and edge tables of
-    the `complexMapObject`.
+1.  It constructs an `igraph` graph object from the node and edge tables.
+
 2.  It applies a community detection algorithm (e.g., Louvain, as default)
     to partition the network into clusters or "themes".
-3.  For each identified theme, it generates a descriptive `themeLabel` by
-    finding the most frequently occurring `primaryFunctionalDomain` among
-    the member nodes (excluding "Unenriched").
-4.  It calculates summary statistics for each theme, including the number of
-    nodes and edges it contains.
+    
+3.  For each theme, it generates a descriptive `themeLabel` by finding the
+    most frequently occurring `primaryFunctionalDomain` among the member
+    nodes (excluding "Unenriched").
+    
+4.  It calculates summary statistics for each theme, including node and edge counts.
 }
 \examples{
 # Assume 'cm_obj' is a valid ComplexMap object created by createComplexMap()

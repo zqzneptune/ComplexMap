@@ -7,7 +7,8 @@
 generateNodeAttributes(
   complexes,
   enrichments,
-  similarityMethod = "jaccard",
+  geneSetDb = NULL,
+  similarityMethod = "overlap",
   verbose = TRUE
 )
 }
@@ -15,19 +16,22 @@ generateNodeAttributes(
 \item{complexes}{A named list of protein complexes.}
 
 \item{enrichments}{A named list of enrichment results, typically from
-`runComplexEnrichment`. Each element should be a data frame with at least
-`ID`, `Description`, and `p.adjust` columns.}
+`runComplexEnrichment`.}
 
-\item{similarityMethod}{The distance/similarity method passed to
-`philentropy::distance` for clustering terms. Defaults to "jaccard".}
+\item{geneSetDb}{Optional named list where names are term IDs and values are
+character vectors of genes. If provided, term similarity will be calculated
+based on gene set overlap instead of co-occurrence. This results in more
+biologically meaningful color groupings.}
 
-\item{verbose}{A logical value indicating whether to print progress messages.
-Defaults to `TRUE`.}
+\item{similarityMethod}{The distance/similarity method. For gene set overlap:
+"overlap" (default), "jaccard", or "cosine". For co-occurrence: any method
+supported by `philentropy::distance`. Defaults to "overlap".}
+
+\item{verbose}{A logical value indicating whether to print progress messages.}
 }
 \value{
-A `tibble` where each row corresponds to a complex. The columns include:
-`complexId`, `proteinCount`, `proteins`, `primaryFunctionalDomain`,
-`topEnrichedFunctions`, `colorHex`, and `sizeMapping`.
+A `tibble` where each row corresponds to a complex, with detailed attributes
+for visualization.
 }
 \description{
 Creates a detailed attribute table for each complex, suitable for network
@@ -39,15 +43,13 @@ complex's functional profile.
 This function performs several steps to generate rich node attributes:
 1.  It aggregates all enriched terms from the input `enrichments` list.
 2.  A term-complex matrix is built, and terms are clustered based on their
-    co-occurrence in complexes using the specified similarity metric. This
-    groups related functional terms into "functional domains".
+    co-occurrence in complexes OR gene set overlap (if provided).
 3.  A unique color is assigned to each functional domain using a qualitative
-    palette from `RColorBrewer`.
+    palette.
 4.  For each complex, it determines the primary functional domain based on
     the most significant enriched term.
 5.  A unique "blended" color is calculated for each complex by mixing the
-    colors of its associated domains, weighted by the significance
-    (-log10 p-value) of the enriched terms.
+    colors of its associated domains, weighted by significance.
 6.  Basic attributes like protein count and a list of proteins are also included.
 
 Complexes with no significant enrichments are assigned a default "Unenriched"
@@ -58,16 +60,24 @@ domain and a grey color.
 complexes <- list(
   Cpx1 = c("A", "B", "C"),
   Cpx2 = c("C", "D", "E"),
-  Cpx3 = c("F", "G") # Unenriched
+  Cpx3 = c("F", "G")
 )
 enrichments <- list(
   Cpx1 = data.frame(ID = "GO:1", Description = "Term A", p.adjust = 0.01),
   Cpx2 = data.frame(ID = "GO:2", Description = "Term B", p.adjust = 0.02)
 )
 
-# --- Generate Node Attributes ---
+# --- Without gene sets (co-occurrence) ---
 nodeAttrs <- generateNodeAttributes(complexes, enrichments)
-print(nodeAttrs)
+
+# --- With gene sets (better functional grouping) ---
+geneSets <- list(
+  "GO:1" = c("A", "B", "X"),
+  "GO:2" = c("A", "B", "Y"),  # High overlap with GO:1 -> similar color
+  "GO:3" = c("M", "N", "O")   # No overlap -> different color
+)
+nodeAttrs <- generateNodeAttributes(complexes, enrichments,
+                                    geneSetDb = geneSets)
 
 }
 \author{

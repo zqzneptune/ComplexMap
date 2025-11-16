@@ -72,11 +72,15 @@ This function calculates all pairwise similarities between complexes in
 a list. It is highly optimized for large datasets by using chunking and
 parallel processing via the \`future\` framework.
 
-The final edge weight is determined by the \`mode\`: -
-\`"compositional"\`: Uses only the protein similarity score. -
-\`"functional"\`: Uses only the functional annotation similarity
-score. - \`"combined"\`: Uses a weighted average: \`alpha \*
-compositional + (1 - alpha) \* functional\`.
+The final edge weight is determined by the \`mode\`:
+
+\- \`"compositional"\`: Uses only the protein similarity score.
+
+\- \`"functional"\`: Uses only the functional annotation similarity
+score.
+
+\- \`"combined"\`: Uses a weighted average: \`alpha \* compositional +
+(1 - alpha) \* functional\`.
 
 If the \`progressr\` package is installed, a progress bar will be
 displayed during the parallel computation when \`verbose = TRUE\`.

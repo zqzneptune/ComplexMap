@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">ComplexMap</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,7 +37,8 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="articles/vignette_01-prep-input.html">1. Preparing Your Input Data</a></li>
     <li><a class="dropdown-item" href="articles/vignette_02-workflow.html">2. Start a Typical Workflow</a></li>
-    <li><a class="dropdown-item" href="articles/vignette_03-advanced-analysis.html">3. Explore Advanced Analyses</a></li>
+    <li><a class="dropdown-item" href="articles/vignette_03-advanced-analysis.html">3. Advanced Analysis and Visualization</a></li>
+    <li><a class="dropdown-item" href="articles/vignette_04-quantitative-visualization.html">4. Visualizing Quantitative Data</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -62,11 +63,11 @@
 </h2>
 <ul>
 <li><p><strong>Integrated Workflow:</strong> Go from a raw complex list to a final network map with a single function, <code><a href="reference/createComplexMap.html">createComplexMap()</a></code>.</p></li>
-<li><p><strong>Quality Control &amp; Refinement:</strong> Automatically filter complexes by size and merge redundant groups to create a clean, non-redundant dataset.</p></li>
+<li><p><strong>Flexible Refinement:</strong> Choose from multiple similarity metrics (<strong>Matching Score</strong>, <strong>Simpson</strong>, <strong>Jaccard</strong>, or <strong>Dice</strong>) to merge redundant complexes according to your specific research goals.</p></li>
 <li><p><strong>Functional Enrichment:</strong> Annotate complexes using gene sets from local files, MSigDB, Gene Ontology, or Reactome.</p></li>
-<li><p><strong>Powerful Visualizations:</strong> Generate static (ggplot2) and interactive (visNetwork) plots to explore the functional landscape.</p></li>
-<li><p><strong>Quantitative Analysis:</strong> Summarize biological themes using community detection and programmatically query the map for specific proteins, complexes, or themes.</p></li>
-<li><p><strong>Benchmarking:</strong> Quantitatively evaluate your predicted complexes against a reference standard like CORUM.</p></li>
+<li><p><strong>Powerful Visualizations:</strong> Generate static (<code>ggplot2</code>) and interactive (<code>visNetwork</code>) plots to explore the functional landscape.</p></li>
+<li><p><strong>Quantitative Data Integration:</strong> Map your own experimental data (e.g., protein abundance, fold-change) directly onto network nodes as a continuous color gradient in any of the visualization functions.</p></li>
+<li><p><strong>Robust Benchmarking:</strong> Optimize refinement parameters with the new <code><a href="reference/benchmarkParameters.html">benchmarkParameters()</a></code> helper function and evaluate results against a reference standard like CORUM.</p></li>
 </ul>
 <hr>
 </div>
@@ -82,17 +83,18 @@
 <div class="section level2">
 <h2 id="workflow-at-a-glance">Workflow at a Glance<a class="anchor" aria-label="anchor" href="#workflow-at-a-glance"></a>
 </h2>
-<p>This example demonstrates the core workflow: analyzing the included human protein complex dataset and generating a functional map with a single command.</p>
+<p>This example demonstrates the core workflow, including the new quantitative visualization capabilities.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://zqzneptune.github.io/ComplexMap">ComplexMap</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 1. Load the example complex list and a gene set file</span></span>
-<span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"demoComplexes"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"demoComplexes"</span>, package <span class="op">=</span> <span class="st">"ComplexMap"</span><span class="op">)</span></span>
 <span><span class="va">gmt_file</span> <span class="op">&lt;-</span> <span class="fu">ComplexMap</span><span class="fu">::</span><span class="fu"><a href="reference/getExampleGmt.html">getExampleGmt</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">gmt</span> <span class="op">&lt;-</span> <span class="fu">ComplexMap</span><span class="fu">::</span><span class="fu"><a href="reference/getGmtFromFile.html">getGmtFromFile</a></span><span class="op">(</span><span class="va">gmt_file</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 2. Run the entire workflow</span></span>
-<span><span class="co"># We can pass arguments to underlying functions, like `mergeThreshold`, directly.</span></span>
+<span><span class="co"># The default similarityMethod is now "matching_score"</span></span>
 <span><span class="va">cm_obj</span> <span class="op">&lt;-</span> <span class="fu">ComplexMap</span><span class="fu">::</span><span class="fu"><a href="reference/createComplexMap.html">createComplexMap</a></span><span class="op">(</span></span>
 <span>  complexList <span class="op">=</span> <span class="va">demoComplexes</span>,</span>
 <span>  gmt <span class="op">=</span> <span class="va">gmt</span>,</span>
@@ -103,15 +105,12 @@
 <span><span class="co"># 3. Print the resulting object for a high-level summary</span></span>
 <span><span class="va">cm_obj</span></span>
 <span><span class="co">#&gt; # A ComplexMap Object</span></span>
-<span><span class="co">#&gt; ── 490 nodes and 12931 edges</span></span>
-<span><span class="co">#&gt; ── 15 major biological themes identified.</span></span>
-<span><span class="co">#&gt; ── Use `getNodeTable()` or `getEdgeTable()` to access data.</span></span>
+<span><span class="co">#&gt; # ── Use `getNodeTable()` or `getEdgeTable()` to access data. </span></span>
+<span><span class="co"># </span></span>
 <span></span>
-<span><span class="co"># 4. Visualize the map</span></span>
+<span><span class="co"># 4. Visualize with data</span></span>
 <span><span class="va">node_tbl</span> <span class="op">&lt;-</span> <span class="fu">ComplexMap</span><span class="fu">::</span><span class="fu"><a href="reference/getNodeTable.html">getNodeTable</a></span><span class="op">(</span><span class="va">cm_obj</span><span class="op">)</span></span>
-<span><span class="va">edge_tbl</span> <span class="op">&lt;-</span> <span class="fu">ComplexMap</span><span class="fu">::</span><span class="fu"><a href="reference/getEdgeTable.html">getEdgeTable</a></span><span class="op">(</span><span class="va">cm_obj</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">ComplexMap</span><span class="fu">::</span><span class="fu"><a href="reference/visualizeMapWithLegend.html">visualizeMapWithLegend</a></span><span class="op">(</span><span class="va">node_tbl</span>, <span class="va">edge_tbl</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">edge_tbl</span> <span class="op">&lt;-</span> <span class="fu">ComplexMap</span><span class="fu">::</span><span class="fu"><a href="reference/getEdgeTable.html">getEdgeTable</a></span><span class="op">(</span><span class="va">cm_obj</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-example.png" width="800"></p>
 <hr>
 </div>
@@ -133,12 +132,11 @@
 <h3 id="query-the-map">Query the Map<a class="anchor" aria-label="anchor" href="#query-the-map"></a>
 </h3>
 <p>Programmatically find specific complexes of interest.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Find the complex with the ID "CpxMap_0001"</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">ComplexMap</span><span class="fu">::</span><span class="fu"><a href="reference/queryMap.html">queryMap</a></span><span class="op">(</span><span class="va">cm_obj</span>, query <span class="op">=</span> <span class="st">"CpxMap_0001"</span>, type <span class="op">=</span> <span class="st">"complex"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Show some of its key attributes</span></span>
-<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">result</span>, <span class="va">complexId</span>, <span class="va">primaryFunctionalDomain</span>, <span class="va">proteinCount</span>, <span class="va">degree</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Find the complex with the ID "CpxMap_0001"</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>result <span class="ot">&lt;-</span> ComplexMap<span class="sc">::</span><span class="fu">queryMap</span>(cm_obj, <span class="at">query =</span> <span class="st">"CpxMap_0001"</span>, <span class="at">type =</span> <span class="st">"complex"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co"># Show some of its key attributes</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(result, complexId, primaryFunctionalDomain, proteinCount, degree)<span class="st">```</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -146,7 +144,7 @@
 </h2>
 <p>If you use ComplexMap in your research, please cite the publication (link to be added upon publication).</p>
 <p>For now, you can cite the package itself:</p>
-<p><code>Qingzhou Zhang (2025). ComplexMap: A Toolset for the Functional Analysis and Visualization of Protein Complex Data. R package version 1.0.0. https://github.com/zqzneptune/ComplexMap</code></p>
+<p>Qingzhou Zhang (2025). ComplexMap: A Toolset for the Functional Analysis and Visualization of Protein Complex Data. R package version 1.1.0. <a href="https://github.com/zqzneptune/ComplexMap" class="external-link uri">https://github.com/zqzneptune/ComplexMap</a></p>
 </div>
 <div class="section level2">
 <h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>

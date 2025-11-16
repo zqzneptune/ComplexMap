@@ -29,5 +29,5 @@ gmtPath <- getExampleGmt()
 if (file.exists(gmtPath)) {
   exampleGmt <- getGmtFromFile(gmtPath)
 }
-#> Fetching gene sets from local file: /private/var/folders/x8/ngpdbcfd3pj5sf3r9kkxgs740000gn/T/RtmpojqfcE/temp_libpath40eca16c79e/ComplexMap/extdata/c2.cp.biocarta.v2025.1.Hs.symbols.gmt
+#> Fetching gene sets from local file: /tmp/RtmpxmbeGW/temp_libpath1df80553f4968/ComplexMap/extdata/c2.cp.biocarta.v2025.1.Hs.symbols.gmt
 ```

@@ -2,6 +2,8 @@
 
 ## All functions
 
+- [`benchmarkParameters()`](https://zqzneptune.github.io/ComplexMap/reference/benchmarkParameters.md)
+  : Benchmark Complex Refinement Parameters
 - [`buildComplexNetwork()`](https://zqzneptune.github.io/ComplexMap/reference/buildComplexNetwork.md)
   : Build a Complex-Complex Interaction Network
 - [`computeMapTopology()`](https://zqzneptune.github.io/ComplexMap/reference/computeMapTopology.md)

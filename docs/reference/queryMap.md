@@ -14,17 +14,16 @@ queryMap(complexMapObject, query, type)
 
 - complexMapObject:
 
-  A \`ComplexMap\` object returned by \`createComplexMap()\`.
+  A \`ComplexMap\` object.
 
 - query:
 
-  A character string containing the search term (a protein ID, complex
-  ID, or theme label).
+  A character string containing the search term.
 
 - type:
 
-  A character string specifying the type of query. Must be one of
-  \`"protein"\`, \`"complex"\`, or \`"theme"\`.
+  A character string: one of \`"protein"\`, \`"complex"\`, or
+  \`"theme"\`.
 
 ## Value
 
@@ -34,17 +33,11 @@ query. Returns an empty tibble if no matches are found.
 ## Details
 
 This function supports three distinct modes of querying: - \`type =
-"protein"\`: The \`query\` is a character string representing a protein
-ID. The function searches the \`proteins\` column in the node table and
-returns all complexes that contain that protein. The search is exact and
-case-sensitive. - \`type = "complex"\`: The \`query\` is a character
-string for a complex ID (e.g., "CpxMap_0001"). It returns the specific
-row from the node table corresponding to that complex. - \`type =
-"theme"\`: The \`query\` is a character string corresponding to a
-\`themeLabel\` from \`summarizeThemes()\`. To use this, the themes must
-first be calculated and their IDs added to the node table. If the
-\`themeId\` column is not found, the function will stop with an
-informative error.
+"protein"\`: Searches for complexes containing a specific protein. -
+\`type = "complex"\`: Retrieves a specific complex by its ID. - \`type =
+"theme"\`: Finds all complexes belonging to a given theme. This requires
+theme information to be added to the \`ComplexMap\` object first (see
+the "Advanced Analysis" vignette for an example).
 
 ## Author
 
@@ -54,21 +47,5 @@ Qingzhou Zhang \<zqzneptune@hotmail.com\>
 
 ``` r
 # Assume 'cm_obj' is a valid ComplexMap object
-
-# Query for a specific protein (e.g., "UBA1")
 # uba1_complexes <- queryMap(cm_obj, query = "UBA1", type = "protein")
-
-# Query for a specific complex ID
-# cpx1_data <- queryMap(cm_obj, query = "CpxMap_0001", type = "complex")
-
-# To query by theme, you must first run summarizeThemes and add the IDs
-# theme_summary <- summarizeThemes(cm_obj)
-# nodes <- getNodeTable(cm_obj)
-# graph <- igraph::graph_from_data_frame(getEdgeTable(cm_obj))
-# communities <- igraph::cluster_louvain(graph)$membership
-# nodes$themeId <- communities
-# cm_obj$nodes <- nodes # Update the object
-#
-# Then you could query by a theme label from the summary
-# proteasome_nodes <- queryMap(cm_obj, query = "Proteasome", type = "theme")
 ```

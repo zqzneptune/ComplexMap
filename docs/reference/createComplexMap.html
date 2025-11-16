@@ -11,7 +11,7 @@ refinement, enrichment, network construction, and topology calculation."></head>
 
     <a class="navbar-brand me-2" href="../index.html">ComplexMap</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,7 +24,8 @@ refinement, enrichment, network construction, and topology calculation."></head>
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/vignette_01-prep-input.html">1. Preparing Your Input Data</a></li>
     <li><a class="dropdown-item" href="../articles/vignette_02-workflow.html">2. Start a Typical Workflow</a></li>
-    <li><a class="dropdown-item" href="../articles/vignette_03-advanced-analysis.html">3. Explore Advanced Analyses</a></li>
+    <li><a class="dropdown-item" href="../articles/vignette_03-advanced-analysis.html">3. Advanced Analysis and Visualization</a></li>
+    <li><a class="dropdown-item" href="../articles/vignette_04-quantitative-visualization.html">4. Visualizing Quantitative Data</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://zqzneptune.github.io" aria-label="Home page"><span class="fa fa-home"></span></a></li>
@@ -75,7 +76,7 @@ for the entire workflow. Defaults to `TRUE`.</p></dd>
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments to be passed down to the core functions.
 Common arguments include:
-- `minSize`, `maxSize`, `mergeThreshold` (for `refineComplexList`)
+- `minSize`, `maxSize`, `mergeThreshold`, `similarityMethod` (for `refineComplexList`)
 - `pAdjustMethod`, `pValueCutoff` (for `runComplexEnrichment`)
 - `mode`, `similarityMethod`, `alpha` (for `buildComplexNetwork`)</p></dd>
 
@@ -88,12 +89,12 @@ Common arguments include:
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function serves as the primary entry point for most analyses. It
-internally calls the core workflow in the following order:
-1.  `refineComplexList()`
-2.  `runComplexEnrichment()`
-3.  `buildComplexNetwork()`
-4.  `generateNodeAttributes()`
-5.  `computeMapTopology()`</p>
+internally calls the core workflow in the following order:</p>
+<p>1.  `refineComplexList()`</p>
+<p>2.  `runComplexEnrichment()`</p>
+<p>3.  `buildComplexNetwork()`</p>
+<p>4.  `generateNodeAttributes()`</p>
+<p>5.  `computeMapTopology()`</p>
 <p>Arguments for the underlying functions can be passed directly to this
 wrapper via the `...` parameter.</p>
     </div>

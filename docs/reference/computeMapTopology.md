@@ -38,16 +38,23 @@ order of betweenness and degree.
 ## Details
 
 This function takes a node attribute table and an edge list (network)
-and performs the following steps: 1. Constructs an \`igraph\` graph
-object from the provided data. 2. Computes a force-directed layout using
-the Fruchterman-Reingold algorithm via \`ggraph::create_layout\`. Edge
-weights are used to influence the layout, pulling strongly connected
-nodes closer together. 3. Calculates node centrality metrics: -
-\*\*Betweenness Centrality:\*\* Measures how often a node lies on the
-shortest path between other nodes (normalized). - \*\*Degree
-Centrality:\*\* The number of edges connected to a node. 4. Merges the
-layout coordinates and centrality scores back into the original node
-attribute table.
+and performs the following steps:
+
+1\. Constructs an \`igraph\` graph object from the provided data.
+
+2\. Computes a force-directed layout using the Fruchterman-Reingold
+algorithm via \`ggraph::create_layout\`. Edge weights are used to
+influence the layout, pulling strongly connected nodes closer together.
+
+3\. Calculates node centrality metrics:
+
+\- \*\*Betweenness Centrality:\*\* Measures how often a node lies on the
+shortest path between other nodes (normalized).
+
+\- \*\*Degree Centrality:\*\* The number of edges connected to a node.
+
+4\. Merges the layout coordinates and centrality scores back into the
+original node attribute table.
 
 ## See also
 
@@ -80,9 +87,9 @@ masterLayout <- computeMapTopology(nodes, net)
 #> Topology computation complete.
 print(masterLayout)
 #> # A tibble: 3 × 6
-#>   complexId proteinCount     x        y betweenness degree
-#>   <chr>            <dbl> <dbl>    <dbl>       <dbl>  <dbl>
-#> 1 Cpx2                 8 -3.25  0.00972           1      2
-#> 2 Cpx1                10 -2.42  0.925             0      1
-#> 3 Cpx3                12 -4.16 -1.00              0      1
+#>   complexId proteinCount     x     y betweenness degree
+#>   <chr>            <dbl> <dbl> <dbl>       <dbl>  <dbl>
+#> 1 Cpx2                 8 1.43   1.92           1      2
+#> 2 Cpx1                10 0.265  1.54           0      1
+#> 3 Cpx3                12 2.73   2.33           0      1
 ```

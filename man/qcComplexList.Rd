@@ -14,8 +14,8 @@ protein identifiers representing a complex.}
 issued for any pair of complexes with a Jaccard similarity score greater
 than or equal to this threshold. Defaults to 0.8.}
 
-\item{verbose}{A logical value indicating whether to print progress messages
-and summaries to the console. Defaults to `TRUE`.}
+\item{verbose}{A logical value indicating whether to print the QC report to
+the console. Defaults to `TRUE`.}
 }
 \value{
 Invisibly returns the original `complexList` object, allowing it to be used
@@ -23,19 +23,25 @@ in a pipeline.
 }
 \description{
 This function performs a quality control analysis on a list of protein
-complexes. It provides basic statistics, analyzes the distribution of complex
-sizes, and calculates pairwise redundancy using the Jaccard similarity index.
+complexes, delivering a user-friendly report with key statistics and
+actionable warnings.
 }
 \details{
-The QC process involves three main steps:
+The QC process involves three main steps, presented in a clear report:
 1.  **Basic Statistics:** Reports the total number of complexes and unique
-    proteins in the list.
-2.  **Size Distribution:** Provides a summary of the number of proteins per
-    complex and warns if complexes have fewer than three members.
-3.  **Redundancy Analysis:** A sparse binary membership matrix is constructed
-    to efficiently calculate the Jaccard similarity for all unique pairs of
-    complexes. A warning is issued if a significant portion of pairs
-    exceeds the specified `redundancyThreshold`.
+    proteins.
+    
+2.  **Size Distribution:** Summarizes the number of proteins per complex,
+    highlighting the smallest, median, and largest complexes. It will
+    issue an in-report warning if complexes have fewer than 3 members.
+    
+3.  **Redundancy Analysis:** Calculates the Jaccard similarity for all pairs
+    of complexes. It reports the median and maximum similarity and issues an
+    in-report warning if any pairs exceed the `redundancyThreshold`.
+
+This function is intended as a **diagnostic tool**. It uses the Jaccard index
+for its clear and intuitive interpretation of redundancy. For actively merging
+complexes, see the more advanced `refineComplexList()` function.
 }
 \examples{
 # Create a sample list of protein complexes
@@ -43,17 +49,16 @@ complex1 <- c("A", "B", "C", "D")
 complex2 <- c("A", "B", "C", "E") # Highly redundant with complex1
 complex3 <- c("F", "G", "H")
 complex4 <- c("I", "J")          # Small complex
-complex5 <- c("X", "Y", "Z")
 sampleList <- list(
-  C1 = complex1, C2 = complex2, C3 = complex3, C4 = complex4, C5 = complex5
+  C1 = complex1, C2 = complex2, C3 = complex3, C4 = complex4
 )
 
-# Run the quality control analysis
+# Run the quality control analysis to see the new report format
 qcComplexList(sampleList)
 
 }
 \seealso{
-`refine_complex_list()` for a method to merge redundant complexes.
+`refineComplexList()` for a function to actively merge redundant complexes.
 }
 \author{
 Qingzhou Zhang <zqzneptune@hotmail.com>

@@ -25,7 +25,6 @@ The `ComplexMap` package includes the `demoComplexes` dataset, a list of
 set (GMT) file for functional annotation.
 
 ``` r
-
 # Load the example complex list shipped with the package
 utils::data("demoComplexes", package = "ComplexMap")
 
@@ -57,7 +56,6 @@ We can pass parameters to the underlying functions (like
 `mergeThreshold` for `refineComplexList`) directly into this wrapper.
 
 ``` r
-
 # Run the entire workflow with a single command
 # We will merge complexes with a Jaccard similarity of 0.75 or higher
 complexMapObject <- ComplexMap::createComplexMap(
@@ -107,7 +105,6 @@ contains the complete results of the analysis. Printing the object gives
 a high-level summary.
 
 ``` r
-
 # Print the object to see a summary
 complexMapObject
 #> # A ComplexMap Object
@@ -124,7 +121,6 @@ function uses community detection algorithms to find densely connected
 network modules and provides a summary.
 
 ``` r
-
 themeSummary <- ComplexMap::summarizeThemes(complexMapObject)
 #> Summarizing themes using the 'louvain' community algorithm...
 #> Identified 295 distinct themes.
@@ -164,7 +160,6 @@ results.
 Let’s find all complexes that contain the protein “SMAD4”.
 
 ``` r
-
 # To ensure our example is robust, let's find a protein to query
 # that is guaranteed to be in our final, refined map.
 nodes <- ComplexMap::getNodeTable(complexMapObject)
@@ -194,7 +189,6 @@ protein_complexes %>%
 We can also retrieve the data for a single complex of interest.
 
 ``` r
-
 # Note: The exact CpxMap ID may vary slightly between runs
 # if refinement results change. We query for the first node in the table.
 first_complex_id <- ComplexMap::getNodeTable(complexMapObject)$complexId[1]
@@ -230,7 +224,6 @@ provides three visualization functions that all work directly with the
 First, we extract the final node and edge tables for plotting.
 
 ``` r
-
 mapLayout <- ComplexMap::getNodeTable(complexMapObject)
 networkEdges <- ComplexMap::getEdgeTable(complexMapObject)
 ```
@@ -241,7 +234,6 @@ This version is useful for a clean overview, using a discrete color
 legend to represent the functional domains.
 
 ``` r
-
 ComplexMap::visualizeMapWithLegend(mapLayout, networkEdges)
 #> Visualizing ComplexMap with a color legend...
 ```
@@ -256,7 +248,6 @@ For deep exploration, an interactive HTML widget is ideal. You can zoom,
 pan, and hover over nodes to see detailed tooltips.
 
 ``` r
-
 # visNetwork is required for this plot
 if (requireNamespace("visNetwork", quietly = TRUE)) {
   ComplexMap::visualizeMapInteractive(mapLayout, networkEdges)

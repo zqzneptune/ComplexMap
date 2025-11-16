@@ -18,7 +18,7 @@ for the entire workflow. Defaults to `TRUE`.}
 
 \item{...}{Additional arguments to be passed down to the core functions.
 Common arguments include:
-- `minSize`, `maxSize`, `mergeThreshold` (for `refineComplexList`)
+- `minSize`, `maxSize`, `mergeThreshold`, `similarityMethod` (for `refineComplexList`)
 - `pAdjustMethod`, `pValueCutoff` (for `runComplexEnrichment`)
 - `mode`, `similarityMethod`, `alpha` (for `buildComplexNetwork`)}
 }
@@ -34,10 +34,15 @@ refinement, enrichment, network construction, and topology calculation.
 \details{
 This function serves as the primary entry point for most analyses. It
 internally calls the core workflow in the following order:
+
 1.  `refineComplexList()`
+
 2.  `runComplexEnrichment()`
+
 3.  `buildComplexNetwork()`
+
 4.  `generateNodeAttributes()`
+
 5.  `computeMapTopology()`
 
 Arguments for the underlying functions can be passed directly to this

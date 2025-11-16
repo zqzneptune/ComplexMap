@@ -9,15 +9,15 @@
 
 -   **Integrated Workflow:** Go from a raw complex list to a final network map with a single function, `createComplexMap()`.
 
--   **Quality Control & Refinement:** Automatically filter complexes by size and merge redundant groups to create a clean, non-redundant dataset.
+-   **Flexible Refinement:** Choose from multiple similarity metrics (**Matching Score**, **Simpson**, **Jaccard**, or **Dice**) to merge redundant complexes according to your specific research goals. 
 
 -   **Functional Enrichment:** Annotate complexes using gene sets from local files, MSigDB, Gene Ontology, or Reactome.
 
--   **Powerful Visualizations:** Generate static (ggplot2) and interactive (visNetwork) plots to explore the functional landscape.
+-   **Powerful Visualizations:** Generate static (`ggplot2`) and interactive (`visNetwork`) plots to explore the functional landscape.
 
--   **Quantitative Analysis:** Summarize biological themes using community detection and programmatically query the map for specific proteins, complexes, or themes.
+-   **Quantitative Data Integration:** Map your own experimental data (e.g., protein abundance, fold-change) directly onto network nodes as a continuous color gradient in any of the visualization functions. 
 
--   **Benchmarking:** Quantitatively evaluate your predicted complexes against a reference standard like CORUM.
+-   **Robust Benchmarking:** Optimize refinement parameters with the new `benchmarkParameters()` helper function and evaluate results against a reference standard like CORUM. 
 
 ---
 
@@ -34,18 +34,19 @@ remotes::install_github("zqzneptune/ComplexMap")
 
 ## Workflow at a Glance
 
-This example demonstrates the core workflow: analyzing the included human protein complex dataset and generating a functional map with a single command.
+This example demonstrates the core workflow, including the new quantitative visualization capabilities.
 
 ```r
 library(ComplexMap)
+library(dplyr)
 
 # 1. Load the example complex list and a gene set file
-utils::data("demoComplexes")
+data("demoComplexes", package = "ComplexMap")
 gmt_file <- ComplexMap::getExampleGmt()
 gmt <- ComplexMap::getGmtFromFile(gmt_file, verbose = FALSE)
 
 # 2. Run the entire workflow
-# We can pass arguments to underlying functions, like `mergeThreshold`, directly.
+# The default similarityMethod is now "matching_score"
 cm_obj <- ComplexMap::createComplexMap(
   complexList = demoComplexes,
   gmt = gmt,
@@ -56,18 +57,17 @@ cm_obj <- ComplexMap::createComplexMap(
 # 3. Print the resulting object for a high-level summary
 cm_obj
 #> # A ComplexMap Object
-#> ── 490 nodes and 12931 edges
-#> ── 15 major biological themes identified.
-#> ── Use `getNodeTable()` or `getEdgeTable()` to access data.
+#> # ── Use `getNodeTable()` or `getEdgeTable()` to access data. 
+# 
 
-# 4. Visualize the map
+# 4. Visualize with data
 node_tbl <- ComplexMap::getNodeTable(cm_obj)
 edge_tbl <- ComplexMap::getEdgeTable(cm_obj)
 
-ComplexMap::visualizeMapWithLegend(node_tbl, edge_tbl, verbose = FALSE)
 ```
 
-<img src="man/figures/README-example.png" width="800"/>
+<img src="man/figures/README-example.png" width="800"/> 
+
 
 ---
 
@@ -95,7 +95,7 @@ Programmatically find specific complexes of interest.
 result <- ComplexMap::queryMap(cm_obj, query = "CpxMap_0001", type = "complex")
 
 # Show some of its key attributes
-dplyr::select(result, complexId, primaryFunctionalDomain, proteinCount, degree)
+dplyr::select(result, complexId, primaryFunctionalDomain, proteinCount, degree)```
 ```
 
 ## Citation
@@ -104,10 +104,10 @@ If you use ComplexMap in your research, please cite the publication (link to be 
 
 For now, you can cite the package itself:
 
-```Qingzhou Zhang (2025). ComplexMap: A Toolset for the Functional Analysis and
-Visualization of Protein Complex Data. R package version 1.0.0.
+Qingzhou Zhang (2025). ComplexMap: A Toolset for the Functional Analysis and
+Visualization of Protein Complex Data. R package version 1.1.0.
 https://github.com/zqzneptune/ComplexMap
-```
+
 
 ## Contributing
 

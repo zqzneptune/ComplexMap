@@ -13,7 +13,7 @@ complex's functional profile."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ComplexMap</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,7 +26,8 @@ complex's functional profile."></head><body>
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/vignette_01-prep-input.html">1. Preparing Your Input Data</a></li>
     <li><a class="dropdown-item" href="../articles/vignette_02-workflow.html">2. Start a Typical Workflow</a></li>
-    <li><a class="dropdown-item" href="../articles/vignette_03-advanced-analysis.html">3. Explore Advanced Analyses</a></li>
+    <li><a class="dropdown-item" href="../articles/vignette_03-advanced-analysis.html">3. Advanced Analysis and Visualization</a></li>
+    <li><a class="dropdown-item" href="../articles/vignette_04-quantitative-visualization.html">4. Visualizing Quantitative Data</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://zqzneptune.github.io" aria-label="Home page"><span class="fa fa-home"></span></a></li>
@@ -56,7 +57,8 @@ complex's functional profile.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">generateNodeAttributes</span><span class="op">(</span></span>
 <span>  <span class="va">complexes</span>,</span>
 <span>  <span class="va">enrichments</span>,</span>
-<span>  similarityMethod <span class="op">=</span> <span class="st">"jaccard"</span>,</span>
+<span>  geneSetDb <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  similarityMethod <span class="op">=</span> <span class="st">"overlap"</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -71,40 +73,43 @@ complex's functional profile.</p>
 
 <dt id="arg-enrichments">enrichments<a class="anchor" aria-label="anchor" href="#arg-enrichments"></a></dt>
 <dd><p>A named list of enrichment results, typically from
-`runComplexEnrichment`. Each element should be a data frame with at least
-`ID`, `Description`, and `p.adjust` columns.</p></dd>
+`runComplexEnrichment`.</p></dd>
+
+
+<dt id="arg-genesetdb">geneSetDb<a class="anchor" aria-label="anchor" href="#arg-genesetdb"></a></dt>
+<dd><p>Optional named list where names are term IDs and values are
+character vectors of genes. If provided, term similarity will be calculated
+based on gene set overlap instead of co-occurrence. This results in more
+biologically meaningful color groupings.</p></dd>
 
 
 <dt id="arg-similaritymethod">similarityMethod<a class="anchor" aria-label="anchor" href="#arg-similaritymethod"></a></dt>
-<dd><p>The distance/similarity method passed to
-`philentropy::distance` for clustering terms. Defaults to "jaccard".</p></dd>
+<dd><p>The distance/similarity method. For gene set overlap:
+"overlap" (default), "jaccard", or "cosine". For co-occurrence: any method
+supported by `philentropy::distance`. Defaults to "overlap".</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p>A logical value indicating whether to print progress messages.
-Defaults to `TRUE`.</p></dd>
+<dd><p>A logical value indicating whether to print progress messages.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A `tibble` where each row corresponds to a complex. The columns include:
-`complexId`, `proteinCount`, `proteins`, `primaryFunctionalDomain`,
-`topEnrichedFunctions`, `colorHex`, and `sizeMapping`.</p>
+    <p>A `tibble` where each row corresponds to a complex, with detailed attributes
+for visualization.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function performs several steps to generate rich node attributes:
 1.  It aggregates all enriched terms from the input `enrichments` list.
 2.  A term-complex matrix is built, and terms are clustered based on their
-    co-occurrence in complexes using the specified similarity metric. This
-    groups related functional terms into "functional domains".
+    co-occurrence in complexes OR gene set overlap (if provided).
 3.  A unique color is assigned to each functional domain using a qualitative
-    palette from `RColorBrewer`.
+    palette.
 4.  For each complex, it determines the primary functional domain based on
     the most significant enriched term.
 5.  A unique "blended" color is calculated for each complex by mixing the
-    colors of its associated domains, weighted by the significance
-    (-log10 p-value) of the enriched terms.
+    colors of its associated domains, weighted by significance.
 6.  Basic attributes like protein count and a list of proteins are also included.</p>
 <p>Complexes with no significant enrichments are assigned a default "Unenriched"
 domain and a grey color.</p>
@@ -120,26 +125,30 @@ domain and a grey color.</p>
 <span class="r-in"><span><span class="va">complexes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  Cpx1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  Cpx2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"E"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  Cpx3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"F"</span>, <span class="st">"G"</span><span class="op">)</span> <span class="co"># Unenriched</span></span></span>
+<span class="r-in"><span>  Cpx3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"F"</span>, <span class="st">"G"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">enrichments</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  Cpx1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="st">"GO:1"</span>, Description <span class="op">=</span> <span class="st">"Term A"</span>, p.adjust <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  Cpx2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="st">"GO:2"</span>, Description <span class="op">=</span> <span class="st">"Term B"</span>, p.adjust <span class="op">=</span> <span class="fl">0.02</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># --- Generate Node Attributes ---</span></span></span>
+<span class="r-in"><span><span class="co"># --- Without gene sets (co-occurrence) ---</span></span></span>
 <span class="r-in"><span><span class="va">nodeAttrs</span> <span class="op">&lt;-</span> <span class="fu">generateNodeAttributes</span><span class="op">(</span><span class="va">complexes</span>, <span class="va">enrichments</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Generating core node attributes (function and color)...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     -&gt; Clustering terms using 'jaccard' similarity.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Metric: 'jaccard' with unit: 'log'; comparing: 2 vectors</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">nodeAttrs</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 7</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   complexId proteinCount proteins primaryFunctionalDomain topEnrichedFunctions</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Cpx1                 3 A,B,C    Term A                  Term A              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Cpx2                 3 C,D,E    Term B                  Term B              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Cpx3                 2 F,G      Unenriched              <span style="color: #BB0000;">NA</span>                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more variables: colorHex &lt;chr&gt;, sizeMapping &lt;dbl&gt;</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     -&gt; Clustering 2 terms using co-occurrence (overlap)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     -&gt; Identified 2 functional domains</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># --- With gene sets (better functional grouping) ---</span></span></span>
+<span class="r-in"><span><span class="va">geneSets</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"GO:1"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"X"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="st">"GO:2"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"Y"</span><span class="op">)</span>,  <span class="co"># High overlap with GO:1 -&gt; similar color</span></span></span>
+<span class="r-in"><span>  <span class="st">"GO:3"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"M"</span>, <span class="st">"N"</span>, <span class="st">"O"</span><span class="op">)</span>   <span class="co"># No overlap -&gt; different color</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">nodeAttrs</span> <span class="op">&lt;-</span> <span class="fu">generateNodeAttributes</span><span class="op">(</span><span class="va">complexes</span>, <span class="va">enrichments</span>,</span></span>
+<span class="r-in"><span>                                    geneSetDb <span class="op">=</span> <span class="va">geneSets</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Generating core node attributes (function and color)...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     -&gt; Clustering 2 terms using gene set overlap (overlap)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     -&gt; Identified 2 functional domains</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

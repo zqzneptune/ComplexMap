@@ -161,4 +161,4 @@ if (requireNamespace("visNetwork", quietly = TRUE)) {
 
 # Conclusion
 
-This vignette has demonstrated the power and simplicity of the refactored `ComplexMap` workflow. By using the main `createComplexMap()` wrapper, a complete analysis can be run in a single step. The resulting object can then be easily interpreted, queried, and visualized, providing a user-friendly and powerful platform for exploring the landscape of protein complexes.
+By using the main `createComplexMap()` wrapper, a complete analysis can be run in a single step. The resulting object can then be easily interpreted, queried, and visualized, providing a user-friendly and powerful platform for exploring the landscape of protein complexes.

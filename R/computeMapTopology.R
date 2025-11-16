@@ -9,14 +9,20 @@ utils::globalVariables(c("betweenness", "degree"))
 #' @details
 #' This function takes a node attribute table and an edge list (network) and
 #' performs the following steps:
+#' 
 #' 1.  Constructs an `igraph` graph object from the provided data.
+#' 
 #' 2.  Computes a force-directed layout using the Fruchterman-Reingold algorithm
 #'     via `ggraph::create_layout`. Edge weights are used to influence the
 #'     layout, pulling strongly connected nodes closer together.
+#'     
 #' 3.  Calculates node centrality metrics:
+#' 
 #'     - **Betweenness Centrality:** Measures how often a node lies on the
 #'       shortest path between other nodes (normalized).
+#'       
 #'     - **Degree Centrality:** The number of edges connected to a node.
+#'     
 #' 4.  Merges the layout coordinates and centrality scores back into the original
 #'     node attribute table.
 #'

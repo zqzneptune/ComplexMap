@@ -17,6 +17,12 @@ visualizeMapDirectLabels(
   nodeSizeRange = c(2, 10),
   labelFillColor = ggplot2::alpha("white", 0.7),
   fontFamily = "sans",
+  size.legend.title = "Complex Size (log2)",
+  color.by = NULL,
+  color.palette = "viridis",
+  color.legend.title = NULL,
+  centroid_threshold = 2,
+  label_wrap_width = 20,
   verbose = TRUE
 )
 ```
@@ -60,6 +66,36 @@ visualizeMapDirectLabels(
 
   The base font family for all plot text.
 
+- size.legend.title:
+
+  The title for the node size legend.
+
+- color.by:
+
+  A character string specifying the name of a numeric column in
+  \`layoutDf\` to use for continuous node coloring. If \`NULL\`
+  (default), the categorical \`colorHex\` column is used.
+
+- color.palette:
+
+  A character string or vector of colors for the continuous gradient
+  (e.g., "viridis", "plasma", or \`c("blue", "white", "red")\`). Only
+  used when \`color.by\` is specified.
+
+- color.legend.title:
+
+  A character string for the title of the continuous color legend.
+  Defaults to the value of \`color.by\`.
+
+- centroid_threshold:
+
+  Integer. Domains with more than this many complexes will use centroid
+  labels. Defaults to 2.
+
+- label_wrap_width:
+
+  Integer. Maximum width for label text wrapping. Defaults to 20.
+
 - verbose:
 
   A logical value indicating whether to print progress messages.
@@ -70,11 +106,20 @@ A \`ggplot\` object representing the network visualization.
 
 ## Details
 
-This function is designed for clarity when domains are distinct. For
-large, dense domains (more than 2 complexes), a single label is placed
-at the domain's centroid. For smaller domains, each complex is labeled
-individually. It uses the pre-computed layout from
-\`computeMapTopology\`.
+This function supports two coloring modes:
+
+1\. \*\*Categorical (default):\*\* When \`color.by = NULL\`, nodes are
+colored using the \`colorHex\` column, which typically represents
+functional domains. No color legend is drawn.
+
+2\. \*\*Continuous:\*\* When \`color.by\` is set to the name of a
+numeric column in \`layoutDf\` (e.g., "abundance"), nodes are colored
+along a continuous gradient based on that column's values. A color bar
+legend is drawn.
+
+The function places labels at the centroid for large domains
+(\>centroid_threshold complexes) and directly on nodes for smaller
+domains.
 
 ## Author
 
@@ -87,15 +132,23 @@ Qingzhou Zhang \<zqzneptune@hotmail.com\>
 nodes <- tibble::tibble(
   complexId = c("C1", "C2", "C3"), x = c(1, 2, 1.5), y = c(1, 1, 2),
   primaryFunctionalDomain = c("DNA Repair", "DNA Repair", "Metabolism"),
-  sizeMapping = c(3, 4, 3.5), colorHex = c("#FF0000", "#FF0000", "#0000FF")
+  sizeMapping = c(3, 4, 3.5), colorHex = c("#FF0000", "#FF0000", "#0000FF"),
+  abundance = c(1.2, -0.5, 0.8)
 )
 edges <- tibble::tibble(
   source_complex_id = "C1", target_complex_id = "C2", weight = 0.8
 )
 
-# --- Generate Plot ---
+# --- Usage 1: Default categorical coloring ---
 if (requireNamespace("ggrepel", quietly = TRUE)) {
   visualizeMapDirectLabels(nodes, edges)
+}
+#> Visualizing ComplexMap with direct labels...
+
+
+# --- Usage 2: Continuous coloring by 'abundance' ---
+if (requireNamespace("ggrepel", quietly = TRUE)) {
+  visualizeMapDirectLabels(nodes, edges, color.by = "abundance")
 }
 #> Visualizing ComplexMap with direct labels...
 

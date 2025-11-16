@@ -25,7 +25,6 @@ The `ComplexMap` package includes the `demoComplexes` dataset, a list of
 set (GMT) file for functional annotation.
 
 ``` r
-
 # Load the example complex list shipped with the package
 utils::data("demoComplexes", package = "ComplexMap")
 
@@ -57,7 +56,6 @@ We can pass parameters to the underlying functions (like
 `mergeThreshold` for `refineComplexList`) directly into this wrapper.
 
 ``` r
-
 # Run the entire workflow with a single command
 # We will merge complexes with a Jaccard similarity of 0.75 or higher
 complexMapObject <- ComplexMap::createComplexMap(
@@ -71,7 +69,7 @@ complexMapObject <- ComplexMap::createComplexMap(
 #> 
 #> --- Refining Input Complex List ---
 #> Filtered 112 complexes by size. Retaining 510.
-#> Identifying merge groups with Jaccard >= 0.75...
+#> Identifying merge groups with matching_score >= 0.75...
 #> Found 0 merge groups. Merging 0 complexes into 510.
 #> Merging complete. Final list has 510 complexes.
 #> 
@@ -83,7 +81,7 @@ complexMapObject <- ComplexMap::createComplexMap(
 #> 
 #> Step 3: Building complex network...
 #> Building complex network using 'jaccard' similarity...
-#> Using 11 cores for parallel processing.
+#> Using 7 cores for parallel processing.
 #> Processing 129795 complex pairs...
 #> Split into 130 chunks of up to 1000 pairs each.
 #> Combining results from chunks...
@@ -92,8 +90,8 @@ complexMapObject <- ComplexMap::createComplexMap(
 #> 
 #> Step 4: Generating node attributes...
 #> Generating core node attributes (function and color)...
-#>     -> Clustering terms using 'jaccard' similarity.
-#> Metric: 'jaccard' with unit: 'log'; comparing: 231 vectors
+#>     -> Clustering 231 terms using co-occurrence (overlap)
+#>     -> Identified 3 functional domains
 #> 
 #> Step 5: Computing map topology...
 #> Computing map topology (layout and centrality)...
@@ -107,12 +105,11 @@ contains the complete results of the analysis. Printing the object gives
 a high-level summary.
 
 ``` r
-
 # Print the object to see a summary
 complexMapObject
 #> # A ComplexMap Object
 #> # ── 510 nodes and 1390 edges
-#> # ── 15 major biological themes identified.
+#> # ── 3 major biological themes identified.
 #> # ── Use `getNodeTable()` or `getEdgeTable()` to access data.
 ```
 
@@ -124,7 +121,6 @@ function uses community detection algorithms to find densely connected
 network modules and provides a summary.
 
 ``` r
-
 themeSummary <- ComplexMap::summarizeThemes(complexMapObject)
 #> Summarizing themes using the 'louvain' community algorithm...
 #> Identified 98 distinct themes.
@@ -134,18 +130,18 @@ themeSummary %>%
   dplyr::arrange(dplyr::desc(nodeCount)) %>%
   utils::head(10)
 #> # A tibble: 10 × 4
-#>    themeId    themeLabel                  nodeCount edgeCount
-#>    <membrshp> <chr>                           <int>     <int>
-#>  1  1         BIOCARTA_EICOSANOID_PATHWAY        56       180
-#>  2  2         BIOCARTA_EICOSANOID_PATHWAY        47        86
-#>  3  8         BIOCARTA_ETS_PATHWAY               45        68
-#>  4  9         BIOCARTA_EICOSANOID_PATHWAY        31        68
-#>  5  6         BIOCARTA_EICOSANOID_PATHWAY        27        47
-#>  6  5         BIOCARTA_EICOSANOID_PATHWAY        25        78
-#>  7 11         BIOCARTA_EICOSANOID_PATHWAY        25        92
-#>  8 12         BIOCARTA_EICOSANOID_PATHWAY        24       101
-#>  9  4         BIOCARTA_EICOSANOID_PATHWAY        20        49
-#> 10 10         BIOCARTA_EICOSANOID_PATHWAY        20        20
+#>    themeId themeLabel                  nodeCount edgeCount
+#>      <int> <chr>                           <int>     <int>
+#>  1       1 BIOCARTA_PTDINS_PATHWAY            56       180
+#>  2       2 BIOCARTA_PROTEASOME_PATHWAY        47        86
+#>  3       8 BIOCARTA_PROTEASOME_PATHWAY        45        68
+#>  4       9 BIOCARTA_PROTEASOME_PATHWAY        31        68
+#>  5       6 BIOCARTA_PROTEASOME_PATHWAY        27        47
+#>  6       5 BIOCARTA_PROTEASOME_PATHWAY        25        78
+#>  7      11 BIOCARTA_PROTEASOME_PATHWAY        25        92
+#>  8      12 BIOCARTA_PROTEASOME_PATHWAY        24       101
+#>  9       4 BIOCARTA_PROTEASOME_PATHWAY        20        49
+#> 10      10 BIOCARTA_CACAM_PATHWAY             20        20
 ```
 
 The result is a table listing each theme, its descriptive label (derived
@@ -164,7 +160,6 @@ results.
 Let’s find all complexes that contain the protein “SMAD4”.
 
 ``` r
-
 # To ensure our example is robust, let's find a protein to query
 # that is guaranteed to be in our final, refined map.
 nodes <- ComplexMap::getNodeTable(complexMapObject)
@@ -184,9 +179,9 @@ protein_complexes <- ComplexMap::queryMap(
 protein_complexes %>%
   dplyr::select(complexId, primaryFunctionalDomain, proteins)
 #> # A tibble: 1 × 3
-#>   complexId   primaryFunctionalDomain     proteins                           
-#>   <chr>       <chr>                       <chr>                              
-#> 1 CpxMap_0359 BIOCARTA_EICOSANOID_PATHWAY PRKACB,PRKACA,PRKAR2A,CIRBP,CAPRIN1
+#>   complexId   primaryFunctionalDomain proteins                           
+#>   <chr>       <chr>                   <chr>                              
+#> 1 CpxMap_0359 BIOCARTA_CACAM_PATHWAY  PRKACB,PRKACA,PRKAR2A,CIRBP,CAPRIN1
 ```
 
 #### 4.2 Querying for a Specific Complex
@@ -194,7 +189,6 @@ protein_complexes %>%
 We can also retrieve the data for a single complex of interest.
 
 ``` r
-
 # Note: The exact CpxMap ID may vary slightly between runs
 # if refinement results change. We query for the first node in the table.
 first_complex_id <- ComplexMap::getNodeTable(complexMapObject)$complexId[1]
@@ -211,9 +205,9 @@ dplyr::glimpse(complex_data)
 #> $ complexId               <chr> "CpxMap_0359"
 #> $ proteinCount            <int> 5
 #> $ proteins                <chr> "PRKACB,PRKACA,PRKAR2A,CIRBP,CAPRIN1"
-#> $ primaryFunctionalDomain <chr> "BIOCARTA_EICOSANOID_PATHWAY"
-#> $ topEnrichedFunctions    <chr> "BIOCARTA_AGPCR_PATHWAY, BIOCARTA_AKAP13_PATHW…
-#> $ colorHex                <chr> "#E41A1B"
+#> $ primaryFunctionalDomain <chr> "BIOCARTA_CACAM_PATHWAY"
+#> $ topEnrichedFunctions    <chr> "BIOCARTA_AGPCR_PATHWAY; BIOCARTA_AKAP13_PATHW…
+#> $ colorHex                <chr> "#836FA8"
 #> $ sizeMapping             <dbl> 2.321928
 #> $ x                       <dbl> 7.989894
 #> $ y                       <dbl> 6.128077
@@ -230,7 +224,6 @@ provides three visualization functions that all work directly with the
 First, we extract the final node and edge tables for plotting.
 
 ``` r
-
 mapLayout <- ComplexMap::getNodeTable(complexMapObject)
 networkEdges <- ComplexMap::getEdgeTable(complexMapObject)
 ```
@@ -241,7 +234,6 @@ This version is useful for a clean overview, using a discrete color
 legend to represent the functional domains.
 
 ``` r
-
 ComplexMap::visualizeMapWithLegend(mapLayout, networkEdges)
 #> Visualizing ComplexMap with a color legend...
 ```
@@ -256,7 +248,6 @@ For deep exploration, an interactive HTML widget is ideal. You can zoom,
 pan, and hover over nodes to see detailed tooltips.
 
 ``` r
-
 # visNetwork is required for this plot
 if (requireNamespace("visNetwork", quietly = TRUE)) {
   ComplexMap::visualizeMapInteractive(mapLayout, networkEdges)
@@ -266,8 +257,7 @@ if (requireNamespace("visNetwork", quietly = TRUE)) {
 
 ## Conclusion
 
-This vignette has demonstrated the power and simplicity of the
-refactored `ComplexMap` workflow. By using the main
+By using the main
 [`createComplexMap()`](https://zqzneptune.github.io/ComplexMap/reference/createComplexMap.md)
 wrapper, a complete analysis can be run in a single step. The resulting
 object can then be easily interpreted, queried, and visualized,

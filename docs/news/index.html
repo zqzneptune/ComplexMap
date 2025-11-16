@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ComplexMap</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -20,7 +20,8 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/vignette_01-prep-input.html">1. Preparing Your Input Data</a></li>
     <li><a class="dropdown-item" href="../articles/vignette_02-workflow.html">2. Start a Typical Workflow</a></li>
-    <li><a class="dropdown-item" href="../articles/vignette_03-advanced-analysis.html">3. Explore Advanced Analyses</a></li>
+    <li><a class="dropdown-item" href="../articles/vignette_03-advanced-analysis.html">3. Advanced Analysis and Visualization</a></li>
+    <li><a class="dropdown-item" href="../articles/vignette_04-quantitative-visualization.html">4. Visualizing Quantitative Data</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://zqzneptune.github.io" aria-label="Home page"><span class="fa fa-home"></span></a></li>
@@ -38,6 +39,28 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.0" id="complexmap-110---2025-11-15">ComplexMap 1.1.0 - 2025-11-15<a class="anchor" aria-label="anchor" href="#complexmap-110---2025-11-15"></a></h2>
+<div class="section level3">
+<h3 id="added-1-1-0">Added<a class="anchor" aria-label="anchor" href="#added-1-1-0"></a></h3>
+<ul><li><p><strong>Quantitative Data Visualization:</strong> All three visualization functions (<code>visualizeMapDirectLabels</code>, <code>visualizeMapWithLegend</code>, <code>visualizeMapInteractive</code>) now support a <code>color.by</code> argument to map continuous experimental data directly onto node colors.</p></li>
+<li><p><strong>Robust Parameter Benchmarking:</strong> Added a new <code><a href="../reference/benchmarkParameters.html">benchmarkParameters()</a></code> function to systematically test and optimize <code>mergeThreshold</code> values against a reference complex set.</p></li>
+<li><p><strong>New Similarity Metrics:</strong> Added <code>dice</code> and <code>matching_score</code> similarity options to <code>refineComplexList</code> for more flexible complex merging.</p></li>
+<li><p><strong>New Vignette:</strong> Added a comprehensive vignette (<code>04-quantitative-visualization.Rmd</code>) to demonstrate the new quantitative data workflow.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="changed-1-1-0">Changed<a class="anchor" aria-label="anchor" href="#changed-1-1-0"></a></h3>
+<ul><li><p><strong>New Default Metric:</strong> The default <code>similarityMethod</code> in <code>refineComplexList</code> is now <code>"matching_score"</code> to better align refinement logic with the standard MMR evaluation metric.</p></li>
+<li><p><strong>Enhanced Traceability:</strong> <code>refineComplexList</code> now returns a <code>mergeMap</code> tibble, providing a clear and reproducible map from original to merged complex IDs.</p></li>
+<li><p><strong>Improved QC Report:</strong> Overhauled the output of <code>qcComplexList</code> to be a user-friendly, formatted report with clear warnings and visual cues, rather than raw R output.</p></li>
+<li><p><strong>Metric Renaming:</strong> Renamed the <code>"overlap"</code> similarity metric to <code>"simpson"</code> for clarity and correctness.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="fixed-1-1-0">Fixed<a class="anchor" aria-label="anchor" href="#fixed-1-1-0"></a></h3>
+<ul><li><p>Resolved <code>R CMD check</code> errors in vignettes caused by excessive parallel core usage in examples (<code>nCores</code> is now limited).</p></li>
+<li><p>Fixed data type mismatches in vignettes that occurred when joining <code>igraph</code> membership objects with <code>dplyr</code> tibbles.</p></li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.0" id="complexmap-100">ComplexMap 1.0.0<a class="anchor" aria-label="anchor" href="#complexmap-100"></a></h2>
 <ul><li>Initial stable release.</li>
 <li>Complete refactoring of the codebase to adhere to Bioconductor standards.</li>
@@ -47,7 +70,8 @@
 <li>Added three comprehensive vignettes.</li>
 <li>Numerous bug fixes and improvements to robustness.</li>
 </ul></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

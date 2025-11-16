@@ -1,4 +1,6 @@
-utils::globalVariables(c("themeId", "primaryFunctionalDomain"))
+utils::globalVariables(c("themeId", "primaryFunctionalDomain", "themeLabel",
+                         "nodeCount"))
+
 #' Summarize Major Biological Themes in a Complex Map
 #'
 #' @description
@@ -8,29 +10,25 @@ utils::globalVariables(c("themeId", "primaryFunctionalDomain"))
 #'
 #' @details
 #' The function performs the following steps:
-#' 1.  It constructs an `igraph` graph object from the node and edge tables of
-#'     the `complexMapObject`.
+#' 1.  It constructs an `igraph` graph object from the node and edge tables.
+#' 
 #' 2.  It applies a community detection algorithm (e.g., Louvain, as default)
 #'     to partition the network into clusters or "themes".
-#' 3.  For each identified theme, it generates a descriptive `themeLabel` by
-#'     finding the most frequently occurring `primaryFunctionalDomain` among
-#'     the member nodes (excluding "Unenriched").
-#' 4.  It calculates summary statistics for each theme, including the number of
-#'     nodes and edges it contains.
+#'     
+#' 3.  For each theme, it generates a descriptive `themeLabel` by finding the
+#'     most frequently occurring `primaryFunctionalDomain` among the member
+#'     nodes (excluding "Unenriched").
+#'     
+#' 4.  It calculates summary statistics for each theme, including node and edge counts.
 #'
-#' @param complexMapObject A `ComplexMap` object returned by
-#'   `createComplexMap()`.
+#' @param complexMapObject A `ComplexMap` object returned by `createComplexMap()`.
 #' @param method A character string specifying the community detection algorithm
 #'   to use. Must be a valid `igraph` clustering function (e.g., "louvain",
 #'   "walktrap", "infomap"). Defaults to "louvain".
 #' @param verbose A logical value indicating whether to print progress messages.
 #'
-#' @return A `tibble` where each row represents a summarized theme. The tibble
-#'   contains the following columns:
-#'   - `themeId`: A unique integer identifier for the theme.
-#'   - `themeLabel`: A descriptive label for the theme.
-#'   - `nodeCount`: The number of nodes (complexes) in the theme.
-#'   - `edgeCount`: The number of internal edges within the theme.
+#' @return A `tibble` where each row represents a summarized theme, containing
+#'   `themeId`, `themeLabel`, `nodeCount`, and `edgeCount`.
 #'
 #' @author Qingzhou Zhang <zqzneptune@hotmail.com>
 #'
@@ -42,7 +40,7 @@ utils::globalVariables(c("themeId", "primaryFunctionalDomain"))
 #' #   print(themeSummary)
 #' # }
 #'
-summarizeThemes <- function(complexMapObject, method="louvain", verbose=TRUE) {
+summarizeThemes <- function(complexMapObject, method = "louvain", verbose = TRUE) {
   if (verbose) {
     message(
       sprintf(
@@ -51,8 +49,8 @@ summarizeThemes <- function(complexMapObject, method="louvain", verbose=TRUE) {
     )
   }
   
-  if (!requireNamespace("igraph", quietly=TRUE)) {
-    stop("Package 'igraph' is required for theme summarization.", call.=FALSE)
+  if (!requireNamespace("igraph", quietly = TRUE)) {
+    stop("Package 'igraph' is required for theme summarization.", call. = FALSE)
   }
   
   nodes <- getNodeTable(complexMapObject)
@@ -61,21 +59,18 @@ summarizeThemes <- function(complexMapObject, method="louvain", verbose=TRUE) {
   if (nrow(nodes) == 0 || nrow(edges) == 0) {
     warning("Cannot summarize themes with empty node or edge lists.")
     return(tibble::tibble(
-      themeId=integer(),
-      themeLabel=character(),
-      nodeCount=integer(),
-      edgeCount=integer()
+      themeId = integer(),
+      themeLabel = character(),
+      nodeCount = integer(),
+      edgeCount = integer()
     ))
   }
   
-  # 1. Create an igraph object
-  # Ensure node IDs are characters to match edge list
   nodes$complexId <- as.character(nodes$complexId)
   graph <- igraph::graph_from_data_frame(
-    d=edges, vertices=nodes, directed=FALSE
+    d = edges, vertices = nodes, directed = FALSE
   )
   
-  # 2. Perform community detection using the specified method
   communityAlgorithm <- switch(
     method,
     "louvain" = igraph::cluster_louvain,
@@ -84,16 +79,24 @@ summarizeThemes <- function(complexMapObject, method="louvain", verbose=TRUE) {
     stop("Unsupported community detection method specified.")
   )
   communities <- communityAlgorithm(graph)
-  nodes$themeId <- igraph::membership(communities)
   
-  # 3. For each community, generate a theme label and summary stats
-  themeSummaries <- nodes %>%
+  # Safely create a mapping from complexId to themeId
+  theme_mapping <- tibble::tibble(
+    complexId = igraph::V(graph)$name,
+    themeId = as.integer(igraph::membership(communities))
+  )
+  
+  # Join mapping back to the original node table to get functional domains
+  nodes_with_themes <- nodes %>%
+    dplyr::left_join(theme_mapping, by = "complexId")
+  
+  themeSummaries <- nodes_with_themes %>%
+    dplyr::filter(!is.na(themeId)) %>% # Exclude nodes not in the graph
     dplyr::group_by(themeId) %>%
     dplyr::summarise(
-      # Find the most common functional domain for the label
       themeLabel = {
         validDomains <- primaryFunctionalDomain[
-          primaryFunctionalDomain != "Unenriched"
+          primaryFunctionalDomain != "Unenriched" & !is.na(primaryFunctionalDomain)
         ]
         if (length(validDomains) > 0) {
           names(which.max(table(validDomains)))[1]
@@ -105,18 +108,23 @@ summarizeThemes <- function(complexMapObject, method="louvain", verbose=TRUE) {
       .groups = "drop"
     )
   
-  # 4. Calculate the internal edge count for each theme
   subgraphEdgeCounts <- vapply(
-    seq_along(communities),
+    unique(theme_mapping$themeId),
     function(id) {
-      subgraph <- igraph::induced_subgraph(
-        graph, which(igraph::membership(communities) == id)
-      )
+      members <- theme_mapping$complexId[theme_mapping$themeId == id]
+      subgraph <- igraph::induced_subgraph(graph, members)
       as.integer(igraph::ecount(subgraph))
     },
     integer(1)
   )
-  themeSummaries$edgeCount <- subgraphEdgeCounts[themeSummaries$themeId]
+  
+  edge_counts_df <- tibble::tibble(
+    themeId = unique(theme_mapping$themeId),
+    edgeCount = subgraphEdgeCounts
+  )
+  
+  themeSummaries <- themeSummaries %>%
+    dplyr::left_join(edge_counts_df, by = "themeId")
   
   if (verbose) {
     message(sprintf("Identified %d distinct themes.", nrow(themeSummaries)))
@@ -124,6 +132,7 @@ summarizeThemes <- function(complexMapObject, method="louvain", verbose=TRUE) {
   
   return(themeSummaries)
 }
+
 
 #' Query a ComplexMap Object for Specific Information
 #'
@@ -134,24 +143,15 @@ summarizeThemes <- function(complexMapObject, method="louvain", verbose=TRUE) {
 #'
 #' @details
 #' This function supports three distinct modes of querying:
-#' - `type = "protein"`: The `query` is a character string representing a
-#'   protein ID. The function searches the `proteins` column in the node table
-#'   and returns all complexes that contain that protein. The search is exact
-#'   and case-sensitive.
-#' - `type = "complex"`: The `query` is a character string for a complex ID
-#'   (e.g., "CpxMap_0001"). It returns the specific row from the node table
-#'   corresponding to that complex.
-#' - `type = "theme"`: The `query` is a character string corresponding to a
-#'   `themeLabel` from `summarizeThemes()`. To use this, the themes must first
-#'   be calculated and their IDs added to the node table. If the `themeId`
-#'   column is not found, the function will stop with an informative error.
+#' - `type = "protein"`: Searches for complexes containing a specific protein.
+#' - `type = "complex"`: Retrieves a specific complex by its ID.
+#' - `type = "theme"`: Finds all complexes belonging to a given theme. This
+#'   requires theme information to be added to the `ComplexMap` object first
+#'   (see the "Advanced Analysis" vignette for an example).
 #'
-#' @param complexMapObject A `ComplexMap` object returned by
-#'   `createComplexMap()`.
-#' @param query A character string containing the search term (a protein ID,
-#'   complex ID, or theme label).
-#' @param type A character string specifying the type of query. Must be one of
-#'   `"protein"`, `"complex"`, or `"theme"`.
+#' @param complexMapObject A `ComplexMap` object.
+#' @param query A character string containing the search term.
+#' @param type A character string: one of `"protein"`, `"complex"`, or `"theme"`.
 #'
 #' @return A `tibble` containing the rows from the node table that match the
 #'   query. Returns an empty tibble if no matches are found.
@@ -161,23 +161,7 @@ summarizeThemes <- function(complexMapObject, method="louvain", verbose=TRUE) {
 #' @export
 #' @examples
 #' # Assume 'cm_obj' is a valid ComplexMap object
-#'
-#' # Query for a specific protein (e.g., "UBA1")
 #' # uba1_complexes <- queryMap(cm_obj, query = "UBA1", type = "protein")
-#'
-#' # Query for a specific complex ID
-#' # cpx1_data <- queryMap(cm_obj, query = "CpxMap_0001", type = "complex")
-#'
-#' # To query by theme, you must first run summarizeThemes and add the IDs
-#' # theme_summary <- summarizeThemes(cm_obj)
-#' # nodes <- getNodeTable(cm_obj)
-#' # graph <- igraph::graph_from_data_frame(getEdgeTable(cm_obj))
-#' # communities <- igraph::cluster_louvain(graph)$membership
-#' # nodes$themeId <- communities
-#' # cm_obj$nodes <- nodes # Update the object
-#' #
-#' # Then you could query by a theme label from the summary
-#' # proteasome_nodes <- queryMap(cm_obj, query = "Proteasome", type = "theme")
 #'
 queryMap <- function(complexMapObject, query, type) {
   nodes <- getNodeTable(complexMapObject)
@@ -185,9 +169,6 @@ queryMap <- function(complexMapObject, query, type) {
   result <- switch(
     type,
     "protein" = {
-      # Use stringr for robust pattern matching. We look for the query as a
-      # whole word to avoid matching substrings (e.g., "UBA1" shouldn't
-      # match "UBA10"). The pattern `\\b` matches a word boundary.
       pattern <- paste0("\\b", query, "\\b")
       nodes[stringr::str_detect(nodes$proteins, pattern), ]
     },
@@ -197,29 +178,21 @@ queryMap <- function(complexMapObject, query, type) {
     },
     
     "theme" = {
-      # This query type requires theme analysis to have been run first.
-      if (!"themeLabel" %in% names(nodes) && !"themeId" %in% names(nodes)) {
-        stop("Cannot query by theme. Please run `summarizeThemes()` first ",
-             "and add theme information to the ComplexMap object.",
-             call.=FALSE)
-      }
-      # This assumes a 'themeLabel' column exists or can be derived.
-      # For simplicity, we require a column named 'themeLabel' for now.
       if (!"themeLabel" %in% names(nodes)) {
-        stop("Node table is missing the 'themeLabel' column required for this query.",
-             call.=FALSE)
+        stop("Cannot query by theme. Column 'themeLabel' not found in the node table.",
+             call. = FALSE)
       }
-      nodes[nodes$themeLabel == query, ]
+      # --- ROBUST QUERY ---
+      # Filter for the theme and also remove any rows where themeLabel is NA
+      nodes[!is.na(nodes$themeLabel) & nodes$themeLabel == query, ]
     },
     
-    # Default case for invalid 'type'
-    stop(sprintf("Invalid query type '%s'. Must be one of 'protein', ",
-                 "'complex', or 'theme'.", type), call.=FALSE)
+    stop(sprintf("Invalid query type '%s'. Must be one of 'protein', 'complex', or 'theme'.", type),
+         call. = FALSE)
   )
   
-  # Ensure a consistent return type (tibble) even if there are no matches
   if (nrow(result) == 0) {
-    warning("Query returned no results for '", query, "'.")
+    warning("Query returned no results for '", query, "'.", call. = FALSE)
     return(tibble::tibble())
   }
   

@@ -36,8 +36,11 @@ as Cytoscape.
 }
 \details{
 The function currently supports one format:
+
 - `"cytoscape"`: This option generates two separate tab-separated value
-  (.tsv) files. One file contains the node attributes (`<filePrefix>_nodes.tsv`)
+  (.tsv) files. 
+  
+  One file contains the node attributes (`<filePrefix>_nodes.tsv`)
   and the other contains the edge list with its attributes
   (`<filePrefix>_edges.tsv`). These files can be directly imported into
   Cytoscape's network and attribute tables.

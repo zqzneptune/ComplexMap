@@ -29,23 +29,23 @@ summarizeThemes(complexMapObject, method = "louvain", verbose = TRUE)
 
 ## Value
 
-A \`tibble\` where each row represents a summarized theme. The tibble
-contains the following columns: - \`themeId\`: A unique integer
-identifier for the theme. - \`themeLabel\`: A descriptive label for the
-theme. - \`nodeCount\`: The number of nodes (complexes) in the theme. -
-\`edgeCount\`: The number of internal edges within the theme.
+A \`tibble\` where each row represents a summarized theme, containing
+\`themeId\`, \`themeLabel\`, \`nodeCount\`, and \`edgeCount\`.
 
 ## Details
 
 The function performs the following steps: 1. It constructs an
-\`igraph\` graph object from the node and edge tables of the
-\`complexMapObject\`. 2. It applies a community detection algorithm
-(e.g., Louvain, as default) to partition the network into clusters or
-"themes". 3. For each identified theme, it generates a descriptive
-\`themeLabel\` by finding the most frequently occurring
-\`primaryFunctionalDomain\` among the member nodes (excluding
-"Unenriched"). 4. It calculates summary statistics for each theme,
-including the number of nodes and edges it contains.
+\`igraph\` graph object from the node and edge tables.
+
+2\. It applies a community detection algorithm (e.g., Louvain, as
+default) to partition the network into clusters or "themes".
+
+3\. For each theme, it generates a descriptive \`themeLabel\` by finding
+the most frequently occurring \`primaryFunctionalDomain\` among the
+member nodes (excluding "Unenriched").
+
+4\. It calculates summary statistics for each theme, including node and
+edge counts.
 
 ## Author
 

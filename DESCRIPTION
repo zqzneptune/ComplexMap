@@ -1,7 +1,7 @@
 Package: ComplexMap
 Title: A Toolset for the Functional Analysis and Visualization of Protein Complex Data
-Version: 1.0.0
-Date: 2025-11-11
+Version: 1.1.0
+Date: 2025-11-15
 Authors@R: 
     person(given = "Qingzhou",
            family = "Zhang",
@@ -40,6 +40,8 @@ Imports:
     scales,
     stringr,
     tibble,
+    methods,
+    colorspace,
     tidygraph
 Suggests:
     clue,

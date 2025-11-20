@@ -95,7 +95,7 @@ Programmatically find specific complexes of interest.
 result <- ComplexMap::queryMap(cm_obj, query = "CpxMap_0001", type = "complex")
 
 # Show some of its key attributes
-dplyr::select(result, complexId, primaryFunctionalDomain, proteinCount, degree)```
+dplyr::select(result, complexId, primaryFunctionalDomain, proteinCount, degree)
 ```
 
 ## Citation

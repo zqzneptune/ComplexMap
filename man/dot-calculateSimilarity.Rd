@@ -6,20 +6,7 @@
 \usage{
 .calculateSimilarity(set1, set2, method = "jaccard")
 }
-\arguments{
-\item{set1}{A character vector representing the first set.}
-
-\item{set2}{A character vector representing the second set.}
-
-\item{method}{The similarity metric to use. One of "jaccard", "overlap",
-or "dice".}
-}
-\value{
-A numeric similarity score between 0 and 1. Returns 0 if either
-  set is empty or if there is no intersection.
-}
 \description{
-An internal helper function that computes one of three common similarity
-metrics: Jaccard, Overlap, or Dice.
+Internal helper to compute Jaccard, Overlap, or Dice coefficients.
 }
 \keyword{internal}

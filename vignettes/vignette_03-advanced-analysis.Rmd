@@ -2,9 +2,9 @@
 title: "3. Advanced Analysis and Visualization"
 author: "Qingzhou Zhang"
 date: "`r Sys.Date()`"
-output: html_document
+output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Advanced Analysis and Visualization}
+  %\VignetteIndexEntry{3. Advanced Analysis and Visualization}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -25,43 +25,38 @@ knitr::opts_chunk$set(
 Once you have a `ComplexMap` object, the package provides several functions for deeper analysis and interpretation of the network structure. This vignette covers:
 
 1.  **Optimizing Parameters**: Using `evaluateComplexes()` to tune the `refineComplexList` step.
-
-2.  **Summarizing Themes**: Using `summarizeThemes()` to identify major biological clusters.
-
-3.  **Querying the Map**: Using `queryMap()` to find specific proteins, complexes, or themes.
+2.  **Summarizing & Querying Themes**: A streamlined workflow using `summarizeThemes()` and `queryMap()` to identify and investigate biological clusters.
 
 ```{r setup}
 library(ComplexMap)
 library(dplyr)
-library(ggplot2)
-library(igraph)
 ```
 
 ### 1. Optimizing Refinement with `evaluateComplexes`
 
-The `mergeThreshold` in `refineComplexList` is a critical parameter that determines how aggressively smaller complexes are merged. A low threshold creates fewer, larger complexes, while a high threshold preserves more distinct complexes. The optimal value often depends on the dataset.
+The `mergeThreshold` in `refineComplexList` determines how aggressively redundant complexes are merged. The default is a conservative **Jaccard** similarity of 0.90 to preserve biological variants.
 
-The `evaluateComplexes()` function can be used to score a refined complex list against a gold standard (like the `referenceComplexes` dataset) to help guide this choice. It returns four key metrics: Positive Predictive Value (PPV), Sensitivity (Sn), Accuracy (Acc), and Maximum Matching Ratio (MMR).
-
-Let's test a `mergeThreshold` of 0.85.
+The `evaluateComplexes()` function can score a refined complex list against a gold standard, helping you tune this parameter.
 
 ```{r evaluate}
 # Load the package's demo and reference data
 data(demoComplexes)
 data(referenceComplexes)
 
-# refineComplexList now returns a list with two elements
+# 1. Run Refinement
 refinement_output <- refineComplexList(
   demoComplexes,
-  mergeThreshold = 0.85,
+  mergeThreshold = 0.90,
+  similarityMethod = "jaccard",
   verbose = FALSE
 )
 
-# We must now explicitly use the `$refinedComplexes` element for evaluation
+# 2. Evaluate
+# Pass the $refinedComplexes element to the evaluation function
 metrics <- evaluateComplexes(
   predictedComplexes = refinement_output$refinedComplexes,
   referenceComplexes = referenceComplexes,
-  nCores = 2, # <-- THIS IS THE FIX: Limit cores for check environment
+  nCores = 2, # Use multiple cores if available
   verbose = FALSE
 )
 
@@ -69,118 +64,92 @@ metrics <- evaluateComplexes(
 knitr::kable(as.data.frame(metrics))
 ```
 
-For more systematic tuning, see the documentation for the new `benchmarkParameters()` function, which automates this process over a range of thresholds.
+For more systematic tuning, see the documentation for `benchmarkParameters()`, which automates this process over a range of thresholds.
 
-### 2. Summarizing Biological Themes
+### 2. A Streamlined Workflow for Theme Analysis
 
-A key goal of `ComplexMap` is to organize complexes into a functional landscape. The `summarizeThemes()` function uses network community detection algorithms (like Louvain, the default) to find densely connected clusters of complexes within the map. It then automatically labels each cluster based on the most common functional annotation among its members.
+A key goal of `ComplexMap` is to organize complexes into a functional landscape. `summarizeThemes()` uses community detection to find densely connected physical neighborhoods (themes) and, by default, adds this information directly to your `ComplexMap` object. This makes querying by theme simple and intuitive.
 
-Let's generate a map with a slightly lower merge threshold to create a more interconnected network for this example.
+First, let's generate a map object for this example.
 
 ```{r create_adv_map}
-# We'll use the example GMT file that comes with the package
 gmtPath <- getExampleGmt()
 gmt <- getGmtFromFile(gmtPath, verbose = FALSE)
 
-# Create the map object
 cm_obj_adv <- createComplexMap(
   complexList = demoComplexes,
   gmt = gmt,
-  mergeThreshold = 0.75, # Lower threshold for more connections
+  mergeThreshold = 0.85, 
   verbose = FALSE
 )
 ```
 
-Now, we can run `summarizeThemes()` on this object.
+#### Step 2.1: Summarize Themes and Add to Object
 
-```{r summarize_themes}
-# The function returns a tibble summarizing each detected theme
-theme_summary <- summarizeThemes(cm_obj_adv, verbose = FALSE)
+Now, we run `summarizeThemes()`. The default `add_to_object = TRUE` returns the modified `ComplexMap` object, now containing theme information in its node table.
 
-# Display the largest themes
-theme_summary %>%
-  arrange(desc(nodeCount)) %>%
-  head(10) %>%
+```{r summarize_and_add}
+# Ensure reproducibility of community detection
+set.seed(123)
+
+# This single command finds themes AND adds them to the object
+cm_obj_adv <- summarizeThemes(cm_obj_adv, verbose = FALSE)
+
+# We can inspect the new columns in the node table
+getNodeTable(cm_obj_adv) %>%
+  select(complexId, primaryFunctionalDomain, themeId, themeLabel) %>%
+  head() %>%
   knitr::kable()
 ```
-This summary shows us the major biological stories in our dataset, such as the large "Ribosome" and "Proteasome" communities.
 
-### 3. Querying the Map for Specific Information
+The returned object is now "theme-aware".
 
-The `queryMap()` function provides an easy way to retrieve specific nodes from the `ComplexMap` object based on different criteria.
+#### Step 2.2: Querying the Map for Specific Information
 
-#### Query by Protein
+The `queryMap()` function can now be used with `type = "theme"` to easily retrieve all complexes belonging to a specific biological theme.
+
+**Query by Protein**
 
 Find all complexes that contain a specific protein.
 
 ```{r query_protein}
 # Find all complexes containing the protein "UBA1"
 queryMap(cm_obj_adv, query = "UBA1", type = "protein") %>%
-  select(complexId, primaryFunctionalDomain, proteinCount, proteins) %>%
+  select(complexId, primaryFunctionalDomain, proteinCount, themeLabel, proteins) %>%
   knitr::kable()
 ```
 
-#### Query by Complex ID
+**Query by Complex ID**
 
 Retrieve the data for a single complex.
 
 ```{r query_complex}
 # Get the data for complex "CpxMap_0001"
 queryMap(cm_obj_adv, query = "CpxMap_0001", type = "complex") %>%
-  knitr::kable()
+  # Use glimpse to see all columns, including theme info
+  glimpse()
 ```
 
-#### Query by Theme
+**Query by Theme**
 
-To query by theme, we first need to add the theme labels from `summarizeThemes()` back into our main `ComplexMap` object's node table.
-
-```{r add-themes}
-# To add the theme labels to our main node table for querying or visualization,
-# we first need to get the theme ID for each node.
-
-# Re-run the community detection to get the membership vector
-graph <- igraph::graph_from_data_frame(
-  d = getEdgeTable(cm_obj_adv), 
-  vertices = getNodeTable(cm_obj_adv), 
-  directed = FALSE
-)
-communities <- igraph::cluster_louvain(graph)
-
-# Create a tibble mapping complexId to themeId
-# Coerce the 'membership' object to a simple integer for joining
-node_themes <- tibble(
-  complexId = names(igraph::membership(communities)),
-  themeId = as.integer(igraph::membership(communities))
-)
-theme_summary$themeId <-
-  as.integer(theme_summary$themeId)
-
-# Join this mapping with the theme summary table to get the labels
-node_theme_labels <- node_themes %>%
-  left_join(theme_summary, by = "themeId")
-
-# Finally, join the theme labels back to the main node table of our object
-nodes_with_themes <- getNodeTable(cm_obj_adv) %>%
-  left_join(node_theme_labels, by = "complexId")
-
-# Update the ComplexMap object with this new node table
-cm_obj_adv$nodes <- nodes_with_themes
-
-# Preview the new columns
-head(select(cm_obj_adv$nodes, complexId, themeId, themeLabel)) %>%
-  knitr::kable()
-```
-
-Now that the `themeLabel` column exists in our node table, we can query it.
+Because we added theme labels to the object, we can now query them directly.
 
 ```{r query-theme}
-# Find all complexes belonging to the "Proteasome" theme
-proteasome_nodes <- queryMap(cm_obj_adv, query = "BIOCARTA_PROTEASOME_PATHWAY", type = "theme")
+# First, let's find a valid theme label to query from our map
+node_table <- getNodeTable(cm_obj_adv)
+if (nrow(node_table) > 0 && "themeLabel" %in% names(node_table)) {
+  target_theme <- na.omit(node_table$themeLabel)
 
-cat("Found", nrow(proteasome_nodes), "nodes in the Proteasome theme.")
+  cat("Querying for all nodes in theme:", target_theme, "\n\n")
 
-proteasome_nodes %>%
-  select(complexId, primaryFunctionalDomain, proteinCount, betweenness) %>%
-  head(10) %>%
-  knitr::kable()
+  # Query the map using the theme label
+  theme_nodes <- queryMap(cm_obj_adv, query = target_theme, type = "theme")
+  
+  theme_nodes %>%
+    select(complexId, primaryFunctionalDomain, themeLabel) %>%
+    head() %>%
+    knitr::kable()
+}
 ```
+
+This streamlined workflow makes exploring the thematic structure of the complex map efficient and powerful.

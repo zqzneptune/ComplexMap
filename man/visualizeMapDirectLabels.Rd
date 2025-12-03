@@ -8,107 +8,48 @@ visualizeMapDirectLabels(
   layoutDf,
   edgesDf,
   title = "ComplexMap Functional Landscape",
-  subtitle = "Nodes are protein complexes, colored by function",
+  subtitle = "Nodes colored by Specificity-Weighted Function",
   bgColor = "black",
   edgeColor = "white",
   nodeSizeRange = c(2, 10),
   labelFillColor = ggplot2::alpha("white", 0.7),
-  fontFamily = "sans",
-  size.legend.title = "Complex Size (log2)",
+  centroid_threshold = 2,
   color.by = NULL,
   color.palette = "viridis",
   color.legend.title = NULL,
-  centroid_threshold = 2,
-  label_wrap_width = 20,
   verbose = TRUE
 )
 }
 \arguments{
-\item{layoutDf}{A data frame containing node attributes and layout
-coordinates, typically from `computeMapTopology`.}
+\item{layoutDf}{A data frame containing node attributes and layout coordinates.}
 
 \item{edgesDf}{A data frame containing the network edges.}
 
-\item{title}{The main title for the plot.}
+\item{title}{Plot title.}
 
-\item{subtitle}{The subtitle for the plot.}
+\item{subtitle}{Plot subtitle.}
 
-\item{bgColor}{The background color of the plot.}
+\item{bgColor}{Background color.}
 
-\item{edgeColor}{The color of the network edges.}
+\item{edgeColor}{Edge color.}
 
-\item{nodeSizeRange}{A numeric vector of length 2 specifying the min and max
-node size.}
+\item{nodeSizeRange}{Min and max node size.}
 
-\item{labelFillColor}{The background fill color for the labels.}
+\item{labelFillColor}{Background fill color for labels.}
 
-\item{fontFamily}{The base font family for all plot text.}
+\item{centroid_threshold}{Domains with > N complexes get a single centroid label.}
 
-\item{size.legend.title}{The title for the node size legend.}
+\item{color.by}{Optional numeric column for continuous coloring.}
 
-\item{color.by}{A character string specifying the name of a numeric column in
-`layoutDf` to use for continuous node coloring. If `NULL` (default), the
-categorical `colorHex` column is used.}
+\item{color.palette}{Palette name ("viridis", "plasma") or vector of colors.}
 
-\item{color.palette}{A character string or vector of colors for the continuous
-gradient (e.g., "viridis", "plasma", or `c("blue", "white", "red")`).
-Only used when `color.by` is specified.}
+\item{color.legend.title}{Title for color legend.}
 
-\item{color.legend.title}{A character string for the title of the continuous
-color legend. Defaults to the value of `color.by`.}
-
-\item{centroid_threshold}{Integer. Domains with more than this many complexes
-will use centroid labels. Defaults to 2.}
-
-\item{label_wrap_width}{Integer. Maximum width for label text wrapping. 
-Defaults to 20.}
-
-\item{verbose}{A logical value indicating whether to print progress messages.}
+\item{verbose}{Logical.}
 }
 \value{
-A `ggplot` object representing the network visualization.
+A `ggplot` object.
 }
 \description{
-Creates a static visualization of the complex network using `ggraph`, where
-functional domain labels are placed directly on the plot near the nodes.
-}
-\details{
-This function supports two coloring modes:
-
-1.  **Categorical (default):** When `color.by = NULL`, nodes are colored
-    using the `colorHex` column, which typically represents functional domains.
-    No color legend is drawn.
-    
-2.  **Continuous:** When `color.by` is set to the name of a numeric column
-    in `layoutDf` (e.g., "abundance"), nodes are colored along a continuous
-    gradient based on that column's values. A color bar legend is drawn.
-
-The function places labels at the centroid for large domains (>centroid_threshold 
-complexes) and directly on nodes for smaller domains.
-}
-\examples{
-# --- Sample Data ---
-nodes <- tibble::tibble(
-  complexId = c("C1", "C2", "C3"), x = c(1, 2, 1.5), y = c(1, 1, 2),
-  primaryFunctionalDomain = c("DNA Repair", "DNA Repair", "Metabolism"),
-  sizeMapping = c(3, 4, 3.5), colorHex = c("#FF0000", "#FF0000", "#0000FF"),
-  abundance = c(1.2, -0.5, 0.8)
-)
-edges <- tibble::tibble(
-  source_complex_id = "C1", target_complex_id = "C2", weight = 0.8
-)
-
-# --- Usage 1: Default categorical coloring ---
-if (requireNamespace("ggrepel", quietly = TRUE)) {
-  visualizeMapDirectLabels(nodes, edges)
-}
-
-# --- Usage 2: Continuous coloring by 'abundance' ---
-if (requireNamespace("ggrepel", quietly = TRUE)) {
-  visualizeMapDirectLabels(nodes, edges, color.by = "abundance")
-}
-
-}
-\author{
-Qingzhou Zhang <zqzneptune@hotmail.com>
+Creates a static visualization where functional labels are placed directly on the plot.
 }

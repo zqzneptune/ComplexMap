@@ -1,82 +1,88 @@
-#' Export a ComplexMap Network for External Tools
+#' Export a ComplexMap Network for External Tools (Cytoscape)
 #'
 #' @description
-#' This function exports the node and edge tables from a `ComplexMap` object
-#' into a format suitable for widely used network visualization software, such
-#' as Cytoscape.
+#' Exports the `ComplexMap` nodes and edges to compatible file formats, preserving
+#' systems biology attributes like Specificity Scores and Functional Domains.
 #'
 #' @details
-#' The function currently supports one format:
+#' **Systems Biology Rationale:**
+#' To verify the landscape in external tools (e.g., Cytoscape), this function
+#' ensures that the specific calculated attributes are correctly formatted:
 #' 
-#' - `"cytoscape"`: This option generates two separate tab-separated value
-#'   (.tsv) files. 
-#'   
-#'   One file contains the node attributes (`<filePrefix>_nodes.tsv`)
-#'   and the other contains the edge list with its attributes
-#'   (`<filePrefix>_edges.tsv`). These files can be directly imported into
-#'   Cytoscape's network and attribute tables.
+#' - **`score`**: The Specificity Score (Size/Color mapping).
+#' - **`primaryFunctionalDomain`**: The Specific Label.
+#' - **`colorHex`**: The calculated blended color.
+#' 
+#' It performs a "Sanitization" step to convert any R-specific list columns
+#' into semi-colon separated strings and fills `NA` values to ensure safe import.
 #'
-#' The function uses `utils::write.table` for robust and standard-compliant
-#' file writing.
+#' @param complexMapObject A `ComplexMap` object.
+#' @param filePrefix Character string for output filenames (e.g., "results/my_map").
+#' @param format Output format. Currently supports "cytoscape" (TSV).
+#' @param verbose Logical.
 #'
-#' @param complexMapObject A `ComplexMap` object returned by
-#'   `createComplexMap()`.
-#' @param filePrefix A character string that will be used as the prefix for the
-#'   output filenames. For example, a `filePrefix` of "my_map" will result in
-#'   "my_map_nodes.tsv" and "my_map_edges.tsv".
-#' @param format A character string specifying the output format. Currently,
-#'   only `"cytoscape"` is supported.
-#' @param verbose A logical value indicating whether to print a confirmation
-#'   message upon successful export.
-#'
-#' @return The function is called for its side effect of writing files to disk.
-#'   It does not return a value.
+#' @return None (Writes files to disk).
 #'
 #' @author Qingzhou Zhang <zqzneptune@hotmail.com>
 #'
 #' @export
-#' @examples
-#' # Assume 'cm_obj' is a valid ComplexMap object
-#' # dir <- tempdir() # Use a temporary directory for the example
-#' # exportNetwork(cm_obj, filePrefix = file.path(dir, "myNetwork"))
-#'
-exportNetwork <- function(complexMapObject, filePrefix, format="cytoscape",
-                          verbose=TRUE) {
-  # 1. Extract the node and edge tibbles from the object
+exportNetwork <- function(complexMapObject, filePrefix, format = "cytoscape",
+                          verbose = TRUE) {
+  
+  # 1. Extract Data
   nodes <- getNodeTable(complexMapObject)
   edges <- getEdgeTable(complexMapObject)
+  
+  if (nrow(nodes) == 0) {
+    warning("ComplexMap object is empty. Nothing to export.")
+    return(invisible(NULL))
+  }
+  
+  # 2. Sanitize Data for Export
+  # Helper to flatten list columns and handle NAs
+  sanitize_df <- function(df) {
+    df %>%
+      dplyr::mutate(dplyr::across(
+        dplyr::where(is.list), 
+        ~ vapply(., paste, collapse = "; ", FUN.VALUE = character(1))
+      )) %>%
+      dplyr::mutate(dplyr::across(
+        dplyr::where(is.character), 
+        ~ tidyr::replace_na(., "")
+      )) %>%
+      dplyr::mutate(dplyr::across(
+        dplyr::where(is.numeric),
+        ~ tidyr::replace_na(., 0)
+      ))
+  }
+  
+  nodes_clean <- sanitize_df(nodes)
+  edges_clean <- sanitize_df(edges)
   
   if (format == "cytoscape") {
     nodeFile <- paste0(filePrefix, "_nodes.tsv")
     edgeFile <- paste0(filePrefix, "_edges.tsv")
     
     if (verbose) {
-      message(
-        "Exporting network in Cytoscape format to:\n -> ",
-        nodeFile, "\n -> ", edgeFile
-      )
+      message("Exporting to Cytoscape format...")
+      message(sprintf(" -> Nodes: %s (%d records)", nodeFile, nrow(nodes_clean)))
+      
+      # Verify Key Attributes
+      if ("score" %in% names(nodes_clean)) {
+        message("    \u2713 Specificity Scores included (map this to Node Size/Color)")
+      }
+      if ("colorHex" %in% names(nodes_clean)) {
+        message("    \u2713 Blended Colors included (map this to Node Fill Color)")
+      }
+      
+      message(sprintf(" -> Edges: %s (%d records)", edgeFile, nrow(edges_clean)))
     }
     
-    # 2. Write the nodes table using utils::write.table
-    utils::write.table(
-      nodes,
-      file = nodeFile,
-      sep = "\t",
-      row.names = FALSE,
-      quote = FALSE
-    )
-    
-    # 3. Write the edges table using utils::write.table
-    utils::write.table(
-      edges,
-      file = edgeFile,
-      sep = "\t",
-      row.names = FALSE,
-      quote = FALSE
-    )
+    utils::write.table(nodes_clean, file = nodeFile, sep = "\t", row.names = FALSE, quote = FALSE)
+    utils::write.table(edges_clean, file = edgeFile, sep = "\t", row.names = FALSE, quote = FALSE)
     
   } else {
-    stop(sprintf("Unsupported format '%s' specified.", format))
+    stop(sprintf("Unsupported format '%s'. Use 'cytoscape'.", format))
   }
   
   if (verbose) message("Export complete.")

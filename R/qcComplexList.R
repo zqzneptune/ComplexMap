@@ -1,142 +1,116 @@
 #' Perform Quality Control on a List of Protein Complexes
 #'
 #' @description
-#' This function performs a quality control analysis on a list of protein
-#' complexes, delivering a user-friendly report with key statistics and
-#' actionable warnings.
+#' A diagnostic tool to assess complex size distribution and distinguish between
+#' true redundancy (synonyms) and biological hierarchy (subsets).
 #'
 #' @details
-#' The QC process involves three main steps, presented in a clear report:
-#' 1.  **Basic Statistics:** Reports the total number of complexes and unique
-#'     proteins.
-#'     
-#' 2.  **Size Distribution:** Summarizes the number of proteins per complex,
-#'     highlighting the smallest, median, and largest complexes. It will
-#'     issue an in-report warning if complexes have fewer than 3 members.
-#'     
-#' 3.  **Redundancy Analysis:** Calculates the Jaccard similarity for all pairs
-#'     of complexes. It reports the median and maximum similarity and issues an
-#'     in-report warning if any pairs exceed the `redundancyThreshold`.
+#' **Systems Biology Rationale:**
+#' To maintain a diverse functional landscape, it is critical to distinguish
+#' between two types of similarity:
+#' 
+#' 1.  **Jaccard Similarity (Redundancy):** Complex A and B are nearly identical.
+#'     *   *Action:* Merge these (using `refineComplexList`).
+#' 2.  **Overlap/Simpson Similarity (Hierarchy):** Complex A is a subset of Complex B.
+#'     *   *Action:* **Keep these.** Do not merge. These often represent distinct
+#'         biological states (e.g., Core Complex vs. Holo-Complex).
+#' 
+#' This report calculates both metrics to guide your refinement strategy.
 #'
-#' This function is intended as a **diagnostic tool**. It uses the Jaccard index
-#' for its clear and intuitive interpretation of redundancy. For actively merging
-#' complexes, see the more advanced `refineComplexList()` function.
+#' @param complexList A list of character vectors (protein complexes).
+#' @param redundancyThreshold Threshold for Jaccard similarity warning. Defaults to 0.9.
+#' @param subsetThreshold Threshold for Simpson coefficient (subset) reporting. Defaults to 0.9.
+#' @param verbose Logical.
 #'
-#' @param complexList A list where each element is a character vector of
-#'   protein identifiers representing a complex.
-#' @param redundancyThreshold A numeric value between 0 and 1. A warning will be
-#'   issued for any pair of complexes with a Jaccard similarity score greater
-#'   than or equal to this threshold. Defaults to 0.8.
-#' @param verbose A logical value indicating whether to print the QC report to
-#'   the console. Defaults to `TRUE`.
-#'
-#' @return
-#' Invisibly returns the original `complexList` object, allowing it to be used
-#' in a pipeline.
+#' @return Invisibly returns the input `complexList`.
 #'
 #' @author Qingzhou Zhang <zqzneptune@hotmail.com>
 #'
-#' @seealso
-#' `refineComplexList()` for a function to actively merge redundant complexes.
-#' 
 #' @export
-#' 
-#' @examples
-#' # Create a sample list of protein complexes
-#' complex1 <- c("A", "B", "C", "D")
-#' complex2 <- c("A", "B", "C", "E") # Highly redundant with complex1
-#' complex3 <- c("F", "G", "H")
-#' complex4 <- c("I", "J")          # Small complex
-#' sampleList <- list(
-#'   C1 = complex1, C2 = complex2, C3 = complex3, C4 = complex4
-#' )
-#'
-#' # Run the quality control analysis to see the new report format
-#' qcComplexList(sampleList)
-#'
-qcComplexList <- function(complexList, redundancyThreshold = 0.8,
+qcComplexList <- function(complexList, 
+                          redundancyThreshold = 0.9,
+                          subsetThreshold = 0.9,
                           verbose = TRUE) {
   
-  if (!verbose) {
-    return(invisible(complexList))
-  }
+  if (!verbose) return(invisible(complexList))
   
-  message("\n--- Quality Control Report for Complex List ---")
+  message("\n--- Quality Control & Diversity Report ---")
   
   numComplexes <- length(complexList)
-  
   if (numComplexes == 0) {
-    message("! WARNING: Input complex list is empty. No analysis to perform.")
-    message("\n--- QC Complete ---\n")
+    message("! WARNING: Input list is empty.")
     return(invisible(complexList))
   }
   
   allProteins <- unique.default(unlist(complexList, use.names = FALSE))
-  numProteins <- length(allProteins)
   complexSizes <- lengths(complexList)
   
-  # --- Section 1: Basic Statistics ---
-  message("\n[1] Basic Statistics")
-  message(sprintf("  \u2713 Total Complexes: %d", numComplexes))
-  message(sprintf("  \u2713 Unique Proteins: %d", numProteins))
+  # --- 1. Size Distribution ---
+  message("\n[1] Compositional Complexity")
+  message(sprintf("  \u2713 Complexes: %d | Proteins: %d", numComplexes, length(allProteins)))
+  message(sprintf("  \u2713 Sizes: Min=%d, Med=%d, Max=%d", 
+                  min(complexSizes), round(stats::median(complexSizes)), max(complexSizes)))
   
-  # --- Section 2: Complex Size Distribution ---
-  message("\n[2] Complex Size Distribution")
-  message(sprintf("  - Smallest Complex: %d proteins", min(complexSizes)))
-  message(sprintf("  - Median Complex:   %d proteins", round(stats::median(complexSizes))))
-  message(sprintf("  - Largest Complex:  %d proteins", max(complexSizes)))
-  
-  smallComplexesCount <- sum(complexSizes < 3)
-  if (smallComplexesCount > 0) {
-    message(sprintf(
-      "  ! WARNING: Found %d complex(es) with fewer than 3 members.",
-      smallComplexesCount
-    ))
-    message("    -> These are often considered too small for robust analysis.")
-  } else {
-    message("  \u2713 All complexes have 3 or more members.")
+  smallCpx <- sum(complexSizes < 3)
+  if (smallCpx > 0) {
+    message(sprintf("  ! NOTE: %d complexes have <3 members (potentially unstable).", smallCpx))
   }
   
-  # --- Section 3: Redundancy Analysis ---
-  message("\n[3] Redundancy Analysis (Jaccard Index)")
+  # --- 2. Redundancy vs Hierarchy Analysis ---
+  message("\n[2] Redundancy (Jaccard) vs. Hierarchy (Subset)")
+  
   if (numComplexes < 2) {
-    message("  - Skipping: Not enough complexes to compare.")
+    message("  - Skipping pairwise analysis (N < 2).")
+    return(invisible(complexList))
+  }
+  
+  # Matrix construction
+  proteinIndex <- match(unlist(complexList), allProteins)
+  i_indices <- rep(seq_along(complexList), complexSizes)
+  
+  M <- Matrix::sparseMatrix(
+    i = i_indices, j = proteinIndex, x = 1,
+    dims = c(numComplexes, length(allProteins))
+  )
+  
+  Intersection <- Matrix::tcrossprod(M) # A intersect B
+  
+  # A. Jaccard (A int B) / (A union B)
+  Union <- outer(complexSizes, complexSizes, "+") - Intersection
+  Jaccard <- Intersection / Union
+  diag(Jaccard) <- 0
+  
+  # B. Simpson (A int B) / min(A, B) -- Detects subsets
+  MinSize <- outer(complexSizes, complexSizes, pmin)
+  Simpson <- Intersection / MinSize
+  diag(Simpson) <- 0
+  
+  # Analysis
+  j_scores <- Jaccard[upper.tri(Jaccard)]
+  s_scores <- Simpson[upper.tri(Simpson)]
+  
+  n_redundant <- sum(j_scores >= redundancyThreshold)
+  n_subsets <- sum(s_scores >= subsetThreshold & j_scores < redundancyThreshold)
+  
+  # Report Redundancy
+  if (n_redundant > 0) {
+    message(sprintf(
+      "  ! WARNING: Found %d pairs with Jaccard >= %.2f (True Redundancy).",
+      n_redundant, redundancyThreshold
+    ))
+    message("    -> Recommendation: Merge these using refineComplexList().")
   } else {
-    proteinIndex <- stats::setNames(seq_along(allProteins), allProteins)
-    i_indices <- rep(seq_along(complexList), times = complexSizes)
-    j_indices <- proteinIndex[unlist(complexList, use.names = FALSE)]
-    
-    membershipMatrix <- Matrix::sparseMatrix(
-      i = i_indices, j = j_indices, x = 1,
-      dims = c(numComplexes, numProteins)
-    )
-    
-    intersectionMatrix <- membershipMatrix %*% Matrix::t(membershipMatrix)
-    sizeSumMatrix <- outer(complexSizes, complexSizes, "+")
-    unionMatrix <- sizeSumMatrix - intersectionMatrix
-    
-    jaccardMatrix <- intersectionMatrix / unionMatrix
-    diag(jaccardMatrix) <- 0
-    simScores <- jaccardMatrix[upper.tri(jaccardMatrix)]
-    
-    message(sprintf("  - Median Similarity: %.3f", stats::median(simScores, na.rm = TRUE)))
-    message(sprintf("  - Max Similarity:    %.3f", max(simScores, na.rm = TRUE)))
-    
-    numRedundant <- sum(simScores >= redundancyThreshold, na.rm = TRUE)
-    if (numRedundant > 0) {
-      nPairs <- length(simScores)
-      percentRedundant <- (numRedundant / nPairs) * 100
-      message(sprintf(
-        "  ! WARNING: Found %d pairs (%.2f%%) with similarity >= %.2f.",
-        numRedundant, percentRedundant, redundancyThreshold
-      ))
-      message("    -> Consider using refineComplexList() to merge them.")
-    } else {
-      message(sprintf(
-        "  \u2713 No highly redundant pairs detected (>= %.2f).",
-        redundancyThreshold
-      ))
-    }
+    message("  \u2713 No high redundancy detected.")
+  }
+  
+  # Report Hierarchy
+  if (n_subsets > 0) {
+    message(sprintf(
+      "  i INFO: Found %d pairs with Subset Overlap >= %.2f but Low Jaccard.",
+      n_subsets, subsetThreshold
+    ))
+    message("    -> Recommendation: KEEP distinct. These are likely biological variants (Subsets/Supersets).")
+    message("    -> Merging these would decrease landscape diversity.")
   }
   
   message("\n--- QC Complete ---\n")

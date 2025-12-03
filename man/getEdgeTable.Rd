@@ -7,17 +7,11 @@
 getEdgeTable(cm)
 }
 \arguments{
-\item{cm}{A `ComplexMap` object, typically the output of
-`createComplexMap()`.}
+\item{cm}{A `ComplexMap` object.}
 }
 \value{
-A `tibble` containing the edge data.
+A `tibble`.
 }
 \description{
-A simple accessor function to extract the tibble of network edges from a
-`ComplexMap` object.
-}
-\examples{
-# Assuming 'myComplexMap' is a valid ComplexMap object
-# edgeData <- getEdgeTable(myComplexMap)
+Access the network edge list (weights, similarity types).
 }

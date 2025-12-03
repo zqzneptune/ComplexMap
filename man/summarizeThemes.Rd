@@ -4,46 +4,53 @@
 \alias{summarizeThemes}
 \title{Summarize Major Biological Themes in a Complex Map}
 \usage{
-summarizeThemes(complexMapObject, method = "louvain", verbose = TRUE)
+summarizeThemes(
+  complexMapObject,
+  method = "louvain",
+  add_to_object = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
-\item{complexMapObject}{A `ComplexMap` object returned by `createComplexMap()`.}
+\item{complexMapObject}{A `ComplexMap` object.}
 
-\item{method}{A character string specifying the community detection algorithm
-to use. Must be a valid `igraph` clustering function (e.g., "louvain",
-"walktrap", "infomap"). Defaults to "louvain".}
+\item{method}{Community detection method ("louvain", "walktrap", "infomap").
+Defaults to "louvain".}
 
-\item{verbose}{A logical value indicating whether to print progress messages.}
+\item{add_to_object}{Logical. If `TRUE` (default), returns the `ComplexMap`
+object with `themeId` and `themeLabel` columns added to the node table. If
+`FALSE`, returns a summary `tibble` of the themes.}
+
+\item{verbose}{Logical.}
 }
 \value{
-A `tibble` where each row represents a summarized theme, containing
-  `themeId`, `themeLabel`, `nodeCount`, and `edgeCount`.
+If `add_to_object = TRUE`, a modified `ComplexMap` object.
+If `add_to_object = FALSE`, a `tibble` with columns:
+  - `themeId`: Cluster ID.
+  - `themeLabel`: The consensus functional label.
+  - `themePurity`: The fraction of nodes matching the primary label (0-1).
+  - `nodeCount`: Number of complexes.
+  - `edgeCount`: Number of internal edges.
 }
 \description{
-This function analyzes the network structure within a `ComplexMap` object to
-identify and summarize major biological themes. It uses community detection
-algorithms to find densely connected clusters of nodes (themes).
+Identifies and summarizes physical neighborhoods (themes) in the complex map
+using community detection.
 }
 \details{
-The function performs the following steps:
-1.  It constructs an `igraph` graph object from the node and edge tables.
+**Systems Biology Rationale:**
+Since the network layout is driven primarily by physical composition (alpha=0.75),
+the communities detected here represent **Physical Machines** or neighborhoods.
 
-2.  It applies a community detection algorithm (e.g., Louvain, as default)
-    to partition the network into clusters or "themes".
-    
-3.  For each theme, it generates a descriptive `themeLabel` by finding the
-    most frequently occurring `primaryFunctionalDomain` among the member
-    nodes (excluding "Unenriched").
-    
-4.  It calculates summary statistics for each theme, including node and edge counts.
-}
-\examples{
-# Assume 'cm_obj' is a valid ComplexMap object created by createComplexMap()
-# if (requireNamespace("igraph", quietly = TRUE)) {
-#   themeSummary <- summarizeThemes(cm_obj)
-#   print(themeSummary)
-# }
+This function characterizes these machines by their functions. A single physical
+machine might contain complexes with slightly different specific labels.
+To reflect this, the labeling logic is:
+1.  Identify the most frequent functional domain in the cluster.
+2.  Calculate **Theme Purity** (what % of nodes share this domain).
+3.  If purity is low (< 50%), the label combines the top 2 domains
+    (e.g., "Function A / Function B") to indicate multi-functionality.
 
+By default, this function adds the theme assignments directly to the node
+table of the `ComplexMap` object, making it easy to visualize or query by theme.
 }
 \author{
 Qingzhou Zhang <zqzneptune@hotmail.com>

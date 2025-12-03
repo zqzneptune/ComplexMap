@@ -1,8 +1,6 @@
-# Query a ComplexMap Object for Specific Information
+# Query a ComplexMap Object
 
-Allows for targeted querying of a \`ComplexMap\` object to find nodes
-(complexes) that match specific criteria, such as containing a
-particular protein or belonging to a biological theme.
+Targeted querying of complexes, proteins, or themes.
 
 ## Usage
 
@@ -18,34 +16,19 @@ queryMap(complexMapObject, query, type)
 
 - query:
 
-  A character string containing the search term.
+  Search string.
 
 - type:
 
-  A character string: one of \`"protein"\`, \`"complex"\`, or
-  \`"theme"\`.
+  "protein", "complex", or "theme".
 
 ## Value
 
-A \`tibble\` containing the rows from the node table that match the
-query. Returns an empty tibble if no matches are found.
+A tibble of matching nodes.
 
 ## Details
 
-This function supports three distinct modes of querying: - \`type =
-"protein"\`: Searches for complexes containing a specific protein. -
-\`type = "complex"\`: Retrieves a specific complex by its ID. - \`type =
-"theme"\`: Finds all complexes belonging to a given theme. This requires
-theme information to be added to the \`ComplexMap\` object first (see
-the "Advanced Analysis" vignette for an example).
-
-## Author
-
-Qingzhou Zhang \<zqzneptune@hotmail.com\>
-
-## Examples
-
-``` r
-# Assume 'cm_obj' is a valid ComplexMap object
-# uba1_complexes <- queryMap(cm_obj, query = "UBA1", type = "protein")
-```
+\- \`type="protein"\`: Regex search for protein members. -
+\`type="complex"\`: Exact match for Complex ID. - \`type="theme"\`:
+Exact match for Theme Label. Requires \`summarizeThemes()\` to be run on
+the object first with \`add_to_object = TRUE\`.

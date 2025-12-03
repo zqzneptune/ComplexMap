@@ -1,24 +1,31 @@
 #' Internal Constructor for the ComplexMap S3 Object
 #'
 #' @description
-#' Creates a new `ComplexMap` object from nodes and edges tibbles. This is a
-#' low-level constructor and does not perform any validation. It is intended
-#' for internal use only.
+#' Creates a `ComplexMap` object.
 #'
-#' @param nodes A `tibble` containing final node attributes and layout data from
-#'   `computeMapTopology`.
-#' @param edges A `tibble` containing the network edge list from
-#'   `buildComplexNetwork`.
+#' @details
+#' **Systems Biology Rationale:**
+#' This constructor validates that the "Physical" (Nodes/Edges) and "Functional"
+#' (Attributes) layers are correctly merged before finalizing the object.
 #'
-#' @return A `ComplexMap` S3 object, which is a list containing the `nodes`
-#'   and `edges` tibbles.
+#' @param nodes A `tibble` containing node attributes and layout.
+#' @param edges A `tibble` containing the network edge list.
+#'
+#' @return A `ComplexMap` S3 object.
 #'
 #' @keywords internal
 #' @noRd
 .new_ComplexMap <- function(nodes, edges) {
-  # Per the brief, the S3 object is a list with two named elements.
-  # The structure() function is a clean and standard way to assign a class
-  # attribute while creating the object.
+  # 1. Validation
+  required_node_cols <- c("complexId", "primaryFunctionalDomain", "colorHex")
+  missing_cols <- setdiff(required_node_cols, names(nodes))
+  
+  if (length(missing_cols) > 0) {
+    stop("Invalid ComplexMap node table. Missing columns: ", 
+         paste(missing_cols, collapse = ", "), call. = FALSE)
+  }
+  
+  # 2. Construction
   structure(
     list(
       nodes = nodes,
@@ -31,87 +38,79 @@
 #' Print Method for a ComplexMap Object
 #'
 #' @description
-#' Provides a user-friendly summary of the `ComplexMap` object when it is
-#' printed to the console. This method is automatically called by the `print`
-#' generic function.
+#' Provides a "Systems Biology Dashboard" summary of the ComplexMap object.
+#'
+#' @details
+#' This summary is designed to give immediate feedback on the **Functional Diversity**
+#' of the landscape:
+#' 
+#' - **Functional Diversity:** The count of distinct functional labels (colors). 
+#'   A high number (e.g., >15) indicates a rich, specific landscape. A low number
+#'   indicates over-clustering or generic annotation.
+#' - **Annotation Coverage:** The percentage of complexes that could be assigned
+#'   a function. High coverage with high diversity is the ideal state.
 #'
 #' @param x A `ComplexMap` object.
-#' @param ... Additional arguments passed to `print` (not used by this method).
+#' @param ... Additional arguments.
 #'
-#' @return Invisibly returns the original `ComplexMap` object, allowing for
-#'   its use in pipelines.
+#' @return Invisibly returns the object.
 #'
 #' @export
 print.ComplexMap <- function(x, ...) {
-  # Extract the number of nodes and edges directly from the object's tibbles.
+  # Extract Data
   numNodes <- nrow(x$nodes)
   numEdges <- nrow(x$edges)
   
-  # To count themes, we find the number of unique functional domains,
-  # making sure to exclude the generic "Unenriched" category.
-  # The `primaryFunctionalDomain` column is required for this.
-  if ("primaryFunctionalDomain" %in% names(x$nodes)) {
-    numThemes <- length(unique(
-      x$nodes$primaryFunctionalDomain[
-        x$nodes$primaryFunctionalDomain != "Unenriched"
-      ]
-    ))
-  } else {
-    # Provide a fallback if the column is somehow missing.
-    numThemes <- 0
-  }
+  # Diversity Metrics
+  valid_domains <- x$nodes$primaryFunctionalDomain[
+    x$nodes$primaryFunctionalDomain != "Unenriched" & 
+      !is.na(x$nodes$primaryFunctionalDomain)
+  ]
   
-  # Use cat() to print the formatted summary string to the console.
-  # The "──" character (Unicode U+2500 U+2500) is used for styling.
-  cat("# A ComplexMap Object\n")
-  cat(sprintf("# \u2500\u2500 %d nodes and %d edges\n", numNodes, numEdges))
-  cat(sprintf(
-    "# \u2500\u2500 %d major biological themes identified.\n", numThemes
-  ))
-  cat("# \u2500\u2500 Use `getNodeTable()` or `getEdgeTable()` to access data.\n")
+  numThemes <- length(unique(valid_domains))
+  coverage_pct <- if (numNodes > 0) (length(valid_domains) / numNodes) * 100 else 0
   
-  # It is standard practice for print methods to return the original object
-  # invisibly, which prevents it from being printed twice in a row.
+  # Physical Density
+  density_str <- if (numNodes > 0) {
+    sprintf("%.2f edges/node", numEdges / numNodes)
+  } else "N/A"
+  
+  # Dashboard Output
+  cat("# ComplexMap Object (Physical-First Layout)\n")
+  cat(sprintf("# \u2500\u2500 Physical Structure: %d nodes, %d edges (%s)\n", 
+              numNodes, numEdges, density_str))
+  
+  cat(sprintf("# \u2500\u2500 Functional Landscape:\n"))
+  cat(sprintf("#    \u2022 Diversity: %d distinct functional domains (colors)\n", numThemes))
+  cat(sprintf("#    \u2022 Coverage:  %.1f%% of complexes annotated\n", coverage_pct))
+  
+  # Hints
+  cat("# \u2500\u2500 Accessors: `getNodeTable()`, `getEdgeTable()`\n")
+  cat("# \u2500\u2500 Analysis:  `summarizeThemes()` to identify physical machines.\n")
+  
   invisible(x)
 }
 
 #' Get the Node Table from a ComplexMap Object
 #'
 #' @description
-#' A simple accessor function to extract the tibble of node attributes and
-#' layout data from a `ComplexMap` object.
+#' Access the node attributes (layout, function, specificity scores).
 #'
-#' @param cm A `ComplexMap` object, typically the output of
-#'   `createComplexMap()`.
-#'
-#' @return A `tibble` containing the node data.
-#'
+#' @param cm A `ComplexMap` object.
+#' @return A `tibble`.
 #' @export
-#' @examples
-#' # Assuming 'myComplexMap' is a valid ComplexMap object
-#' # nodeData <- getNodeTable(myComplexMap)
 getNodeTable <- function(cm) {
-  # This directly accesses the 'nodes' element of the list.
-  # No validation is needed here, as it assumes a valid ComplexMap object.
   return(cm$nodes)
 }
 
 #' Get the Edge Table from a ComplexMap Object
 #'
 #' @description
-#' A simple accessor function to extract the tibble of network edges from a
-#' `ComplexMap` object.
+#' Access the network edge list (weights, similarity types).
 #'
-#' @param cm A `ComplexMap` object, typically the output of
-#'   `createComplexMap()`.
-#'
-#' @return A `tibble` containing the edge data.
-#'
+#' @param cm A `ComplexMap` object.
+#' @return A `tibble`.
 #' @export
-#' @examples
-#' # Assuming 'myComplexMap' is a valid ComplexMap object
-#' # edgeData <- getEdgeTable(myComplexMap)
 getEdgeTable <- function(cm) {
-  # This directly accesses the 'edges' element of the list.
   return(cm$edges)
 }

@@ -8,77 +8,44 @@ generateNodeAttributes(
   complexes,
   enrichments,
   geneSetDb = NULL,
-  similarityMethod = "overlap",
+  similarityMethod = "jaccard",
   verbose = TRUE
 )
 }
 \arguments{
 \item{complexes}{A named list of protein complexes.}
 
-\item{enrichments}{A named list of enrichment results, typically from
-`runComplexEnrichment`.}
+\item{enrichments}{A named list of enrichment results. Must contain 'Fold'
+column for specificity weighting.}
 
-\item{geneSetDb}{Optional named list where names are term IDs and values are
-character vectors of genes. If provided, term similarity will be calculated
-based on gene set overlap instead of co-occurrence. This results in more
-biologically meaningful color groupings.}
+\item{geneSetDb}{Optional named list of gene sets for semantic clustering.}
 
-\item{similarityMethod}{The distance/similarity method. For gene set overlap:
-"overlap" (default), "jaccard", or "cosine". For co-occurrence: any method
-supported by `philentropy::distance`. Defaults to "overlap".}
+\item{similarityMethod}{Distance method for clustering ("jaccard", "overlap", etc.).
+Defaults to "jaccard" to penalize size differences.}
 
-\item{verbose}{A logical value indicating whether to print progress messages.}
+\item{verbose}{Logical.}
 }
 \value{
-A `tibble` where each row corresponds to a complex, with detailed attributes
-for visualization.
+A `tibble` with complex attributes.
 }
 \description{
-Creates a detailed attribute table for each complex, suitable for network
-visualization. Attributes include protein count, a primary functional
-domain, top enriched functions, and a unique color representing the
-complex's functional profile.
+Creates a detailed attribute table for each complex, emphasizing functional
+specificity for network visualization.
 }
 \details{
 This function performs several steps to generate rich node attributes:
 1.  It aggregates all enriched terms from the input `enrichments` list.
-2.  A term-complex matrix is built, and terms are clustered based on their
-    co-occurrence in complexes OR gene set overlap (if provided).
-3.  A unique color is assigned to each functional domain using a qualitative
-    palette.
-4.  For each complex, it determines the primary functional domain based on
-    the most significant enriched term.
-5.  A unique "blended" color is calculated for each complex by mixing the
-    colors of its associated domains, weighted by significance.
-6.  Basic attributes like protein count and a list of proteins are also included.
-
-Complexes with no significant enrichments are assigned a default "Unenriched"
-domain and a grey color.
-}
-\examples{
-# --- Sample Data ---
-complexes <- list(
-  Cpx1 = c("A", "B", "C"),
-  Cpx2 = c("C", "D", "E"),
-  Cpx3 = c("F", "G")
-)
-enrichments <- list(
-  Cpx1 = data.frame(ID = "GO:1", Description = "Term A", p.adjust = 0.01),
-  Cpx2 = data.frame(ID = "GO:2", Description = "Term B", p.adjust = 0.02)
-)
-
-# --- Without gene sets (co-occurrence) ---
-nodeAttrs <- generateNodeAttributes(complexes, enrichments)
-
-# --- With gene sets (better functional grouping) ---
-geneSets <- list(
-  "GO:1" = c("A", "B", "X"),
-  "GO:2" = c("A", "B", "Y"),  # High overlap with GO:1 -> similar color
-  "GO:3" = c("M", "N", "O")   # No overlap -> different color
-)
-nodeAttrs <- generateNodeAttributes(complexes, enrichments,
-                                    geneSetDb = geneSets)
-
+2.  It calculates a **Specificity Score** for each term using the formula:
+    `-log10(p.adjust) * log2(Fold)`. This ensures that specific, high-fold
+    enrichment terms are prioritized over broad, generic terms.
+3.  A term-complex matrix is built, and terms are clustered. The clustering
+    uses **Average Linkage** and forces a higher number of clusters to
+    preserve functional diversity (avoiding "monochromatic" maps).
+4.  A unique color is assigned to each functional domain.
+5.  For each complex, the **Primary Functional Domain** is assigned to the
+    enriched term with the highest Specificity Score.
+6.  A unique "blended" color is calculated by mixing domain colors, weighted
+    by the Specificity Score.
 }
 \author{
 Qingzhou Zhang <zqzneptune@hotmail.com>

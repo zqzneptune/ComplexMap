@@ -8,92 +8,45 @@ visualizeMapWithLegend(
   layoutDf,
   edgesDf,
   title = "ComplexMap Functional Landscape",
-  subtitle = "Nodes are protein complexes, colored by function",
+  subtitle = "Nodes colored by Specificity-Weighted Function",
   bgColor = "black",
   edgeColor = "white",
   nodeSizeRange = c(2, 10),
   unenrichedColor = "#CCCCCC",
-  fontFamily = "sans",
-  size.legend.title = "Complex Size (log2)",
   color.by = NULL,
-  color.palette = "viridis",
+  color.palette = "plasma",
   color.legend.title = NULL,
   verbose = TRUE
 )
 }
 \arguments{
-\item{layoutDf}{A data frame containing node attributes and layout
-coordinates, typically from `computeMapTopology`.}
+\item{layoutDf}{A data frame containing node attributes and layout coordinates.}
 
 \item{edgesDf}{A data frame containing the network edges.}
 
-\item{title}{The main title for the plot.}
+\item{title}{Plot title.}
 
-\item{subtitle}{The subtitle for the plot.}
+\item{subtitle}{Plot subtitle.}
 
-\item{bgColor}{The background color of the plot.}
+\item{bgColor}{Background color.}
 
-\item{edgeColor}{The color of the network edges.}
+\item{edgeColor}{Edge color.}
 
-\item{nodeSizeRange}{A numeric vector of length 2 specifying the min and max
-node size.}
+\item{nodeSizeRange}{Min and max node size.}
 
-\item{unenrichedColor}{The color for nodes in the "Unenriched" category in
-categorical mode.}
+\item{unenrichedColor}{Color for unenriched nodes.}
 
-\item{fontFamily}{The base font family for all plot text.}
+\item{color.by}{Optional numeric column for continuous coloring.}
 
-\item{size.legend.title}{The title for the node size legend.}
+\item{color.palette}{Palette name ("viridis", "plasma") or vector of colors.}
 
-\item{color.by}{A character string specifying the name of a numeric column in
-`layoutDf` to use for continuous node coloring. If `NULL` (default), the
-categorical `colorHex` column is used.}
+\item{color.legend.title}{Title for color legend.}
 
-\item{color.palette}{A character string or vector of colors for the continuous
-gradient (e.g., "viridis", "plasma", or `c("blue", "white", "red")`).
-Only used when `color.by` is specified.}
-
-\item{color.legend.title}{A character string for the title of the continuous
-color legend. Defaults to the value of `color.by`.}
-
-\item{verbose}{A logical value indicating whether to print progress messages.}
+\item{verbose}{Logical.}
 }
 \value{
-A `ggplot` object representing the network visualization.
+A `ggplot` object.
 }
 \description{
-Creates a static visualization of the complex network using `ggraph`, with
-a legend representing node colors.
-}
-\details{
-This function supports two coloring modes:
-
-1.  **Categorical (default):** When `color.by = NULL`, nodes are colored
-    by their `primaryFunctionalDomain`. A discrete color legend is shown.
-    
-2.  **Continuous:** When `color.by` is set to the name of a numeric column
-    in `layoutDf`, nodes are colored along a continuous gradient. A color
-    bar legend is shown.
-}
-\examples{
-# --- Sample Data ---
-nodes <- tibble::tibble(
-  complexId = c("C1", "C2", "C3"), x = c(1, 2, 1.5), y = c(1, 1, 2),
-  primaryFunctionalDomain = c("DNA Repair", "DNA Repair", "Unenriched"),
-  sizeMapping = c(3, 4, 3.5), colorHex = c("#FF0000", "#FF0000", "#CCCCCC"),
-  purity = c(0.95, 0.87, 0.91)
-)
-edges <- tibble::tibble(
-  source_complex_id = "C1", target_complex_id = "C2", weight = 0.8
-)
-
-# --- Usage 1: Default categorical coloring ---
-visualizeMapWithLegend(nodes, edges)
-
-# --- Usage 2: Continuous coloring ---
-visualizeMapWithLegend(nodes, edges, color.by = "purity")
-
-}
-\author{
-Qingzhou Zhang <zqzneptune@hotmail.com>
+Creates a static visualization with a discrete legend for functional domains.
 }

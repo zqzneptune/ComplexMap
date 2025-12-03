@@ -1,6 +1,6 @@
-# Apply Color Mapping (Categorical or Continuous)
+# Apply Color Mapping (Quantitative or Categorical)
 
-Apply Color Mapping (Categorical or Continuous)
+Apply Color Mapping (Quantitative or Categorical)
 
 ## Usage
 

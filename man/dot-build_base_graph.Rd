@@ -2,11 +2,11 @@
 % Please edit documentation in R/visualize.R
 \name{.build_base_graph}
 \alias{.build_base_graph}
-\title{Build Base Graph Structure}
+\title{Build Base Graph Structure (Safeguarded)}
 \usage{
 .build_base_graph(layoutDf, edgesDf, edgeColor, verbose)
 }
 \description{
-Build Base Graph Structure
+Build Base Graph Structure (Safeguarded)
 }
 \keyword{internal}

@@ -8,6 +8,7 @@ benchmarkParameters(
   complexList,
   referenceComplexes,
   threshold_range = seq(0.5, 1, by = 0.05),
+  similarityMethod = "jaccard",
   ...
 )
 }
@@ -16,84 +17,40 @@ benchmarkParameters(
 
 \item{referenceComplexes}{A list of reference (gold standard) complexes.}
 
-\item{threshold_range}{A numeric vector of `mergeThreshold` values to test.
+\item{threshold_range}{Numeric vector of thresholds to test. 
 Defaults to `seq(0.5, 1.0, by = 0.05)`.}
 
-\item{...}{Additional arguments to be passed down to `refineComplexList`,
-such as `similarityMethod` (e.g., "jaccard" or "overlap"), `minSize`,
-or `maxSize`.}
+\item{similarityMethod}{The metric used for merging. Defaults to **"jaccard"**.}
+
+\item{...}{Additional arguments passed to `refineComplexList` (e.g., minSize).}
 }
 \value{
-A tidy `tibble` with columns: `mergeThreshold`, `PPV`, `Sn`, `Acc`, and `MMR`.
-Rows corresponding to thresholds that yielded no complexes will have `NA`
-values for the metric columns.
+A `tibble` with columns:
+- `mergeThreshold`: The threshold tested.
+- `NumComplexes`: Number of complexes remaining (Diversity metric).
+- `PPV`: Positive Predictive Value (Precision).
+- `Sn`: Sensitivity (Recall).
+- `F1`: Harmonic mean of PPV and Sn.
+- `Acc`: Accuracy (Geometric mean of PPV and Sn).
+- `MMR`: Maximum Matching Ratio.
 }
 \description{
-Evaluates the performance of the complex refinement process across a range of
-`mergeThreshold` values, providing key metrics against a reference set.
+Evaluates how different merging thresholds affect the quality AND diversity
+of the resulting complex map.
 }
 \details{
-This function systematically tests different `mergeThreshold` values to help
-users optimize the complex merging step. For each threshold in `threshold_range`:
+**Systems Biology Rationale:**
+When optimizing the `mergeThreshold`, there is a trade-off between removing
+redundancy (increasing PPV) and losing specific variants (decreasing Sensitivity
+and Diversity).
 
-1.  It calls `refineComplexList()` with the given threshold.
-
-2.  It checks the resulting list of refined complexes. If the list is empty
-    (which can happen with a threshold of 1.0), it records `NA` for all
-    performance metrics for that threshold.
-    
-3.  If the list is not empty, it calls `evaluateComplexes()` to calculate
-    PPV, Sensitivity, Accuracy, and MMR.
-
-The function returns a single tidy data frame, making it easy to plot the
-results (e.g., the F1-score) to identify the optimal `mergeThreshold`.
-}
-\examples{
-# Load the package's demo data
-data(demoComplexes)
-data(referenceComplexes)
-
-\dontrun{
-# Run benchmarking over a range of thresholds using the "overlap" method
-benchmark_results <- benchmarkParameters(
-  complexList = demoComplexes,
-  referenceComplexes = referenceComplexes,
-  threshold_range = seq(0.7, 1.0, by = 0.05),
-  similarityMethod = "overlap"
-)
-
-print(benchmark_results)
-
-# To find the optimal threshold, calculate the F1-score (harmonic mean
-# of PPV and Sn) and plot the results.
-if (requireNamespace("ggplot2", quietly = TRUE) &&
-    requireNamespace("dplyr", quietly = TRUE)) {
-
-  plot_data <- benchmark_results \%>\%
-    dplyr::mutate(F1_Score = 2 * (PPV * Sn) / (PPV + Sn))
-
-  # Find the best threshold
-  best_threshold <- plot_data \%>\%
-    dplyr::filter(F1_Score == max(F1_Score, na.rm = TRUE)) \%>\%
-    dplyr::pull(mergeThreshold)
-
-  ggplot2::ggplot(plot_data, ggplot2::aes(x = mergeThreshold, y = F1_Score)) +
-    ggplot2::geom_line(color = "blue") +
-    ggplot2::geom_point(size = 3, color = "blue") +
-    ggplot2::geom_vline(
-      xintercept = best_threshold, linetype = "dashed", color = "red"
-    ) +
-    ggplot2::scale_x_continuous(breaks = plot_data$mergeThreshold) +
-    ggplot2::labs(
-      title = "F1-Score vs. Merge Threshold",
-      subtitle = paste("Optimal threshold based on F1-Score:", best_threshold),
-      x = "Merge Threshold",
-      y = "F1-Score"
-    ) +
-    ggplot2::theme_minimal(base_size = 14)
-}
-}
-
+This function returns the standard metrics (PPV, Sn, Acc, MMR) but also adds
+**NumComplexes**.
+- **Collapse Warning:** If `NumComplexes` drops precipitously between two thresholds,
+  you have likely crossed the point where distinct biological variants are being
+  merged into generic blobs.
+- **Recommendation:** Choose the threshold that maximizes F1/MMR while maintaining
+  a `NumComplexes` count close to your expected biological complexity.
 }
 \author{
 Qingzhou Zhang <zqzneptune@hotmail.com>

@@ -1,6 +1,6 @@
 Package: ComplexMap
 Title: A Toolset for the Functional Analysis and Visualization of Protein Complex Data
-Version: 1.1.0
+Version: 1.1.1
 Date: 2025-11-15
 Authors@R: 
     person(given = "Qingzhou",
@@ -23,6 +23,7 @@ Depends:
     R (>= 4.3)
 Imports:
     AnnotationDbi,
+    clue,
     dplyr,
     future,
     future.apply,
@@ -33,21 +34,20 @@ Imports:
     magrittr,
     Matrix,
     msigdbr,
-    philentropy,
     RColorBrewer,
     reactome.db,
     rlang,
     scales,
     stringr,
     tibble,
-    methods,
-    colorspace,
+    tidyr,
     tidygraph
 Suggests:
-    clue,
+    colorspace,
     ggrepel,
     knitr,
     org.Hs.eg.db,
+    philentropy,
     progressr,
     rmarkdown,
     visNetwork
@@ -60,4 +60,3 @@ BiocViews:
     GeneSetEnrichment
 LazyData: true
 VignetteBuilder: knitr
-

@@ -1,8 +1,7 @@
 # Refine a List of Protein Complexes by Size and Redundancy
 
-This function refines a list of protein complexes by first filtering
-them based on size and then merging highly redundant complexes based on
-a similarity threshold.
+This function filters complexes by size and merges highly redundant
+ones.
 
 ## Usage
 
@@ -12,7 +11,7 @@ refineComplexList(
   minSize = 3,
   maxSize = 500,
   mergeThreshold = 0.9,
-  similarityMethod = "matching_score",
+  similarityMethod = "jaccard",
   verbose = TRUE
 )
 ```
@@ -26,144 +25,52 @@ refineComplexList(
 
 - minSize:
 
-  An integer specifying the minimum number of proteins a complex must
-  have to be retained. Defaults to 3.
+  Minimum complex size. Defaults to 3.
 
 - maxSize:
 
-  An integer specifying the maximum number of proteins a complex can
-  have to be retained. Defaults to 500.
+  Maximum complex size. Defaults to 500.
 
 - mergeThreshold:
 
-  A numeric value (0-1). Complexes with a similarity score \>= this
-  value will be merged. Defaults to 0.9.
+  Numeric (0-1). Threshold for merging. Defaults to \*\*0.90\*\*
+  (strict) to preserve distinct variants.
 
 - similarityMethod:
 
-  A character string specifying the similarity metric for merging.
-  Defaults to \`"matching_score"\`. The available options are:
-
-  \`"matching_score"\`
-
-  :   \`Intersection² / (\|A\| \* \|B\|)\`. Rewards large, shared cores.
-      Aligns with the MMR evaluation metric.
-
-  \`"simpson"\`
-
-  :   \`Intersection / min(\|A\|, \|B\|)\`. Also known as the Overlap
-      coefficient. excels at merging sub-complexes into larger parents.
-
-  \`"jaccard"\`
-
-  :   \`Intersection / Union\`. A classic, balanced metric that
-      penalizes size differences.
-
-  \`"dice"\`
-
-  :   \`2 \* Intersection / (\|A\| + \|B\|)\`. Similar to Jaccard but
-      generally less stringent.
+  Metric for merging. Defaults to \*\*"jaccard"\*\*. Options: \*
+  \`"jaccard"\`: (Default) \`Intersection / Union\`. Penalizes size
+  differences. Best for preserving specific variants. \* \`"overlap"\`:
+  \`Intersection / Min(A,B)\`. Merges subsets into parents. Use only if
+  you want to aggressively reduce data. \* \`"matching_score"\`:
+  \`Intersection^2 / (SizeA \* SizeB)\`. Geometric approach. \*
+  \`"dice"\`: \`2 \* Intersection / (SizeA + SizeB)\`.
 
 - verbose:
 
-  A logical value indicating whether to print progress messages.
-  Defaults to \`TRUE\`.
+  Logical.
 
 ## Value
 
-A list containing two named elements:
-
-- \`refinedComplexes\`:
-
-  The final, renamed list of merged complexes.
-
-- \`mergeMap\`:
-
-  A \`tibble\` with columns \`originalId\` and \`finalId\`, mapping each
-  original complex to its final standardized ID.
+A list containing: \* \`refinedComplexes\`: The final list of merged
+complexes. \* \`mergeMap\`: A tibble mapping original IDs to final IDs.
 
 ## Details
 
-The refinement process consists of two main stages:
+\*\*Systems Biology Rationale:\*\* To preserve the functional diversity
+of the input landscape, this function defaults to a conservative
+\*\*Jaccard\*\* similarity with a high threshold (0.90).
 
-1\. \*\*Size Filtering:\*\* Complexes smaller than \`minSize\` or larger
-than \`maxSize\` are removed.
+\* \*\*Trust the Input:\*\* We assume the upstream clustering method
+identified biologically relevant variants (e.g., a complex with vs.
+without a regulatory subunit). \* \*\*Minimal Merging:\*\* We only merge
+complexes if they are effectively synonyms (nearly identical
+composition).
 
-2\. \*\*Redundancy Merging:\*\* A similarity matrix is calculated for
-all remaining complex pairs using the chosen \`similarityMethod\`. A
-union-find algorithm identifies clusters of complexes connected by a
-similarity score \>= \`mergeThreshold\`, which are then merged.
-
-Finally, all complexes in the refined list are renamed to a standardized
-format ("CpxMap_0001", etc.), and a traceability map is generated.
+We discourage using "overlap" or "matching_score" for this step, as they
+tend to merge sub-complexes into parents, destroying the specific
+functional signals you wish to visualize.
 
 ## Author
 
 Qingzhou Zhang \<zqzneptune@hotmail.com\>
-
-## Examples
-
-``` r
-# Create a sample list of protein complexes
-c1 <- c("A", "B", "C", "D", "E")
-c2 <- c("A", "B", "C", "D", "F") # High similarity with c1
-c3 <- c("A", "B", "C")          # Subset of c1 and c2
-c4 <- c("X", "Y", "Z")
-sampleList <- list(C1=c1, C2=c2, C3=c3, C4=c4)
-
-# Refine using the default "matching_score"
-refineComplexList(sampleList, mergeThreshold = 0.6)
-#> 
-#> --- Refining Input Complex List ---
-#> Filtered 0 complexes by size. Retaining 4.
-#> Identifying merge groups with matching_score >= 0.60...
-#> Found 1 merge groups. Merging 2 complexes into 2.
-#> Merging complete. Final list has 2 complexes.
-#> 
-#> --- Refinement Complete ---
-#> $refinedComplexes
-#> $refinedComplexes$CpxMap_0001
-#> [1] "A" "B" "C" "D" "E" "F"
-#> 
-#> $refinedComplexes$CpxMap_0002
-#> [1] "X" "Y" "Z"
-#> 
-#> 
-#> $mergeMap
-#> # A tibble: 4 × 2
-#>   originalId finalId    
-#>   <chr>      <chr>      
-#> 1 C1         CpxMap_0001
-#> 2 C2         CpxMap_0001
-#> 3 C3         CpxMap_0001
-#> 4 C4         CpxMap_0002
-#> 
-
-# Refine using the "simpson" method to merge the subset
-refineComplexList(sampleList, mergeThreshold = 0.9, similarityMethod = "simpson")
-#> 
-#> --- Refining Input Complex List ---
-#> Filtered 0 complexes by size. Retaining 4.
-#> Identifying merge groups with simpson >= 0.90...
-#> Found 1 merge groups. Merging 2 complexes into 2.
-#> Merging complete. Final list has 2 complexes.
-#> 
-#> --- Refinement Complete ---
-#> $refinedComplexes
-#> $refinedComplexes$CpxMap_0001
-#> [1] "A" "B" "C" "D" "E" "F"
-#> 
-#> $refinedComplexes$CpxMap_0002
-#> [1] "X" "Y" "Z"
-#> 
-#> 
-#> $mergeMap
-#> # A tibble: 4 × 2
-#>   originalId finalId    
-#>   <chr>      <chr>      
-#> 1 C1         CpxMap_0001
-#> 2 C2         CpxMap_0001
-#> 3 C3         CpxMap_0001
-#> 4 C4         CpxMap_0002
-#> 
-```

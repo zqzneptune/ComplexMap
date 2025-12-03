@@ -11,7 +11,7 @@ refinement, enrichment, network construction, and topology calculation."></head>
 
     <a class="navbar-brand me-2" href="../index.html">ComplexMap</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +51,14 @@ refinement, enrichment, network construction, and topology calculation.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">createComplexMap</span><span class="op">(</span><span class="va">complexList</span>, <span class="va">gmt</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">createComplexMap</span><span class="op">(</span></span>
+<span>  <span class="va">complexList</span>,</span>
+<span>  <span class="va">gmt</span>,</span>
+<span>  similarityMethod <span class="op">=</span> <span class="st">"jaccard"</span>,</span>
+<span>  alpha <span class="op">=</span> <span class="fl">0.75</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -64,65 +71,53 @@ protein identifiers representing a complex.</p></dd>
 
 
 <dt id="arg-gmt">gmt<a class="anchor" aria-label="anchor" href="#arg-gmt"></a></dt>
-<dd><p>A named list where each element is a character vector of genes,
-representing a functional gene set (e.g., from a GMT file).</p></dd>
+<dd><p>A named list where each element is a character vector of genes.</p></dd>
+
+
+<dt id="arg-similaritymethod">similarityMethod<a class="anchor" aria-label="anchor" href="#arg-similaritymethod"></a></dt>
+<dd><p>The metric used for comparing complexes and functional terms.
+Defaults to **"jaccard"** to penalize size differences and maintain diversity.
+Avoid "overlap" if you wish to see specific pathways distinct from generic ones.</p></dd>
+
+
+<dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
+<dd><p>Numeric (0-1). The weight given to physical protein composition
+versus functional similarity in the network layout. Defaults to **0.75**
+(75% physical, 25% functional).</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p>A logical value indicating whether to print progress messages
-for the entire workflow. Defaults to `TRUE`.</p></dd>
+<dd><p>A logical value indicating whether to print progress messages.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments to be passed down to the core functions.
-Common arguments include:
-- `minSize`, `maxSize`, `mergeThreshold`, `similarityMethod` (for `refineComplexList`)
+<dd><p>Additional arguments passed to core functions:
+- `minSize`, `maxSize`, `mergeThreshold` (for `refineComplexList`)
 - `pAdjustMethod`, `pValueCutoff` (for `runComplexEnrichment`)
-- `mode`, `similarityMethod`, `alpha` (for `buildComplexNetwork`)</p></dd>
+- `geneSetDb` (for `generateNodeAttributes` semantic clustering)</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A validated `ComplexMap` S3 object containing the final node and
-  edge tables.</p>
+    <p>A validated `ComplexMap` S3 object.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This function serves as the primary entry point for most analyses. It
-internally calls the core workflow in the following order:</p>
-<p>1.  `refineComplexList()`</p>
-<p>2.  `runComplexEnrichment()`</p>
-<p>3.  `buildComplexNetwork()`</p>
-<p>4.  `generateNodeAttributes()`</p>
-<p>5.  `computeMapTopology()`</p>
-<p>Arguments for the underlying functions can be passed directly to this
-wrapper via the `...` parameter.</p>
+    <p>This function is tuned to generate a **functionally diverse landscape**.
+It enforces the following logic:
+1.  **Refinement:** Uses Jaccard similarity to merge only highly redundant complexes,
+    preserving biological variants (subsets/supersets).
+2.  **Enrichment:** Calculates 'Fold Enrichment' to prioritize specific biological
+    functions over generic ones.
+3.  **Network:** Builds the layout primarily based on **Physical Composition**
+    (alpha = 0.75), using functional annotations only to group related clusters,
+    not to collapse them.</p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
     <p>Qingzhou Zhang &lt;zqzneptune@hotmail.com&gt;</p>
     </div>
 
-    <div class="section level2">
-    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Assume 'demoComplexes' and a 'gmt' object are loaded</span></span></span>
-<span class="r-in"><span><span class="co"># gmtPath &lt;- getExampleGmt()</span></span></span>
-<span class="r-in"><span><span class="co"># gmt &lt;- getGmtFromFile(gmtPath, verbose = FALSE)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Run the full workflow with custom parameters</span></span></span>
-<span class="r-in"><span><span class="co"># complexMapObject &lt;- createComplexMap(</span></span></span>
-<span class="r-in"><span><span class="co">#   demoComplexes,</span></span></span>
-<span class="r-in"><span><span class="co">#   gmt,</span></span></span>
-<span class="r-in"><span><span class="co">#   verbose = TRUE,</span></span></span>
-<span class="r-in"><span><span class="co">#   minSize = 5,</span></span></span>
-<span class="r-in"><span><span class="co">#   mergeThreshold = 0.8,</span></span></span>
-<span class="r-in"><span><span class="co">#   pValueCutoff = 0.01,</span></span></span>
-<span class="r-in"><span><span class="co">#   mode = "combined"</span></span></span>
-<span class="r-in"><span><span class="co"># )</span></span></span>
-<span class="r-in"><span><span class="co"># print(complexMapObject)</span></span></span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
-    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

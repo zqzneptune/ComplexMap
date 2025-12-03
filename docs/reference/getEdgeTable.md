@@ -1,7 +1,6 @@
 # Get the Edge Table from a ComplexMap Object
 
-A simple accessor function to extract the tibble of network edges from a
-\`ComplexMap\` object.
+Access the network edge list (weights, similarity types).
 
 ## Usage
 
@@ -13,16 +12,8 @@ getEdgeTable(cm)
 
 - cm:
 
-  A \`ComplexMap\` object, typically the output of
-  \`createComplexMap()\`.
+  A \`ComplexMap\` object.
 
 ## Value
 
-A \`tibble\` containing the edge data.
-
-## Examples
-
-``` r
-# Assuming 'myComplexMap' is a valid ComplexMap object
-# edgeData <- getEdgeTable(myComplexMap)
-```
+A \`tibble\`.

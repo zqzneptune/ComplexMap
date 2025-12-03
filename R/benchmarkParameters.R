@@ -1,149 +1,113 @@
 #' Benchmark Complex Refinement Parameters
 #'
 #' @description
-#' Evaluates the performance of the complex refinement process across a range of
-#' `mergeThreshold` values, providing key metrics against a reference set.
+#' Evaluates how different merging thresholds affect the quality AND diversity
+#' of the resulting complex map.
 #'
 #' @details
-#' This function systematically tests different `mergeThreshold` values to help
-#' users optimize the complex merging step. For each threshold in `threshold_range`:
-#'
-#' 1.  It calls `refineComplexList()` with the given threshold.
+#' **Systems Biology Rationale:**
+#' When optimizing the `mergeThreshold`, there is a trade-off between removing
+#' redundancy (increasing PPV) and losing specific variants (decreasing Sensitivity
+#' and Diversity).
 #' 
-#' 2.  It checks the resulting list of refined complexes. If the list is empty
-#'     (which can happen with a threshold of 1.0), it records `NA` for all
-#'     performance metrics for that threshold.
-#'     
-#' 3.  If the list is not empty, it calls `evaluateComplexes()` to calculate
-#'     PPV, Sensitivity, Accuracy, and MMR.
-#'
-#' The function returns a single tidy data frame, making it easy to plot the
-#' results (e.g., the F1-score) to identify the optimal `mergeThreshold`.
+#' This function returns the standard metrics (PPV, Sn, Acc, MMR) but also adds
+#' **NumComplexes**.
+#' - **Collapse Warning:** If `NumComplexes` drops precipitously between two thresholds,
+#'   you have likely crossed the point where distinct biological variants are being
+#'   merged into generic blobs.
+#' - **Recommendation:** Choose the threshold that maximizes F1/MMR while maintaining
+#'   a `NumComplexes` count close to your expected biological complexity.
 #'
 #' @param complexList A list of predicted protein complexes to be refined.
 #' @param referenceComplexes A list of reference (gold standard) complexes.
-#' @param threshold_range A numeric vector of `mergeThreshold` values to test.
+#' @param threshold_range Numeric vector of thresholds to test. 
 #'   Defaults to `seq(0.5, 1.0, by = 0.05)`.
-#' @param ... Additional arguments to be passed down to `refineComplexList`,
-#'   such as `similarityMethod` (e.g., "jaccard" or "matching_score"), `minSize`,
-#'   or `maxSize`.
+#' @param similarityMethod The metric used for merging. Defaults to **"jaccard"**.
+#' @param ... Additional arguments passed to `refineComplexList` (e.g., minSize).
 #'
 #' @return
-#' A tidy `tibble` with columns: `mergeThreshold`, `PPV`, `Sn`, `Acc`, and `MMR`.
-#' Rows corresponding to thresholds that yielded no complexes will have `NA`
-#' values for the metric columns.
+#' A `tibble` with columns:
+#' - `mergeThreshold`: The threshold tested.
+#' - `NumComplexes`: Number of complexes remaining (Diversity metric).
+#' - `PPV`: Positive Predictive Value (Precision).
+#' - `Sn`: Sensitivity (Recall).
+#' - `F1`: Harmonic mean of PPV and Sn.
+#' - `Acc`: Accuracy (Geometric mean of PPV and Sn).
+#' - `MMR`: Maximum Matching Ratio.
 #'
 #' @author Qingzhou Zhang <zqzneptune@hotmail.com>
 #'
 #' @export
-#' @examples
-#' # Load the package's demo data
-#' data(demoComplexes)
-#' data(referenceComplexes)
-#'
-#' \dontrun{
-#' # Run benchmarking over a range of thresholds using the "matching_score" method
-#' benchmark_results <- benchmarkParameters(
-#'   complexList = demoComplexes,
-#'   referenceComplexes = referenceComplexes,
-#'   threshold_range = seq(0.7, 1.0, by = 0.05),
-#'   similarityMethod = "matching_score"
-#' )
-#'
-#' print(benchmark_results)
-#'
-#' # To find the optimal threshold, calculate the F1-score (harmonic mean
-#' # of PPV and Sn) and plot the results.
-#' if (requireNamespace("ggplot2", quietly = TRUE) &&
-#'     requireNamespace("dplyr", quietly = TRUE)) {
-#'
-#'   plot_data <- benchmark_results %>%
-#'     dplyr::mutate(F1_Score = 2 * (PPV * Sn) / (PPV + Sn))
-#'
-#'   # Find the best threshold
-#'   best_threshold <- plot_data %>%
-#'     dplyr::filter(F1_Score == max(F1_Score, na.rm = TRUE)) %>%
-#'     dplyr::pull(mergeThreshold)
-#'
-#'   ggplot2::ggplot(plot_data, ggplot2::aes(x = mergeThreshold, y = F1_Score)) +
-#'     ggplot2::geom_line(color = "blue") +
-#'     ggplot2::geom_point(size = 3, color = "blue") +
-#'     ggplot2::geom_vline(
-#'       xintercept = best_threshold, linetype = "dashed", color = "red"
-#'     ) +
-#'     ggplot2::scale_x_continuous(breaks = plot_data$mergeThreshold) +
-#'     ggplot2::labs(
-#'       title = "F1-Score vs. Merge Threshold",
-#'       subtitle = paste("Optimal threshold based on F1-Score:", best_threshold),
-#'       x = "Merge Threshold",
-#'       y = "F1-Score"
-#'     ) +
-#'     ggplot2::theme_minimal(base_size = 14)
-#' }
-#' }
-#'
 benchmarkParameters <- function(complexList, referenceComplexes,
                                 threshold_range = seq(0.5, 1.0, by = 0.05),
+                                similarityMethod = "jaccard",
                                 ...) {
-
-  # Initialize a list to store the results for each iteration
-  results_list <- vector("list", length(threshold_range))
-
+  
   message("--- Starting Parameter Benchmarking ---")
-
-  # Loop over each specified threshold value
+  message(sprintf("Method: %s (Focus: Balancing Accuracy vs. Diversity)", similarityMethod))
+  
+  # Initialize a list to store the results
+  results_list <- vector("list", length(threshold_range))
+  
   for (i in seq_along(threshold_range)) {
     current_threshold <- threshold_range[i]
+    
     if (interactive()) {
-        message(sprintf("Benchmarking with mergeThreshold = %.2f...",
-                        current_threshold))
+      message(sprintf("Testing mergeThreshold = %.2f...", current_threshold))
     }
-
-
-    # Call refineComplexList, passing through any additional arguments
-    # from '...' (like similarityMethod). Verbose is turned off for the loop.
+    
+    # 1. Refine
     refinement_output <- refineComplexList(
       complexList = complexList,
       mergeThreshold = current_threshold,
+      similarityMethod = similarityMethod,
       verbose = FALSE,
       ...
     )
-
+    
     refined_complexes <- refinement_output$refinedComplexes
-
-    # Check if the refinement process yielded any complexes
-    if (length(refined_complexes) == 0) {
-      # If the list is empty, record NA for all metrics
+    num_refined <- length(refined_complexes)
+    
+    # 2. Evaluate
+    if (num_refined == 0) {
       metrics <- tibble::tibble(
         mergeThreshold = current_threshold,
-        PPV = NA_real_,
-        Sn = NA_real_,
-        Acc = NA_real_,
-        MMR = NA_real_
+        NumComplexes = 0,
+        PPV = NA_real_, Sn = NA_real_, F1 = NA_real_,
+        Acc = NA_real_, MMR = NA_real_
       )
     } else {
-      # If complexes remain, evaluate them against the reference
       eval_metrics <- evaluateComplexes(
         predictedComplexes = refined_complexes,
         referenceComplexes = referenceComplexes,
-        verbose = FALSE # Suppress verbose output within the loop
+        verbose = FALSE
       )
-
-      # Combine the threshold and the metrics into a single tibble row
+      
+      # Calculate F1 Score (Harmonic Mean)
+      # Safe calculation to avoid division by zero
+      ppv <- eval_metrics$PPV
+      sn <- eval_metrics$Sn
+      f1 <- if (!is.na(ppv) && !is.na(sn) && (ppv + sn) > 0) {
+        2 * (ppv * sn) / (ppv + sn)
+      } else {
+        0
+      }
+      
       metrics <- tibble::tibble(
         mergeThreshold = current_threshold,
-        PPV = eval_metrics$PPV,
-        Sn = eval_metrics$Sn,
+        NumComplexes = num_refined,
+        PPV = ppv,
+        Sn = sn,
+        F1 = f1,
         Acc = eval_metrics$Acc,
         MMR = eval_metrics$MMR
       )
     }
     results_list[[i]] <- metrics
   }
-
+  
   message("--- Benchmarking Complete ---")
-
-  # Combine all the individual results into a single final tibble
+  
   final_results <- dplyr::bind_rows(results_list)
   return(final_results)
 }

@@ -11,7 +11,7 @@ Maximum Matching Ratio (MMR)."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ComplexMap</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,8 +100,8 @@ then used as the basis for all four metric calculations.</p>
   [Hungarian algorithm](https://en.wikipedia.org/wiki/Hungarian_algorithm)
   is then used to solve the maximum weight bipartite matching problem. This
   approach is based on the method described by Nepusz et al. (2012).</p>
-<p>The parallel computation uses `parallel::mclapply`, which is not available on
-Windows. On Windows, the calculation will run sequentially.</p>
+<p>The parallel computation uses `future.apply::future_lapply` for cross-platform
+compatibility (unlike `parallel::mclapply`, which is not available on Windows).</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

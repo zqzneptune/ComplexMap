@@ -33,6 +33,7 @@ from various sources and, crucially, how to handle and convert
 identifiers to ensure they match your input data.
 
 ``` r
+
 # For this tutorial, we will assume our input complex list uses Gene Symbols.
 myComplexes <- list(
   CPLX1 = c("POLR2A", "POLR2B", "POLR2C"),
@@ -62,18 +63,21 @@ First, get the path to the example GMT file included with the package.
 This file uses Gene Symbols.
 
 ``` r
+
 gmtPath <- ComplexMap::getExampleGmt()
 ```
 
 Load the GMT from the file path.
 
 ``` r
+
 gmtFromFile <- ComplexMap::getGmtFromFile(gmtPath, verbose = FALSE)
 ```
 
 Let’s inspect the identifiers:
 
 ``` r
+
 # First 5 genes in the first gene set:
 utils::head(gmtFromFile[[1]], 5)
 #> [1] "ATF2"  "CHUK"  "IFNG"  "IKBKB" "IL2"
@@ -91,13 +95,16 @@ the MSigDB collections. Our
 function simplifies this process.
 
 ``` r
+
 # Fetch the Hallmark gene sets for Human
 # This requires the `msigdbr` package
 if (requireNamespace("msigdbr", quietly = TRUE)) {
   h_gmt <- ComplexMap::getMsigdbGmt(species = "Homo sapiens", collection = "H")
 
   # Inspect the identifiers
-  utils::head(h_gmt[[1]], 5)
+  if (length(h_gmt) > 0) {
+    utils::head(h_gmt[[1]], 5)
+  }
 }
 #> Fetching MSigDB sets (Species: Homo sapiens, Cat: H)
 #> [1] "ABCA1" "ABCB8" "ACAA2" "ACADL" "ACADM"
@@ -113,6 +120,7 @@ way to get functional annotations. These databases, however, typically
 use stable database identifiers, not gene symbols.
 
 ``` r
+
 # This requires an organism annotation package, e.g., org.Hs.eg.db for human
 if (requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
   # Fetch Biological Process (BP) terms
@@ -122,13 +130,15 @@ if (requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
                                 verbose = FALSE)
 
   # Inspect the identifiers
-  utils::head(goGmt[[1]], 5)
+  if (length(goGmt) > 0) {
+    utils::head(goGmt[[1]], 5)
+  }
 }
 #> 
 #> 'select()' returned 1:many mapping between keys and columns
 #> 
 #> 'select()' returned 1:1 mapping between keys and columns
-#> [1] "1743" "2805" "2806" "3417" "3418"
+#> [1] "1291" "1738" "1743" "2805" "2806"
 ```
 
 **Identifier Mismatch!** The `getGoGmt` function returns a list where
@@ -143,6 +153,7 @@ match the stable IDs from the annotation database. The
 function is perfect for this.
 
 ``` r
+
 if (requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
   # Get all unique symbols from our complex list
   allSymbols <- unique(unlist(myComplexes))
@@ -187,8 +198,10 @@ Similarly, the `reactome.db` package provides pathway annotations, which
 also use Entrez IDs.
 
 ``` r
+
 if (requireNamespace("reactome.db", quietly = TRUE) && 
-    requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+    requireNamespace("org.Hs.eg.db", quietly = TRUE) &&
+    exists("myComplexesEntrez")) { # Check if conversion above succeeded
       
   reactomeGmt <- ComplexMap::getReactomeGmt(
       speciesDb = org.Hs.eg.db::org.Hs.eg.db,
@@ -196,7 +209,9 @@ if (requireNamespace("reactome.db", quietly = TRUE) &&
   )
 
   # Inspect the identifiers
-  utils::head(reactomeGmt[[1]], 5)
+  if (length(reactomeGmt) > 0) {
+    utils::head(reactomeGmt[[1]], 5)
+  }
 }
 #> [1] "1"     "10019" "10112" "10125" "10125"
 ```
@@ -207,18 +222,3 @@ if (requireNamespace("reactome.db", quietly = TRUE) &&
 **Solution:** The solution is the same as for Gene Ontology. You would
 use the `myComplexesEntrez` list that we created in the previous step,
 as its identifiers will match the identifiers in the `reactomeGmt`.
-
-## Conclusion
-
-This vignette has demonstrated the core philosophy of `ComplexMap`:
-flexibility through identifier consistency. By understanding the
-identifier types returned by different sources and knowing how to
-convert your own data to match, you can apply the `ComplexMap` workflow
-to virtually any organism.
-
-Always check your identifiers before running
-[`ComplexMap::createComplexMap()`](https://zqzneptune.github.io/ComplexMap/reference/createComplexMap.md)
-to ensure a smooth and successful analysis. The explicit
-`package::function()` syntax demonstrated here is a recommended best
-practice for writing clean, reproducible, and error-free analysis
-scripts.

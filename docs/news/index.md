@@ -1,5 +1,62 @@
 # Changelog
 
+## ComplexMap 1.1.1 - 2025-12-02
+
+This is a maintenance and stability release that addresses several
+critical bugs, improves cross-platform compatibility, and streamlines
+the advanced analysis workflow.
+
+### Workflow Enhancements
+
+- The
+  [`summarizeThemes()`](https://zqzneptune.github.io/ComplexMap/reference/summarizeThemes.md)
+  function has been significantly improved for a more intuitive user
+  experience. It now accepts an `add_to_object` argument (defaulting to
+  `TRUE`) that adds theme information (`themeId`, `themeLabel`,
+  `themePurity`) directly to the `ComplexMap` object’s node table. This
+  makes querying by theme using `queryMap(..., type = "theme")` seamless
+  and removes the need for manual data merging.
+
+### Major Improvements
+
+- **Cross-Platform Parallel Processing:** The `evaluateComplexes`
+  function has been refactored to use the `future.apply` backend,
+  replacing the Unix-specific
+  [`parallel::mclapply`](https://rdrr.io/r/parallel/mclapply.html). This
+  ensures that parallel computation now works reliably on all operating
+  systems, including Windows.
+
+### Bug Fixes
+
+- Fixed a critical runtime error in `visualizeMapInteractive` that
+  caused the function to fail when the `color.by` argument was not
+  specified. The function now correctly generates tooltips in all use
+  cases.
+
+- Resolved a package build failure caused by an incorrect function call
+  in the main workflow vignette (`vignette_02-workflow.Rmd`). The
+  package can now be built and checked successfully.
+
+- Corrected a dependency issue where `evaluateComplexes` would fail if
+  the `clue` package was not installed. `clue` has been moved from
+  `Suggests` to `Imports` to guarantee its availability for this core
+  function.
+
+### Documentation
+
+- Updated the `README.md` to accurately reflect that `"jaccard"` is the
+  default `similarityMethod`, aligning the documentation with the
+  package’s diversity-first refinement strategy.
+
+- The advanced analysis vignette (`vignette_03-advanced-analysis.Rmd`)
+  has been updated to demonstrate the new, streamlined workflow for
+  theme analysis using the refactored
+  [`summarizeThemes()`](https://zqzneptune.github.io/ComplexMap/reference/summarizeThemes.md)
+  function.
+
+- Synchronized versioning and dates across all documentation files
+  (`DESCRIPTION`, `README.md`) for consistency.
+
 ## ComplexMap 1.1.0 - 2025-11-15
 
 ### Added

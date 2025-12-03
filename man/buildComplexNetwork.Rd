@@ -9,7 +9,7 @@ buildComplexNetwork(
   enrichments,
   mode = "combined",
   similarityMethod = "jaccard",
-  alpha = 0.5,
+  alpha = 0.75,
   nCores = NULL,
   chunkSize = 1000,
   verbose = TRUE
@@ -18,73 +18,45 @@ buildComplexNetwork(
 \arguments{
 \item{complexes}{A named list of protein complexes.}
 
-\item{enrichments}{A named list of enrichment results, corresponding to the
-`complexes`. Typically the output of `runComplexEnrichment`.}
+\item{enrichments}{A named list of enrichment results (from `runComplexEnrichment`).}
 
-\item{mode}{A character string specifying how to calculate the final edge
-weight. One of "functional", "compositional", or "combined".}
+\item{mode}{Edge weight mode: "compositional", "functional", or "combined".
+Defaults to "combined".}
 
-\item{similarityMethod}{The metric used for both compositional and functional
-similarity. One of "jaccard", "overlap", or "dice".}
+\item{similarityMethod}{The metric for similarity. Defaults to **"jaccard"**.
+**Warning:** Using "overlap" is discouraged as it tends to collapse 
+diverse hierarchies into single blobs.}
 
-\item{alpha}{A numeric value (0-1) used only in "combined" mode to weigh
-the compositional similarity score.}
+\item{alpha}{Numeric (0-1). Weight given to Compositional Similarity in 
+"combined" mode. Defaults to **0.75** (favoring physical structure).}
 
-\item{nCores}{The number of CPU cores for parallel processing. Defaults to
-one less than available.}
+\item{nCores}{Number of cores for parallel processing.}
 
-\item{chunkSize}{The number of complex pairs to process in each parallel
-chunk.}
+\item{chunkSize}{Size of processing chunks.}
 
-\item{verbose}{A logical value indicating whether to show progress messages
-and a progress bar.}
+\item{verbose}{Logical.}
 }
 \value{
-A `tibble` representing the network edges. Each row includes the source
-and target_complex_id complexes, their similarity scores, shared component
-counts, the final calculated `weight`, and the `similarity_mode`.
+A `tibble` of network edges with `weight` representing the
+  calculated similarity.
 }
 \description{
-Constructs a network of complexes where edges represent similarity. The
-similarity can be based on shared proteins (compositional), shared
-functional annotations (functional), or a weighted combination of both.
+Constructs a network of complexes where edges represent similarity.
 }
 \details{
-This function calculates all pairwise similarities between complexes in a
-list. It is highly optimized for large datasets by using chunking and
-parallel processing via the `future` framework.
+**Systems Biology Rationale:**
+To generate a diverse and physically meaningful landscape, this function
+defaults to prioritizing **Compositional Similarity** (shared proteins) over
+functional similarity.
 
-The final edge weight is determined by the `mode`:
+- **Composition (Protein Identity)** is treated as the "Physical Truth".
+- **Function (Enrichment)** is treated as an attribute.
 
-- `"compositional"`: Uses only the protein similarity score.
-
-- `"functional"`: Uses only the functional annotation similarity score.
-
-- `"combined"`: Uses a weighted average:
-`alpha * compositional + (1 - alpha) * functional`.
-
-If the `progressr` package is installed, a progress bar will be displayed
-during the parallel computation when `verbose = TRUE`.
-}
-\examples{
-# --- Sample Data (from previous examples) ---
-complexes <- list(
-  Cpx1 = c("A", "B", "C", "D"),
-  Cpx2 = c("A", "B", "C", "E"), # similar to Cpx1
-  Cpx3 = c("F", "G", "H")
-)
-enrichments <- list(
-  Cpx1 = data.frame(ID = c("GO:1", "GO:2")),
-  Cpx2 = data.frame(ID = c("GO:1", "GO:3")), # functionally similar to Cpx1
-  Cpx3 = data.frame(ID = c("GO:4"))
-)
-
-# --- Build Network (using 2 cores for the example) ---
-network <- buildComplexNetwork(
-  complexes, enrichments, mode = "combined", nCores = 2
-)
-print(network)
-
+The `alpha` parameter controls this balance. The new default (0.75) gives
+75% weight to physical overlaps. This prevents generic functional terms
+(like "Cell Cycle") from artificially pulling distinct physical complexes
+into a single cluster, while still allowing functionally related complexes
+to drift closer than unrelated ones.
 }
 \author{
 Qingzhou Zhang <zqzneptune@hotmail.com>

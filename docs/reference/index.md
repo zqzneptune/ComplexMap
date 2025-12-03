@@ -15,7 +15,7 @@
 - [`evaluateComplexes()`](https://zqzneptune.github.io/ComplexMap/reference/evaluateComplexes.md)
   : Evaluate Predicted Protein Complexes Against a Reference Set
 - [`exportNetwork()`](https://zqzneptune.github.io/ComplexMap/reference/exportNetwork.md)
-  : Export a ComplexMap Network for External Tools
+  : Export a ComplexMap Network for External Tools (Cytoscape)
 - [`generateNodeAttributes()`](https://zqzneptune.github.io/ComplexMap/reference/generateNodeAttributes.md)
   : Generate Node Attributes for a Complex Network
 - [`getEdgeTable()`](https://zqzneptune.github.io/ComplexMap/reference/getEdgeTable.md)
@@ -37,7 +37,7 @@
 - [`qcComplexList()`](https://zqzneptune.github.io/ComplexMap/reference/qcComplexList.md)
   : Perform Quality Control on a List of Protein Complexes
 - [`queryMap()`](https://zqzneptune.github.io/ComplexMap/reference/queryMap.md)
-  : Query a ComplexMap Object for Specific Information
+  : Query a ComplexMap Object
 - [`referenceComplexes`](https://zqzneptune.github.io/ComplexMap/reference/referenceComplexes.md)
   : Reference Protein Complex Set (CORUM)
 - [`refineComplexList()`](https://zqzneptune.github.io/ComplexMap/reference/refineComplexList.md)

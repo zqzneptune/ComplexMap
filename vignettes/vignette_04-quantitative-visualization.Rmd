@@ -2,9 +2,9 @@
 title: "4. Visualizing Quantitative Data"
 author: "Qingzhou Zhang"
 date: "`r Sys.Date()`"
-output: html_document
+output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Visualizing Quantitative Data}
+  %\VignetteIndexEntry{4. Visualizing Quantitative Data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -65,27 +65,37 @@ This workflow assumes you have a data frame with **complex-level** quantitative 
 Let's create some sample data representing a "purity score" for a subset of our complexes.
 
 ```{r complex_level_data}
-# Create sample complex-level data
-set.seed(123) # for reproducibility
-complex_quant_data <- tibble(
-  complexId = sample(node_table$complexId, size = 50),
-  purity_score = runif(50, min = 0.5, max = 1.0)
-)
-
-head(complex_quant_data)
+if (nrow(node_table) > 0) {
+  # Create sample complex-level data
+  set.seed(123) # for reproducibility
+  
+  # Sample 50 complexes (or fewer if total < 50)
+  n_sample <- min(50, nrow(node_table))
+  
+  complex_quant_data <- tibble(
+    complexId = sample(node_table$complexId, size = n_sample),
+    purity_score = runif(n_sample, min = 0.5, max = 1.0)
+  )
+  
+  head(complex_quant_data)
+}
 ```
 
 ### Step 3: Join Quantitative Data to the Node Table
 
-Next, we simply join our new complex-level quantitative data back to the main node table. We use a `left_join` to ensure all original nodes are kept, even those without quantitative data.
+Next, we join our new complex-level quantitative data back to the main node table. We use a `left_join` to ensure all original nodes are kept, even those without quantitative data.
 
 ```{r join_data}
-# Join the quantitative data to the main node table
-nodes_with_quant <- node_table %>%
-  left_join(complex_quant_data, by = "complexId")
-
-# Preview the new column. Note that complexes without data have NA.
-head(select(nodes_with_quant, complexId, primaryFunctionalDomain, purity_score))
+if (exists("complex_quant_data")) {
+  # Join the quantitative data to the main node table
+  nodes_with_quant <- node_table %>%
+    left_join(complex_quant_data, by = "complexId")
+  
+  # Preview the new column. Note that complexes without data have NA.
+  head(select(nodes_with_quant, complexId, primaryFunctionalDomain, purity_score))
+} else {
+  nodes_with_quant <- node_table
+}
 ```
 
 ### Step 4: Visualize the Map Using Any Function
@@ -97,51 +107,55 @@ Now that our data is prepared, we can use any of the core visualization function
 This plot is ideal for detailed inspection where labels do not overlap significantly. The function will automatically generate a continuous color bar legend for our `purity_score`.
 
 ```{r final_visualization_direct, fig.height=9, fig.width=12}
-visualizeMapDirectLabels(
-  layoutDf = nodes_with_quant,
-  edgesDf = edge_table,
-  title = "Complex Map with Purity Score",
-  subtitle = "Nodes colored by quantitative score, labels shown directly",
-  
-  # --- Key arguments for continuous coloring ---
-  color.by = "purity_score",
-  color.palette = "viridis", 
-  color.legend.title = "Purity Score"
-)
+if (nrow(nodes_with_quant) > 0 && "purity_score" %in% names(nodes_with_quant)) {
+  visualizeMapDirectLabels(
+    layoutDf = nodes_with_quant,
+    edgesDf = edge_table,
+    title = "Complex Map with Purity Score",
+    subtitle = "Nodes colored by quantitative score, labels shown directly",
+    
+    # --- Key arguments for continuous coloring ---
+    color.by = "purity_score",
+    color.palette = "viridis", 
+    color.legend.title = "Purity Score"
+  )
+}
 ```
 
 #### Plot 2: Visualization with Legend
 
-This plot uses the same underlying logic but is designed for overviews. When `color.by` is specified, it overrides the default discrete legend (for functional domains) and instead creates a continuous color bar, just like the direct labels plot.
+This plot uses the same underlying logic but is designed for overviews. When `color.by` is specified, it overrides the default discrete legend (for functional domains) and instead creates a continuous color bar.
 
 ```{r final_visualization_legend, fig.height=9, fig.width=12}
-visualizeMapWithLegend(
-  layoutDf = nodes_with_quant,
-  edgesDf = edge_table,
-  title = "Complex Map with Purity Score",
-  subtitle = "Nodes colored by quantitative score",
-  
-  # --- Key arguments for continuous coloring ---
-  color.by = "purity_score",
-  color.palette = "plasma", # We can easily switch palettes
-  color.legend.title = "Purity Score"
-)
+if (nrow(nodes_with_quant) > 0 && "purity_score" %in% names(nodes_with_quant)) {
+  visualizeMapWithLegend(
+    layoutDf = nodes_with_quant,
+    edgesDf = edge_table,
+    title = "Complex Map with Purity Score",
+    subtitle = "Nodes colored by quantitative score",
+    
+    # --- Key arguments for continuous coloring ---
+    color.by = "purity_score",
+    color.palette = "plasma", # We can easily switch palettes
+    color.legend.title = "Purity Score"
+  )
+}
 ```
 
 #### Plot 3: Interactive Visualization
 
-The same principle applies to the interactive plot. By specifying `color.by`, the function will color the nodes on a gradient and, importantly, will **add the quantitative value to the hover tooltip** for easy data exploration.
+The same principle applies to the interactive plot. By specifying `color.by`, the function will color the nodes on a gradient and **add the quantitative value to the hover tooltip**.
 
 ```{r final_visualization_interactive, eval=requireNamespace("visNetwork", quietly = TRUE)}
-visualizeMapInteractive(
-  layoutDf = nodes_with_quant,
-  edgesDf = edge_table,
-  title = "Interactive Complex Map with Purity Score",
-  
-  # --- Key arguments for continuous coloring ---
-  color.by = "purity_score",
-  color.palette = "viridis"
-)
+if (nrow(nodes_with_quant) > 0 && "purity_score" %in% names(nodes_with_quant)) {
+  visualizeMapInteractive(
+    layoutDf = nodes_with_quant,
+    edgesDf = edge_table,
+    title = "Interactive Complex Map with Purity Score",
+    
+    # --- Key arguments for continuous coloring ---
+    color.by = "purity_score",
+    color.palette = "viridis"
+  )
+}
 ```
-
-This consistent interface across all three visualization functions provides maximum flexibility for exploring and presenting your quantitative data in the context of the protein complex network.

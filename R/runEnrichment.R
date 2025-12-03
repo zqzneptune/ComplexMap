@@ -1,133 +1,133 @@
-utils::globalVariables(c("Term", "Count", "Ratio", "Fold"))
+utils::globalVariables(c("Term", "Count", "Ratio", "Fold", "PopHits", "TermSize"))
+
 #' Run Gene Set Enrichment Analysis on a List of Complexes
 #'
 #' @description
-#' This function performs a hypergeometric-based enrichment analysis for each
-#' protein complex in a list against a provided gene set matrix (GMT).
+#' Performs enrichment analysis for each complex against a GMT background.
 #'
 #' @details
-#' For each complex, this function calculates the over-representation of
-#' functional terms (e.g., GO terms, pathways) from the GMT file. It uses a
-#' hypergeometric test to compute a p-value, which is then adjusted for
-#' multiple testing.
+#' **Systems Biology Rationale:**
+#' To support the generation of a specific and diverse landscape, this function
+#' calculates and returns **Fold Enrichment** and **Term Size** in addition to
+#' standard p-values.
+#' 
+#' - **Fold Enrichment** is used by downstream functions to prioritize specific
+#'   biological labels over generic ones.
+#' - **Term Size** (PopHits) allows you to filter out overly broad terms
+#'   (e.g., those containing > 10% of the genome) if desired.
 #'
-#' Only the terms that are significant after filtering by the `pValueCutoff`
-#' are retained in the final output.
-#'
-#' @param complexList A named list where each element is a character vector of
-#'   gene/protein identifiers representing a complex.
-#' @param gmt A named list where each element is a character vector of genes,
-#'   representing a functional gene set (e.g., from a GMT file).
-#' @param pAdjustMethod A character string specifying the p-value adjustment
-#'   method to use for filtering. Must be one of "Benjamini", "Bonferroni",
-#'   or "FDR". Defaults to "Benjamini".
-#' @param pValueCutoff A numeric value used as the cutoff for significance on
-#'   the adjusted p-value. Defaults to 0.05.
-#' @param verbose A logical value indicating whether to print progress messages.
-#'   Defaults to `TRUE`.
+#' @param complexList A named list of protein complexes (character vectors).
+#' @param gmt A named list of gene sets (character vectors).
+#' @param pAdjustMethod Method for multiple testing correction ("Benjamini", "Bonferroni", "FDR").
+#'   Defaults to "Benjamini".
+#' @param pValueCutoff Adjusted p-value cutoff. Defaults to 0.05.
+#' @param verbose Logical.
 #'
 #' @return
-#' A named list where each name corresponds to a `complexId` from the input.
-#' Each element is a data frame containing the significant enrichment results
-#' for that complex, with columns: `ID`, `Description`, `p.adjust`, `Count`,
-#' `Ratio`, and `Fold`.
+#' A named list of tibbles. Each tibble contains:
+#' - `ID`: Term ID/Name
+#' - `Description`: Term Description
+#' - `p.adjust`: Adjusted p-value
+#' - `Fold`: Fold Enrichment (Observed/Expected)
+#' - `TermSize`: Number of genes in the term (Background)
+#' - `Count`: Number of genes in the term (Overlap)
 #'
 #' @author Qingzhou Zhang <zqzneptune@hotmail.com>
 #'
-#' @examples
-#' # --- Sample Data ---
-#' # 1. Complexes to be tested
-#' complex1 <- c("A", "B", "C", "D")
-#' complex2 <- c("F", "G", "H")
-#' myComplexes <- list(Cpx1 = complex1, Cpx2 = complex2)
-#'
-#' # 2. Gene Set Matrix (e.g., GO terms or pathways)
-#' term1 <- c("A", "B", "C", "X", "Y") # Enriched in Cpx1
-#' term2 <- c("F", "G", "Z")          # Enriched in Cpx2
-#' term3 <- c("L", "M", "N")          # Not enriched
-#' myGmt <- list(Term1 = term1, Term2 = term2, Term3 = term3)
-#'
-#' # --- Run Enrichment ---
-#' enrichment <- runComplexEnrichment(myComplexes, myGmt)
-#' print(enrichment)
-#'
 #' @export
-#'
 runComplexEnrichment <- function(complexList,
                                  gmt,
                                  pAdjustMethod="Benjamini",
                                  pValueCutoff=0.05,
                                  verbose=TRUE) {
   if (verbose) {
-    message(
-      sprintf("Running enrichment for %d complexes...", length(complexList))
-    )
+    message(sprintf("Running enrichment for %d complexes (Cutoff: %.2f)...", 
+                    length(complexList), pValueCutoff))
   }
   
   enrichmentResults <- list()
   
   for (complexId in names(complexList)) {
     complexGenes <- complexList[[complexId]]
-    result <- .runHypergeometricTest(geneSet=complexGenes, gmt=gmt)
+    result <- .runHypergeometricTest(geneSet = complexGenes, gmt = gmt)
     
     if (!is.null(result) && nrow(result) > 0) {
       validMethods <- c("Benjamini", "Bonferroni", "FDR")
       if (!pAdjustMethod %in% validMethods) {
-        stop(sprintf("pAdjustMethod '%s' not found. Choose from: %s",
-                     pAdjustMethod, paste(validMethods, collapse=", ")))
+        stop(sprintf("pAdjustMethod '%s' not found.", pAdjustMethod))
       }
       
+      # Filter by significance
       significantResult <- result %>%
         dplyr::filter(!!rlang::sym(pAdjustMethod) < pValueCutoff)
       
       if (nrow(significantResult) > 0) {
+        # Select and Rename columns for the standardized ComplexMap format
         enrichmentResults[[complexId]] <- significantResult %>%
           dplyr::select(
             ID = Term,
             Description = Term,
             p.adjust = dplyr::all_of(pAdjustMethod),
+            Fold,
+            TermSize = PopHits, # Renamed for clarity: Size of pathway in Universe
             Count,
-            Ratio,
-            Fold
-          )
+            Ratio
+          ) %>%
+          dplyr::arrange(p.adjust) # Sort by significance by default
       }
     }
   }
   
   if (verbose) {
-    message(
-      sprintf("Annotation complete. Found terms for %d complexes.",
-              length(enrichmentResults))
-    )
+    message(sprintf("Annotation complete. Found significant terms for %d complexes.",
+                    length(enrichmentResults)))
   }
   return(enrichmentResults)
 }
 
 #' @keywords internal
-#' @noRd
 .runHypergeometricTest <- function(geneSet, gmt) {
-  gsUniverse <- unique.default(unlist(gmt, use.names=FALSE))
+  # 1. Define Universe (Background)
+  gsUniverse <- unique.default(unlist(gmt, use.names = FALSE))
   popTotal <- length(gsUniverse)
-  listTotal <- length(intersect(geneSet, gsUniverse))
+  
+  # 2. Intersect Input with Universe
+  # Genes in the complex that are NOT in the GMT/Universe are excluded from the test
+  geneSetInUniverse <- intersect(geneSet, gsUniverse)
+  listTotal <- length(geneSetInUniverse)
   
   if (listTotal == 0) return(NULL)
   
-  hasOverlap <- vapply(
-    gmt,
-    function(termGenes) length(intersect(termGenes, geneSet)) > 0,
-    logical(1)
-  )
-  gmtFiltered <- gmt[hasOverlap]
+  # 3. Identify overlaps
+  # Logic: Which terms in GMT overlap with our filtered gene set?
+  hasOverlap <- vapply(gmt, function(termGenes) {
+    # Any shared genes?
+    length(intersect(termGenes, geneSetInUniverse)) > 0
+  }, logical(1))
   
+  gmtFiltered <- gmt[hasOverlap]
   if (length(gmtFiltered) == 0) return(NULL)
   
+  # 4. Calculate Statistics
   popHits <- lengths(gmtFiltered)
-  count <- lengths(lapply(gmtFiltered, intersect, geneSet))
-  ratio <- count / listTotal
-  fold <- (count / listTotal) / (popHits / popTotal)
+  count <- lengths(lapply(gmtFiltered, intersect, geneSetInUniverse))
   
+  # Expected Count = (ListSize * TermSize) / UniverseSize
+  expected <- (listTotal * popHits) / popTotal
+  
+  # Fold Enrichment = Observed / Expected
+  fold <- count / expected
+  
+  # Ratio = Count / ListSize (How much of the complex is covered?)
+  ratio <- count / listTotal
+  
+  # 5. Hypergeometric Test (Phyper)
+  # q = count - 1 (because lower.tail = FALSE is P[X > x])
+  # m = popHits (white balls)
+  # n = popTotal - popHits (black balls)
+  # k = listTotal (draws)
   pValue <- stats::phyper(
-    count - 1, popHits, popTotal - popHits, listTotal, lower.tail=FALSE
+    count - 1, popHits, popTotal - popHits, listTotal, lower.tail = FALSE
   )
   
   data.frame(
@@ -139,9 +139,9 @@ runComplexEnrichment <- function(complexList,
     ListTotal = listTotal,
     PopHits = popHits,
     PopTotal = popTotal,
-    Benjamini = stats::p.adjust(pValue, method="BH"),
-    Bonferroni = stats::p.adjust(pValue, method="bonferroni"),
-    FDR = stats::p.adjust(pValue, method="fdr"),
+    Benjamini = stats::p.adjust(pValue, method = "BH"),
+    Bonferroni = stats::p.adjust(pValue, method = "bonferroni"),
+    FDR = stats::p.adjust(pValue, method = "fdr"),
     stringsAsFactors = FALSE,
     row.names = NULL
   )

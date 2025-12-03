@@ -8,7 +8,14 @@ topology calculation.
 ## Usage
 
 ``` r
-createComplexMap(complexList, gmt, verbose = TRUE, ...)
+createComplexMap(
+  complexList,
+  gmt,
+  similarityMethod = "jaccard",
+  alpha = 0.75,
+  verbose = TRUE,
+  ...
+)
 ```
 
 ## Arguments
@@ -20,65 +27,48 @@ createComplexMap(complexList, gmt, verbose = TRUE, ...)
 
 - gmt:
 
-  A named list where each element is a character vector of genes,
-  representing a functional gene set (e.g., from a GMT file).
+  A named list where each element is a character vector of genes.
+
+- similarityMethod:
+
+  The metric used for comparing complexes and functional terms. Defaults
+  to \*\*"jaccard"\*\* to penalize size differences and maintain
+  diversity. Avoid "overlap" if you wish to see specific pathways
+  distinct from generic ones.
+
+- alpha:
+
+  Numeric (0-1). The weight given to physical protein composition versus
+  functional similarity in the network layout. Defaults to \*\*0.75\*\*
+  (75% physical, 25% functional).
 
 - verbose:
 
-  A logical value indicating whether to print progress messages for the
-  entire workflow. Defaults to \`TRUE\`.
+  A logical value indicating whether to print progress messages.
 
 - ...:
 
-  Additional arguments to be passed down to the core functions. Common
-  arguments include: - \`minSize\`, \`maxSize\`, \`mergeThreshold\`,
-  \`similarityMethod\` (for \`refineComplexList\`) - \`pAdjustMethod\`,
-  \`pValueCutoff\` (for \`runComplexEnrichment\`) - \`mode\`,
-  \`similarityMethod\`, \`alpha\` (for \`buildComplexNetwork\`)
+  Additional arguments passed to core functions: - \`minSize\`,
+  \`maxSize\`, \`mergeThreshold\` (for \`refineComplexList\`) -
+  \`pAdjustMethod\`, \`pValueCutoff\` (for \`runComplexEnrichment\`) -
+  \`geneSetDb\` (for \`generateNodeAttributes\` semantic clustering)
 
 ## Value
 
-A validated \`ComplexMap\` S3 object containing the final node and edge
-tables.
+A validated \`ComplexMap\` S3 object.
 
 ## Details
 
-This function serves as the primary entry point for most analyses. It
-internally calls the core workflow in the following order:
-
-1\. \`refineComplexList()\`
-
-2\. \`runComplexEnrichment()\`
-
-3\. \`buildComplexNetwork()\`
-
-4\. \`generateNodeAttributes()\`
-
-5\. \`computeMapTopology()\`
-
-Arguments for the underlying functions can be passed directly to this
-wrapper via the \`...\` parameter.
+This function is tuned to generate a \*\*functionally diverse
+landscape\*\*. It enforces the following logic: 1. \*\*Refinement:\*\*
+Uses Jaccard similarity to merge only highly redundant complexes,
+preserving biological variants (subsets/supersets). 2.
+\*\*Enrichment:\*\* Calculates 'Fold Enrichment' to prioritize specific
+biological functions over generic ones. 3. \*\*Network:\*\* Builds the
+layout primarily based on \*\*Physical Composition\*\* (alpha = 0.75),
+using functional annotations only to group related clusters, not to
+collapse them.
 
 ## Author
 
 Qingzhou Zhang \<zqzneptune@hotmail.com\>
-
-## Examples
-
-``` r
-# Assume 'demoComplexes' and a 'gmt' object are loaded
-# gmtPath <- getExampleGmt()
-# gmt <- getGmtFromFile(gmtPath, verbose = FALSE)
-
-# Run the full workflow with custom parameters
-# complexMapObject <- createComplexMap(
-#   demoComplexes,
-#   gmt,
-#   verbose = TRUE,
-#   minSize = 5,
-#   mergeThreshold = 0.8,
-#   pValueCutoff = 0.01,
-#   mode = "combined"
-# )
-# print(complexMapObject)
-```

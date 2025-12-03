@@ -4,61 +4,41 @@
 \alias{qcComplexList}
 \title{Perform Quality Control on a List of Protein Complexes}
 \usage{
-qcComplexList(complexList, redundancyThreshold = 0.8, verbose = TRUE)
+qcComplexList(
+  complexList,
+  redundancyThreshold = 0.9,
+  subsetThreshold = 0.9,
+  verbose = TRUE
+)
 }
 \arguments{
-\item{complexList}{A list where each element is a character vector of
-protein identifiers representing a complex.}
+\item{complexList}{A list of character vectors (protein complexes).}
 
-\item{redundancyThreshold}{A numeric value between 0 and 1. A warning will be
-issued for any pair of complexes with a Jaccard similarity score greater
-than or equal to this threshold. Defaults to 0.8.}
+\item{redundancyThreshold}{Threshold for Jaccard similarity warning. Defaults to 0.9.}
 
-\item{verbose}{A logical value indicating whether to print the QC report to
-the console. Defaults to `TRUE`.}
+\item{subsetThreshold}{Threshold for Simpson coefficient (subset) reporting. Defaults to 0.9.}
+
+\item{verbose}{Logical.}
 }
 \value{
-Invisibly returns the original `complexList` object, allowing it to be used
-in a pipeline.
+Invisibly returns the input `complexList`.
 }
 \description{
-This function performs a quality control analysis on a list of protein
-complexes, delivering a user-friendly report with key statistics and
-actionable warnings.
+A diagnostic tool to assess complex size distribution and distinguish between
+true redundancy (synonyms) and biological hierarchy (subsets).
 }
 \details{
-The QC process involves three main steps, presented in a clear report:
-1.  **Basic Statistics:** Reports the total number of complexes and unique
-    proteins.
-    
-2.  **Size Distribution:** Summarizes the number of proteins per complex,
-    highlighting the smallest, median, and largest complexes. It will
-    issue an in-report warning if complexes have fewer than 3 members.
-    
-3.  **Redundancy Analysis:** Calculates the Jaccard similarity for all pairs
-    of complexes. It reports the median and maximum similarity and issues an
-    in-report warning if any pairs exceed the `redundancyThreshold`.
+**Systems Biology Rationale:**
+To maintain a diverse functional landscape, it is critical to distinguish
+between two types of similarity:
 
-This function is intended as a **diagnostic tool**. It uses the Jaccard index
-for its clear and intuitive interpretation of redundancy. For actively merging
-complexes, see the more advanced `refineComplexList()` function.
-}
-\examples{
-# Create a sample list of protein complexes
-complex1 <- c("A", "B", "C", "D")
-complex2 <- c("A", "B", "C", "E") # Highly redundant with complex1
-complex3 <- c("F", "G", "H")
-complex4 <- c("I", "J")          # Small complex
-sampleList <- list(
-  C1 = complex1, C2 = complex2, C3 = complex3, C4 = complex4
-)
+1.  **Jaccard Similarity (Redundancy):** Complex A and B are nearly identical.
+    *   *Action:* Merge these (using `refineComplexList`).
+2.  **Overlap/Simpson Similarity (Hierarchy):** Complex A is a subset of Complex B.
+    *   *Action:* **Keep these.** Do not merge. These often represent distinct
+        biological states (e.g., Core Complex vs. Holo-Complex).
 
-# Run the quality control analysis to see the new report format
-qcComplexList(sampleList)
-
-}
-\seealso{
-`refineComplexList()` for a function to actively merge redundant complexes.
+This report calculates both metrics to guide your refinement strategy.
 }
 \author{
 Qingzhou Zhang <zqzneptune@hotmail.com>

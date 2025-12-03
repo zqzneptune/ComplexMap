@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualize.R
 \name{.apply_color_mapping}
 \alias{.apply_color_mapping}
-\title{Apply Color Mapping (Categorical or Continuous)}
+\title{Apply Color Mapping (Quantitative or Categorical)}
 \usage{
 .apply_color_mapping(
   p,
@@ -15,6 +15,6 @@
 )
 }
 \description{
-Apply Color Mapping (Categorical or Continuous)
+Apply Color Mapping (Quantitative or Categorical)
 }
 \keyword{internal}

@@ -7,17 +7,11 @@
 getNodeTable(cm)
 }
 \arguments{
-\item{cm}{A `ComplexMap` object, typically the output of
-`createComplexMap()`.}
+\item{cm}{A `ComplexMap` object.}
 }
 \value{
-A `tibble` containing the node data.
+A `tibble`.
 }
 \description{
-A simple accessor function to extract the tibble of node attributes and
-layout data from a `ComplexMap` object.
-}
-\examples{
-# Assuming 'myComplexMap' is a valid ComplexMap object
-# nodeData <- getNodeTable(myComplexMap)
+Access the node attributes (layout, function, specificity scores).
 }

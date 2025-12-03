@@ -10,6 +10,7 @@ Create Tooltip HTML for visNetwork
   primaryFunctionalDomain,
   proteinCount,
   proteins,
+  score = NULL,
   color.by = NULL,
   color.value = NULL
 )

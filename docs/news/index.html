@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ComplexMap</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,31 @@
       <small>Source: <a href="https://github.com/zqzneptune/ComplexMap/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.1" id="complexmap-111---2025-12-02">ComplexMap 1.1.1 - 2025-12-02<a class="anchor" aria-label="anchor" href="#complexmap-111---2025-12-02"></a></h2>
+<p>This is a maintenance and stability release that addresses several critical bugs, improves cross-platform compatibility, and streamlines the advanced analysis workflow.</p>
+<div class="section level3">
+<h3 id="workflow-enhancements-1-1-1">Workflow Enhancements<a class="anchor" aria-label="anchor" href="#workflow-enhancements-1-1-1"></a></h3>
+<ul><li>The <code><a href="../reference/summarizeThemes.html">summarizeThemes()</a></code> function has been significantly improved for a more intuitive user experience. It now accepts an <code>add_to_object</code> argument (defaulting to <code>TRUE</code>) that adds theme information (<code>themeId</code>, <code>themeLabel</code>, <code>themePurity</code>) directly to the <code>ComplexMap</code> object’s node table. This makes querying by theme using <code>queryMap(..., type = "theme")</code> seamless and removes the need for manual data merging.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="major-improvements-1-1-1">Major Improvements<a class="anchor" aria-label="anchor" href="#major-improvements-1-1-1"></a></h3>
+<ul><li>
+<strong>Cross-Platform Parallel Processing:</strong> The <code>evaluateComplexes</code> function has been refactored to use the <code>future.apply</code> backend, replacing the Unix-specific <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply</a></code>. This ensures that parallel computation now works reliably on all operating systems, including Windows.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-1-1">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-1"></a></h3>
+<ul><li><p>Fixed a critical runtime error in <code>visualizeMapInteractive</code> that caused the function to fail when the <code>color.by</code> argument was not specified. The function now correctly generates tooltips in all use cases.</p></li>
+<li><p>Resolved a package build failure caused by an incorrect function call in the main workflow vignette (<code>vignette_02-workflow.Rmd</code>). The package can now be built and checked successfully.</p></li>
+<li><p>Corrected a dependency issue where <code>evaluateComplexes</code> would fail if the <code>clue</code> package was not installed. <code>clue</code> has been moved from <code>Suggests</code> to <code>Imports</code> to guarantee its availability for this core function.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-1-1-1">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-1-1"></a></h3>
+<ul><li><p>Updated the <code>README.md</code> to accurately reflect that <code>"jaccard"</code> is the default <code>similarityMethod</code>, aligning the documentation with the package’s diversity-first refinement strategy.</p></li>
+<li><p>The advanced analysis vignette (<code>vignette_03-advanced-analysis.Rmd</code>) has been updated to demonstrate the new, streamlined workflow for theme analysis using the refactored <code><a href="../reference/summarizeThemes.html">summarizeThemes()</a></code> function.</p></li>
+<li><p>Synchronized versioning and dates across all documentation files (<code>DESCRIPTION</code>, <code>README.md</code>) for consistency.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="complexmap-110---2025-11-15">ComplexMap 1.1.0 - 2025-11-15<a class="anchor" aria-label="anchor" href="#complexmap-110---2025-11-15"></a></h2>
 <div class="section level3">

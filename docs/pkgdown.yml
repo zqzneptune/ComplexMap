@@ -1,4 +1,4 @@
-pandoc: 3.6.3
+pandoc: '3.8'
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
@@ -6,7 +6,7 @@ articles:
   vignette_02-workflow: vignette_02-workflow.html
   vignette_03-advanced-analysis: vignette_03-advanced-analysis.html
   vignette_04-quantitative-visualization: vignette_04-quantitative-visualization.html
-last_built: 2025-11-16T17:23Z
+last_built: 2025-12-03T11:20Z
 urls:
   reference: https://zqzneptune.github.io/ComplexMap/reference
   article: https://zqzneptune.github.io/ComplexMap/articles

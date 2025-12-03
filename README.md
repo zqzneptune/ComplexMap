@@ -9,7 +9,7 @@
 
 -   **Integrated Workflow:** Go from a raw complex list to a final network map with a single function, `createComplexMap()`.
 
--   **Flexible Refinement:** Choose from multiple similarity metrics (**Matching Score**, **Simpson**, **Jaccard**, or **Dice**) to merge redundant complexes according to your specific research goals. 
+-   **Diversity-Focused Refinement:** Defaults to a conservative **Jaccard** similarity metric to merge only highly redundant complexes, preserving biologically meaningful variants like sub-complexes. Other metrics (**Matching Score**, **Simpson**, or **Dice**) are available for more aggressive merging.
 
 -   **Functional Enrichment:** Annotate complexes using gene sets from local files, MSigDB, Gene Ontology, or Reactome.
 
@@ -17,7 +17,7 @@
 
 -   **Quantitative Data Integration:** Map your own experimental data (e.g., protein abundance, fold-change) directly onto network nodes as a continuous color gradient in any of the visualization functions. 
 
--   **Robust Benchmarking:** Optimize refinement parameters with the new `benchmarkParameters()` helper function and evaluate results against a reference standard like CORUM. 
+-   **Robust Benchmarking:** Optimize refinement parameters with `benchmarkParameters()` and evaluate results against a reference standard like CORUM using `evaluateComplexes()`.
 
 ---
 
@@ -34,7 +34,7 @@ remotes::install_github("zqzneptune/ComplexMap")
 
 ## Workflow at a Glance
 
-This example demonstrates the core workflow, including the new quantitative visualization capabilities.
+This example demonstrates the core workflow, from loading data to visualization.
 
 ```r
 library(ComplexMap)
@@ -46,23 +46,29 @@ gmt_file <- ComplexMap::getExampleGmt()
 gmt <- ComplexMap::getGmtFromFile(gmt_file, verbose = FALSE)
 
 # 2. Run the entire workflow
-# The default similarityMethod is now "matching_score"
+# The default similarityMethod is "jaccard" to preserve diversity.
 cm_obj <- ComplexMap::createComplexMap(
   complexList = demoComplexes,
   gmt = gmt,
-  mergeThreshold = 0.8,
+  mergeThreshold = 0.9, # Strict default
   verbose = FALSE # Set to TRUE to see workflow steps
 )
 
 # 3. Print the resulting object for a high-level summary
 cm_obj
-#> # A ComplexMap Object
-#> # ── Use `getNodeTable()` or `getEdgeTable()` to access data. 
-# 
+#> # ComplexMap Object (Physical-First Layout)
+#> # ── Physical Structure: 375 nodes, 893 edges (2.38 edges/node)
+#> # ── Functional Landscape:
+#> #    • Diversity: 21 distinct functional domains (colors)
+#> #    • Coverage:  70.1% of complexes annotated
+#> # ── Accessors: `getNodeTable()`, `getEdgeTable()`
+#> # ── Analysis:  `summarizeThemes()` to identify physical machines.
 
-# 4. Visualize with data
+# 4. Visualize the map
 node_tbl <- ComplexMap::getNodeTable(cm_obj)
 edge_tbl <- ComplexMap::getEdgeTable(cm_obj)
+
+ComplexMap::visualizeMapWithLegend(node_tbl, edge_tbl)
 
 ```
 
@@ -77,13 +83,15 @@ The `ComplexMap` object can be easily analyzed with downstream functions.
 
 ### Summarize Biological Themes
 
-Identify the major biological themes (network modules) using community detection.
+Identify the major biological themes (network modules) using community detection and add them directly to the map object for easy querying.
 
 ```r
-theme_summary <- ComplexMap::summarizeThemes(cm_obj, verbose = FALSE)
+cm_obj <- ComplexMap::summarizeThemes(cm_obj, verbose = FALSE)
 
-# Show the 10 largest themes
-dplyr::slice_max(theme_summary, n = 10, order_by = nodeCount)
+# Show the 10 largest themes by querying the object's node table
+ComplexMap::getNodeTable(cm_obj) %>%
+  dplyr::count(themeLabel, sort = TRUE, name = "nodeCount") %>%
+  dplyr::slice_head(n = 10)
 ```
 
 ### Query the Map
@@ -95,7 +103,7 @@ Programmatically find specific complexes of interest.
 result <- ComplexMap::queryMap(cm_obj, query = "CpxMap_0001", type = "complex")
 
 # Show some of its key attributes
-dplyr::select(result, complexId, primaryFunctionalDomain, proteinCount, degree)
+dplyr::select(result, complexId, primaryFunctionalDomain, proteinCount, degree, themeLabel)
 ```
 
 ## Citation
@@ -105,7 +113,7 @@ If you use ComplexMap in your research, please cite the publication (link to be 
 For now, you can cite the package itself:
 
 Qingzhou Zhang (2025). ComplexMap: A Toolset for the Functional Analysis and
-Visualization of Protein Complex Data. R package version 1.1.0.
+Visualization of Protein Complex Data. R package version 1.1.1.
 https://github.com/zqzneptune/ComplexMap
 
 

@@ -13,81 +13,31 @@ visualizeMapInteractive(
   physicsEnabled = FALSE,
   color.by = NULL,
   color.palette = "viridis",
-  rescale_coords = TRUE,
-  rescale_range = c(-800, 800),
-  legend_steps = 5,
   verbose = TRUE
 )
 }
 \arguments{
-\item{layoutDf}{A data frame containing node attributes and layout
-coordinates, typically from `computeMapTopology`.}
+\item{layoutDf}{A data frame containing node attributes and layout coordinates.}
 
 \item{edgesDf}{A data frame containing the network edges.}
 
-\item{width}{The width of the HTML widget.}
+\item{width}{Widget width.}
 
-\item{height}{The height of the HTML widget.}
+\item{height}{Widget height.}
 
-\item{title}{The main title for the plot.}
+\item{title}{Plot title.}
 
-\item{physicsEnabled}{A logical value. If `TRUE`, nodes will physically
-react to dragging. Defaults to `FALSE` for a stable layout.}
+\item{physicsEnabled}{Enable physics simulation.}
 
-\item{color.by}{A character string specifying the name of a numeric column in
-`layoutDf` to use for continuous node coloring. If `NULL` (default), the
-categorical `colorHex` column is used.}
+\item{color.by}{Optional numeric column for continuous coloring.}
 
-\item{color.palette}{A character string or vector of colors for the continuous
-gradient (e.g., "viridis", "plasma", or `c("blue", "white", "red")`).
-Only used when `color.by` is specified.}
+\item{color.palette}{Palette name ("viridis", "plasma") or vector of colors.}
 
-\item{rescale_coords}{Logical. If `TRUE`, rescale coordinates to visNetwork's
-coordinate system. Defaults to `TRUE`.}
-
-\item{rescale_range}{Numeric vector of length 2. Range for coordinate rescaling.
-Defaults to `c(-800, 800)`.}
-
-\item{legend_steps}{Integer. Number of steps to show in continuous color legend.
-Defaults to 5.}
-
-\item{verbose}{A logical value indicating whether to print progress messages.}
+\item{verbose}{Logical.}
 }
 \value{
-A `visNetwork` HTML widget object.
+A `visNetwork` widget.
 }
 \description{
-Creates a dynamic, zoomable HTML widget of the complex network using the
-`visNetwork` package.
-}
-\details{
-This function supports both categorical and continuous coloring. When `color.by`
-is specified, nodes are colored by the numeric values in that column, and
-the tooltip is updated to include this information.
-}
-\examples{
-# --- Sample Data ---
-nodes <- tibble::tibble(
-  complexId = c("C1", "C2", "C3"), x = c(1, 2, 1.5), y = c(1, 1, 2),
-  primaryFunctionalDomain = c("DNA Repair", "DNA Repair", "Metabolism"),
-  sizeMapping = c(3, 4, 3.5), colorHex = c("#FF0000", "#FF0000", "#0000FF"),
-  proteinCount = c(10, 8, 12), proteins = c("A,B", "B,C", "D,E"),
-  score = c(105.1, 88.3, 95.7)
-)
-edges <- tibble::tibble(
-  source_complex_id = "C1", target_complex_id = "C2", weight = 0.8
-)
-
-# --- Generate Plot (requires visNetwork) ---
-if (requireNamespace("visNetwork", quietly = TRUE)) {
-  # Default categorical coloring
-  visualizeMapInteractive(nodes, edges)
-
-  # Continuous coloring
-  visualizeMapInteractive(nodes, edges, color.by = "score")
-}
-
-}
-\author{
-Qingzhou Zhang <zqzneptune@hotmail.com>
+Creates a dynamic `visNetwork` widget.
 }

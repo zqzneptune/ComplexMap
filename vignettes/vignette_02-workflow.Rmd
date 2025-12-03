@@ -2,9 +2,9 @@
 title: "2. Start a Typical Workflow"
 author: "Qingzhou Zhang"
 date: "`r Sys.Date()`"
-output: html_document
+output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Analyzing a Human Protein Complex Map with ComplexMap}
+  %\VignetteIndexEntry{2. Start a Typical Workflow}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -40,27 +40,25 @@ biocartaGmt <- ComplexMap::getGmtFromFile(gmtPath, verbose = FALSE)
 
 The core of the package is the `createComplexMap()` function. This single wrapper function handles all the essential processing steps:
 
-1.  **Quality Control & Refinement**: Filters complexes by size and merges highly redundant ones.
-
-2.  **Functional Enrichment**: Annotates each complex with biological functions.
-
-3.  **Network Construction**: Builds a similarity network based on shared proteins and functions.
-
+1.  **Quality Control & Refinement**: Filters complexes by size and merges highly redundant ones (defaulting to Jaccard similarity > 0.90).
+2.  **Functional Enrichment**: Annotates each complex with biological functions, prioritizing specificity.
+3.  **Network Construction**: Builds a similarity network based on shared proteins (physical) and functions.
 4.  **Attribute & Topology Generation**: Calculates node colors, sizes, and layout coordinates for visualization.
 
-We can pass parameters to the underlying functions (like `mergeThreshold` for `refineComplexList`) directly into this wrapper.
+We can pass parameters to the underlying functions directly into this wrapper.
 
 ```{r create-map, message=TRUE}
 # Run the entire workflow with a single command
-# We will merge complexes with a Jaccard similarity of 0.75 or higher
 complexMapObject <- ComplexMap::createComplexMap(
   complexList = demoComplexes,
   gmt = biocartaGmt,
-  mergeThreshold = 0.75
+  mergeThreshold = 0.90, # Strict merging to preserve variants
+  alpha = 0.75,          # Prioritize physical composition in layout
+  verbose = TRUE
 )
 ```
 
-The output, `complexMapObject`, is a formal `ComplexMap` S3 object that contains the complete results of the analysis. Printing the object gives a high-level summary.
+The output, `complexMapObject`, is a formal `ComplexMap` S3 object that contains the complete results of the analysis. Printing the object gives a high-level systems biology dashboard.
 
 ```{r print-object}
 # Print the object to see a summary
@@ -69,17 +67,23 @@ complexMapObject
 
 # Step 3: Summarizing Biological Themes
 
-A key goal of the map is to identify major biological themes. The `summarizeThemes()` function uses community detection algorithms to find densely connected network modules and provides a summary.
+A key goal of the map is to identify major biological themes. The `summarizeThemes()` function uses community detection algorithms to find densely connected network modules (physical neighborhoods) and provides a summary.
 
 ```{r summarize-themes}
-themeSummary <- ComplexMap::summarizeThemes(complexMapObject)
+# To get the summary table, we set add_to_object = FALSE
+themeSummary <- ComplexMap::summarizeThemes(
+  complexMapObject,
+  verbose = FALSE,
+  add_to_object = FALSE
+)
 
 # Display the top 10 largest themes
 themeSummary %>%
   dplyr::arrange(dplyr::desc(nodeCount)) %>%
-  utils::head(10)
+  utils::head(10) %>%
+  knitr::kable()
 ```
-The result is a table listing each theme, its descriptive label (derived from the most common function within the theme), and its size in terms of nodes and edges.
+The result is a table listing each theme, its descriptive label (derived from the most frequent functions within the theme), and its size in terms of nodes and edges.
 
 # Step 4: Exploring and Querying the Map
 
@@ -93,21 +97,23 @@ Let's find all complexes that contain the protein "SMAD4".
 # To ensure our example is robust, let's find a protein to query
 # that is guaranteed to be in our final, refined map.
 nodes <- ComplexMap::getNodeTable(complexMapObject)
-first_protein_list <- nodes$proteins[1]
-query_protein <- strsplit(first_protein_list, ",")[[1]][1]
-
-message("Dynamically querying for a protein found in the map: ", query_protein)
-
-protein_complexes <- ComplexMap::queryMap(
-  complexMapObject,
-  query = query_protein,
-  type = "protein"
-)
-
-# Show the primary functional domain of the resulting complexes
-protein_complexes %>%
-  dplyr::select(complexId, primaryFunctionalDomain, proteins)
-
+if (nrow(nodes) > 0) {
+  first_protein_list <- nodes$proteins
+  query_protein <- strsplit(first_protein_list, ",")[[1]][1]
+  
+  message("Dynamically querying for a protein found in the map: ", query_protein)
+  
+  protein_complexes <- ComplexMap::queryMap(
+    complexMapObject,
+    query = query_protein,
+    type = "protein"
+  )
+  
+  # Show the primary functional domain of the resulting complexes
+  protein_complexes %>%
+    dplyr::select(complexId, primaryFunctionalDomain, proteins) %>%
+    knitr::kable()
+}
 ```
 
 ### 4.2 Querying for a Specific Complex
@@ -115,17 +121,18 @@ protein_complexes %>%
 We can also retrieve the data for a single complex of interest.
 
 ```{r query-complex}
-# Note: The exact CpxMap ID may vary slightly between runs
-# if refinement results change. We query for the first node in the table.
-first_complex_id <- ComplexMap::getNodeTable(complexMapObject)$complexId[1]
-
-complex_data <- ComplexMap::queryMap(
-  complexMapObject,
-  query = first_complex_id,
-  type = "complex"
-)
-
-dplyr::glimpse(complex_data)
+if (nrow(nodes) > 0) {
+  # Query for the first node in the table
+  first_complex_id <- nodes$complexId[1]
+  
+  complex_data <- ComplexMap::queryMap(
+    complexMapObject,
+    query = first_complex_id,
+    type = "complex"
+  )
+  
+  dplyr::glimpse(complex_data)
+}
 ```
 
 # Step 5: Visualization
@@ -145,7 +152,9 @@ networkEdges <- ComplexMap::getEdgeTable(complexMapObject)
 This version is useful for a clean overview, using a discrete color legend to represent the functional domains.
 
 ```{r vis-legend, fig.width=12, fig.height=9, fig.alt="A network plot of protein complexes where node color corresponds to a functional domain listed in a legend."}
-ComplexMap::visualizeMapWithLegend(mapLayout, networkEdges)
+if (nrow(mapLayout) > 0) {
+  ComplexMap::visualizeMapWithLegend(mapLayout, networkEdges)
+}
 ```
 
 ### 5.2 Interactive Plot
@@ -154,7 +163,7 @@ For deep exploration, an interactive HTML widget is ideal. You can zoom, pan, an
 
 ```{r vis-interactive}
 # visNetwork is required for this plot
-if (requireNamespace("visNetwork", quietly = TRUE)) {
+if (requireNamespace("visNetwork", quietly = TRUE) && nrow(mapLayout) > 0) {
   ComplexMap::visualizeMapInteractive(mapLayout, networkEdges)
 }
 ```

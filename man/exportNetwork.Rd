@@ -2,7 +2,7 @@
 % Please edit documentation in R/interoperability.R
 \name{exportNetwork}
 \alias{exportNetwork}
-\title{Export a ComplexMap Network for External Tools}
+\title{Export a ComplexMap Network for External Tools (Cytoscape)}
 \usage{
 exportNetwork(
   complexMapObject,
@@ -12,47 +12,32 @@ exportNetwork(
 )
 }
 \arguments{
-\item{complexMapObject}{A `ComplexMap` object returned by
-`createComplexMap()`.}
+\item{complexMapObject}{A `ComplexMap` object.}
 
-\item{filePrefix}{A character string that will be used as the prefix for the
-output filenames. For example, a `filePrefix` of "my_map" will result in
-"my_map_nodes.tsv" and "my_map_edges.tsv".}
+\item{filePrefix}{Character string for output filenames (e.g., "results/my_map").}
 
-\item{format}{A character string specifying the output format. Currently,
-only `"cytoscape"` is supported.}
+\item{format}{Output format. Currently supports "cytoscape" (TSV).}
 
-\item{verbose}{A logical value indicating whether to print a confirmation
-message upon successful export.}
+\item{verbose}{Logical.}
 }
 \value{
-The function is called for its side effect of writing files to disk.
-  It does not return a value.
+None (Writes files to disk).
 }
 \description{
-This function exports the node and edge tables from a `ComplexMap` object
-into a format suitable for widely used network visualization software, such
-as Cytoscape.
+Exports the `ComplexMap` nodes and edges to compatible file formats, preserving
+systems biology attributes like Specificity Scores and Functional Domains.
 }
 \details{
-The function currently supports one format:
+**Systems Biology Rationale:**
+To verify the landscape in external tools (e.g., Cytoscape), this function
+ensures that the specific calculated attributes are correctly formatted:
 
-- `"cytoscape"`: This option generates two separate tab-separated value
-  (.tsv) files. 
-  
-  One file contains the node attributes (`<filePrefix>_nodes.tsv`)
-  and the other contains the edge list with its attributes
-  (`<filePrefix>_edges.tsv`). These files can be directly imported into
-  Cytoscape's network and attribute tables.
+- **`score`**: The Specificity Score (Size/Color mapping).
+- **`primaryFunctionalDomain`**: The Specific Label.
+- **`colorHex`**: The calculated blended color.
 
-The function uses `utils::write.table` for robust and standard-compliant
-file writing.
-}
-\examples{
-# Assume 'cm_obj' is a valid ComplexMap object
-# dir <- tempdir() # Use a temporary directory for the example
-# exportNetwork(cm_obj, filePrefix = file.path(dir, "myNetwork"))
-
+It performs a "Sanitization" step to convert any R-specific list columns
+into semi-colon separated strings and fills `NA` values to ensure safe import.
 }
 \author{
 Qingzhou Zhang <zqzneptune@hotmail.com>

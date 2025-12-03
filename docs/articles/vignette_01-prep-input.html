@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ComplexMap</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,7 +61,7 @@
                         <h4 data-toc-skip class="author">Qingzhou
 Zhang</h4>
             
-            <h4 data-toc-skip class="date">2025-11-16</h4>
+            <h4 data-toc-skip class="date">2025-12-03</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/zqzneptune/ComplexMap/blob/HEAD/vignettes/vignette_01-prep-input.Rmd" class="external-link"><code>vignettes/vignette_01-prep-input.Rmd</code></a></small>
       <div class="d-none name"><code>vignette_01-prep-input.Rmd</code></div>
@@ -156,7 +156,9 @@ process.</p>
 <span>  <span class="va">h_gmt</span> <span class="op">&lt;-</span> <span class="fu">ComplexMap</span><span class="fu">::</span><span class="fu"><a href="../reference/getMsigdbGmt.html">getMsigdbGmt</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, collection <span class="op">=</span> <span class="st">"H"</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="co"># Inspect the identifiers</span></span>
-<span>  <span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">h_gmt</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">h_gmt</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">h_gmt</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span>
 <span><span class="co">#&gt; Fetching MSigDB sets (Species: Homo sapiens, Cat: H)</span></span>
 <span><span class="co">#&gt; [1] "ABCA1" "ABCB8" "ACAA2" "ACADL" "ACADM"</span></span></code></pre></div>
@@ -181,13 +183,15 @@ symbols.</p>
 <span>                                verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="co"># Inspect the identifiers</span></span>
-<span>  <span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">goGmt</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">goGmt</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">goGmt</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; 'select()' returned 1:many mapping between keys and columns</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; 'select()' returned 1:1 mapping between keys and columns</span></span>
-<span><span class="co">#&gt; [1] "1743" "2805" "2806" "3417" "3418"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "1291" "1738" "1743" "2805" "2806"</span></span></code></pre></div>
 <p><strong>Identifier Mismatch!</strong> The <code>getGoGmt</code>
 function returns a list where the genes are <strong>Entrez IDs</strong>
 (e.g., “5594”, “5595”). These will <strong>not match</strong> the Gene
@@ -240,7 +244,8 @@ with the <code>goGmt</code> generated from Bioconductor.</p>
 annotations, which also use Entrez IDs.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"reactome.db"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span> </span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"org.Hs.eg.db"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"org.Hs.eg.db"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/exists.html" class="external-link">exists</a></span><span class="op">(</span><span class="st">"myComplexesEntrez"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span> <span class="co"># Check if conversion above succeeded</span></span>
 <span>      </span>
 <span>  <span class="va">reactomeGmt</span> <span class="op">&lt;-</span> <span class="fu">ComplexMap</span><span class="fu">::</span><span class="fu"><a href="../reference/getReactomeGmt.html">getReactomeGmt</a></span><span class="op">(</span></span>
 <span>      speciesDb <span class="op">=</span> <span class="fu">org.Hs.eg.db</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/org.Hs.eg.db/man/org.Hs.egBASE.html" class="external-link">org.Hs.eg.db</a></span>,</span>
@@ -248,7 +253,9 @@ annotations, which also use Entrez IDs.</p>
 <span>  <span class="op">)</span></span>
 <span></span>
 <span>  <span class="co"># Inspect the identifiers</span></span>
-<span>  <span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">reactomeGmt</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">reactomeGmt</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">reactomeGmt</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span>
 <span><span class="co">#&gt; [1] "1"     "10019" "10112" "10125" "10125"</span></span></code></pre></div>
 <p><strong>Identifier Mismatch!</strong> Like the GO example,
@@ -258,20 +265,6 @@ Ontology. You would use the <code>myComplexesEntrez</code> list that we
 created in the previous step, as its identifiers will match the
 identifiers in the <code>reactomeGmt</code>.</p>
 </div>
-</div>
-<div class="section level2">
-<h2 id="conclusion">Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
-</h2>
-<p>This vignette has demonstrated the core philosophy of
-<code>ComplexMap</code>: flexibility through identifier consistency. By
-understanding the identifier types returned by different sources and
-knowing how to convert your own data to match, you can apply the
-<code>ComplexMap</code> workflow to virtually any organism.</p>
-<p>Always check your identifiers before running
-<code><a href="../reference/createComplexMap.html">ComplexMap::createComplexMap()</a></code> to ensure a smooth and
-successful analysis. The explicit <code>package::function()</code>
-syntax demonstrated here is a recommended best practice for writing
-clean, reproducible, and error-free analysis scripts.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

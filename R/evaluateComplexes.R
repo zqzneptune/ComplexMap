@@ -21,8 +21,8 @@
 #'   is then used to solve the maximum weight bipartite matching problem. This
 #'   approach is based on the method described by Nepusz et al. (2012).
 #'
-#' The parallel computation uses `parallel::mclapply`, which is not available on
-#' Windows. On Windows, the calculation will run sequentially.
+#' The parallel computation uses `future.apply::future_lapply` for cross-platform
+#' compatibility (unlike `parallel::mclapply`, which is not available on Windows).
 #'
 #' @references
 #' Nepusz, T., Yu, H. & Paccanaro, A. (2012). Detecting overlapping protein
@@ -103,7 +103,12 @@ evaluateComplexes <- function(predictedComplexes, referenceComplexes,
       sprintf("[1] Calculating intersections using %d core(s)...", nCores)
     )
   }
-  intersectionList <- parallel::mclapply(predictedComplexes, function(predSet) {
+  
+  # Set up future plan for cross-platform parallel processing
+  oldPlan <- future::plan(future::multisession, workers = nCores)
+  on.exit(future::plan(oldPlan), add = TRUE)
+  
+  intersectionList <- future.apply::future_lapply(predictedComplexes, function(predSet) {
     candidateRefs <- unique.default(unlist(
       refProteinMap[intersect(predSet, names(refProteinMap))],
       use.names=FALSE
@@ -118,7 +123,7 @@ evaluateComplexes <- function(predictedComplexes, referenceComplexes,
       }
     }
     intersections
-  }, mc.cores=nCores)
+  }, future.seed=TRUE)
   
   # Rows = predicted, Cols = reference
   intersectionMatrix <- do.call(rbind, intersectionList)

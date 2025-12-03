@@ -87,9 +87,9 @@ masterLayout <- computeMapTopology(nodes, net)
 #> Topology computation complete.
 print(masterLayout)
 #> # A tibble: 3 × 6
-#>   complexId proteinCount     x     y betweenness degree
-#>   <chr>            <dbl> <dbl> <dbl>       <dbl>  <dbl>
-#> 1 Cpx2                 8 1.43   1.92           1      2
-#> 2 Cpx1                10 0.265  1.54           0      1
-#> 3 Cpx3                12 2.73   2.33           0      1
+#>   complexId proteinCount      x     y betweenness degree
+#>   <chr>            <dbl>  <dbl> <dbl>       <dbl>  <dbl>
+#> 1 Cpx2                 8 -0.181 1.27            1      2
+#> 2 Cpx1                10  0.971 1.69            0      1
+#> 3 Cpx3                12 -1.47  0.805           0      1
 ```

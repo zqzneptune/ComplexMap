@@ -9,14 +9,21 @@
 \arguments{
 \item{x}{A `ComplexMap` object.}
 
-\item{...}{Additional arguments passed to `print` (not used by this method).}
+\item{...}{Additional arguments.}
 }
 \value{
-Invisibly returns the original `ComplexMap` object, allowing for
-  its use in pipelines.
+Invisibly returns the object.
 }
 \description{
-Provides a user-friendly summary of the `ComplexMap` object when it is
-printed to the console. This method is automatically called by the `print`
-generic function.
+Provides a "Systems Biology Dashboard" summary of the ComplexMap object.
+}
+\details{
+This summary is designed to give immediate feedback on the **Functional Diversity**
+of the landscape:
+
+- **Functional Diversity:** The count of distinct functional labels (colors). 
+  A high number (e.g., >15) indicates a rich, specific landscape. A low number
+  indicates over-clustering or generic annotation.
+- **Annotation Coverage:** The percentage of complexes that could be assigned
+  a function. High coverage with high diversity is the ideal state.
 }

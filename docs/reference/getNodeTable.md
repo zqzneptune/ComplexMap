@@ -1,7 +1,6 @@
 # Get the Node Table from a ComplexMap Object
 
-A simple accessor function to extract the tibble of node attributes and
-layout data from a \`ComplexMap\` object.
+Access the node attributes (layout, function, specificity scores).
 
 ## Usage
 
@@ -13,16 +12,8 @@ getNodeTable(cm)
 
 - cm:
 
-  A \`ComplexMap\` object, typically the output of
-  \`createComplexMap()\`.
+  A \`ComplexMap\` object.
 
 ## Value
 
-A \`tibble\` containing the node data.
-
-## Examples
-
-``` r
-# Assuming 'myComplexMap' is a valid ComplexMap object
-# nodeData <- getNodeTable(myComplexMap)
-```
+A \`tibble\`.

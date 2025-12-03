@@ -47,8 +47,8 @@ then used as the basis for all four metric calculations.
   is then used to solve the maximum weight bipartite matching problem. This
   approach is based on the method described by Nepusz et al. (2012).
 
-The parallel computation uses `parallel::mclapply`, which is not available on
-Windows. On Windows, the calculation will run sequentially.
+The parallel computation uses `future.apply::future_lapply` for cross-platform
+compatibility (unlike `parallel::mclapply`, which is not available on Windows).
 }
 \examples{
 # --- Sample Data ---

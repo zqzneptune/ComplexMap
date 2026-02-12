@@ -1,5 +1,16 @@
 # Changelog
 
+## ComplexMap 1.1.2 - 2026-02-11
+
+- \[createComplexMap\] Added ifRefineCpx parameter (default: FALSE).
+
+- Logic Change: Step 1 (Complex Refinement) is now conditional. By
+  default, the raw input list is processed without merging. Set
+  ifRefineCpx = TRUE to enable the refinement/merging step.
+
+- Logging: Updated verbose messages to explicitly state whether
+  refinement is being executed or skipped.
+
 ## ComplexMap 1.1.1 - 2025-12-02
 
 This is a maintenance and stability release that addresses several

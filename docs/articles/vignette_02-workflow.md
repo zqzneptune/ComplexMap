@@ -254,6 +254,7 @@ pan, and hover over nodes to see detailed tooltips.
 if (requireNamespace("visNetwork", quietly = TRUE) && nrow(mapLayout) > 0) {
   ComplexMap::visualizeMapInteractive(mapLayout, networkEdges)
 }
+#> Generating interactive visNetwork plot...
 ```
 
 ## Conclusion

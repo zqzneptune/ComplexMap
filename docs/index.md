@@ -46,7 +46,6 @@ installer will automatically handle all required dependencies from CRAN
 and Bioconductor.
 
 ``` r
-
 # If you don't have remotes installed: install.packages("remotes")
 remotes::install_github("zqzneptune/ComplexMap")
 ```
@@ -59,7 +58,6 @@ This example demonstrates the core workflow, from loading data to
 visualization.
 
 ``` r
-
 library(ComplexMap)
 library(dplyr)
 
@@ -109,7 +107,6 @@ Identify the major biological themes (network modules) using community
 detection and add them directly to the map object for easy querying.
 
 ``` r
-
 cm_obj <- ComplexMap::summarizeThemes(cm_obj, verbose = FALSE)
 
 # Show the 10 largest themes by querying the object's node table
@@ -123,7 +120,6 @@ ComplexMap::getNodeTable(cm_obj) %>%
 Programmatically find specific complexes of interest.
 
 ``` r
-
 # Find the complex with the ID "CpxMap_0001"
 result <- ComplexMap::queryMap(cm_obj, query = "CpxMap_0001", type = "complex")
 

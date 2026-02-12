@@ -25,7 +25,6 @@ The `ComplexMap` package includes the `demoComplexes` dataset, a list of
 set (GMT) file for functional annotation.
 
 ``` r
-
 # Load the example complex list shipped with the package
 utils::data("demoComplexes", package = "ComplexMap")
 
@@ -55,7 +54,6 @@ We can pass parameters to the underlying functions directly into this
 wrapper.
 
 ``` r
-
 # Run the entire workflow with a single command
 complexMapObject <- ComplexMap::createComplexMap(
   complexList = demoComplexes,
@@ -66,29 +64,22 @@ complexMapObject <- ComplexMap::createComplexMap(
 )
 #> --- Starting ComplexMap Workflow ---
 #> Parameters: similarity='jaccard', alpha=0.75 (Diversity Priority)
+#> Refinement: Disabled (Using raw input)
 #> 
-#> Step 1: Refining complex list...
-#> 
-#> --- Refining Input Complex List (Minimal Merging Strategy) ---
-#> Filtered 112 complexes by size. Retaining 510.
-#> Identifying merge groups: method='jaccard', threshold >= 0.90...
-#> Found 0 redundancy groups. Merging 510 complexes into 510.
-#> 
-#> --- Refinement Complete ---
+#> Step 1: Skipping refinement (using original complex list)...
 #> 
 #> Step 2: Running enrichment analysis...
-#> Running enrichment for 510 complexes (Cutoff: 0.05)...
-#> Annotation complete. Found significant terms for 239 complexes.
+#> Running enrichment for 622 complexes (Cutoff: 0.05)...
+#> Annotation complete. Found significant terms for 264 complexes.
 #> 
 #> Step 3: Building complex network...
 #> Building complex network (combined mode, alpha=0.75)...
-#> Processing 129795 pairs using 7 cores...
-#> Network built: 1390 edges retained.
+#> Processing 193131 pairs using 7 cores...
+#> Network built: 1681 edges retained.
 #> 
 #> Step 4: Generating node attributes...
 #> Generating node attributes (prioritizing functional specificity)...
-#>     -> Clustering 231 terms using co-occurrence (jaccard)
-#> Metric: 'jaccard' with unit: 'log'; comparing: 231 vectors
+#>     -> Clustering 239 terms using co-occurrence (jaccard)
 #>     -> Generating diverse palette: 25 functional domains (Average Linkage).
 #> 
 #> Step 5: Computing map topology...
@@ -103,14 +94,13 @@ contains the complete results of the analysis. Printing the object gives
 a high-level systems biology dashboard.
 
 ``` r
-
 # Print the object to see a summary
 complexMapObject
 #> # ComplexMap Object (Physical-First Layout)
-#> # ── Physical Structure: 510 nodes, 1390 edges (2.73 edges/node)
+#> # ── Physical Structure: 622 nodes, 1681 edges (2.70 edges/node)
 #> # ── Functional Landscape:
-#> #    • Diversity: 118 distinct functional domains (colors)
-#> #    • Coverage:  46.9% of complexes annotated
+#> #    • Diversity: 126 distinct functional domains (colors)
+#> #    • Coverage:  42.4% of complexes annotated
 #> # ── Accessors: `getNodeTable()`, `getEdgeTable()`
 #> # ── Analysis:  `summarizeThemes()` to identify physical machines.
 ```
@@ -123,7 +113,6 @@ function uses community detection algorithms to find densely connected
 network modules (physical neighborhoods) and provides a summary.
 
 ``` r
-
 # To get the summary table, we set add_to_object = FALSE
 themeSummary <- ComplexMap::summarizeThemes(
   complexMapObject,
@@ -140,16 +129,16 @@ themeSummary %>%
 
 | themeId | themeLabel | themePurity | nodeCount | edgeCount |
 |---:|:---|---:|---:|---:|
-| 1 | BIOCARTA_SALMONELLA_PATHWAY / BIOCARTA_CPSF_PATHWAY | 0.13 | 47 | 121 |
-| 5 | BIOCARTA_KREB_PATHWAY / BIOCARTA_ETC_PATHWAY | 0.36 | 38 | 56 |
-| 6 | BIOCARTA_CELL2CELL_PATHWAY / BIOCARTA_TEL_PATHWAY | 0.19 | 36 | 71 |
-| 9 | BIOCARTA_RANMS_PATHWAY / BIOCARTA_NPC_PATHWAY | 0.29 | 28 | 105 |
-| 8 | BIOCARTA_IRES_PATHWAY / BIOCARTA_MCM_PATHWAY | 0.22 | 27 | 76 |
-| 14 | BIOCARTA_PROTEASOME_PATHWAY / BIOCARTA_ERAD_PATHWAY | 0.42 | 27 | 95 |
-| 4 | BIOCARTA_TID_PATHWAY / BIOCARTA_CARM_ER_PATHWAY | 0.43 | 23 | 52 |
-| 16 | BIOCARTA_LIS1_PATHWAY / BIOCARTA_G2_PATHWAY | 0.27 | 23 | 30 |
-| 2 | BIOCARTA_CD40_PATHWAY / BIOCARTA_DNAFRAGMENT_PATHWAY | 0.14 | 22 | 45 |
-| 7 | BIOCARTA_MTA3_PATHWAY / BIOCARTA_PRC2_PATHWAY | 0.29 | 22 | 39 |
+| 2 | BIOCARTA_CELL2CELL_PATHWAY / BIOCARTA_DNAFRAGMENT_PATHWAY | 0.10 | 60 | 167 |
+| 1 | BIOCARTA_SALMONELLA_PATHWAY / BIOCARTA_PTDINS_PATHWAY | 0.14 | 38 | 128 |
+| 4 | BIOCARTA_KREB_PATHWAY / BIOCARTA_MALATEX_PATHWAY | 0.33 | 38 | 58 |
+| 6 | BIOCARTA_TID_PATHWAY / BIOCARTA_BTG2_PATHWAY | 0.24 | 36 | 87 |
+| 5 | BIOCARTA_CPSF_PATHWAY / BIOCARTA_LIS1_PATHWAY | 0.15 | 35 | 71 |
+| 7 | BIOCARTA_PROTEASOME_PATHWAY / BIOCARTA_ERAD_PATHWAY | 0.37 | 31 | 101 |
+| 9 | BIOCARTA_IRES_PATHWAY / BIOCARTA_MCM_PATHWAY | 0.20 | 29 | 78 |
+| 10 | BIOCARTA_RANMS_PATHWAY / BIOCARTA_NPC_PATHWAY | 0.32 | 29 | 110 |
+| 13 | BIOCARTA_MTA3_PATHWAY / BIOCARTA_PRC2_PATHWAY | 0.33 | 23 | 42 |
+| 16 | BIOCARTA_EDG1_PATHWAY | 1.00 | 22 | 24 |
 
 The result is a table listing each theme, its descriptive label (derived
 from the most frequent functions within the theme), and its size in
@@ -167,7 +156,6 @@ results.
 Let’s find all complexes that contain the protein “SMAD4”.
 
 ``` r
-
 # To ensure our example is robust, let's find a protein to query
 # that is guaranteed to be in our final, refined map.
 nodes <- ComplexMap::getNodeTable(complexMapObject)
@@ -188,19 +176,18 @@ if (nrow(nodes) > 0) {
     dplyr::select(complexId, primaryFunctionalDomain, proteins) %>%
     knitr::kable()
 }
-#> Dynamically querying for a protein found in the map: WDR3
+#> Dynamically querying for a protein found in the map: PIK3CB
 ```
 
-| complexId | primaryFunctionalDomain | proteins |
-|:---|:---|:---|
-| CpxMap_0414 | BIOCARTA_CIRCADIAN_PATHWAY | WDR3,RB1,PNO1,EMG1,CSNK1E,TPTEP2-CSNK1E,DDX49,BYSL |
+| complexId | primaryFunctionalDomain   | proteins      |
+|:----------|:--------------------------|:--------------|
+| C_17      | BIOCARTA_CDC42RAC_PATHWAY | PIK3CB,PIK3R1 |
 
 #### 4.2 Querying for a Specific Complex
 
 We can also retrieve the data for a single complex of interest.
 
 ``` r
-
 if (nrow(nodes) > 0) {
   # Query for the first node in the table
   first_complex_id <- nodes$complexId[1]
@@ -215,17 +202,17 @@ if (nrow(nodes) > 0) {
 }
 #> Rows: 1
 #> Columns: 11
-#> $ complexId               <chr> "CpxMap_0414"
-#> $ proteinCount            <int> 8
-#> $ proteins                <chr> "WDR3,RB1,PNO1,EMG1,CSNK1E,TPTEP2-CSNK1E,DDX49…
-#> $ primaryFunctionalDomain <chr> "BIOCARTA_CIRCADIAN_PATHWAY"
-#> $ topEnrichedFunctions    <chr> "BIOCARTA_CIRCADIAN_PATHWAY; BIOCARTA_TERC_PAT…
-#> $ colorHex                <chr> "#C28434"
-#> $ sizeMapping             <dbl> 3
-#> $ x                       <dbl> 9.709937
-#> $ y                       <dbl> -0.9679479
-#> $ betweenness             <dbl> 0.2358685
-#> $ degree                  <dbl> 45
+#> $ complexId               <chr> "C_17"
+#> $ proteinCount            <int> 2
+#> $ proteins                <chr> "PIK3CB,PIK3R1"
+#> $ primaryFunctionalDomain <chr> "BIOCARTA_CDC42RAC_PATHWAY"
+#> $ topEnrichedFunctions    <chr> "BIOCARTA_CDC42RAC_PATHWAY; BIOCARTA_PLC_PATHW…
+#> $ colorHex                <chr> "#D8746B"
+#> $ sizeMapping             <dbl> 1
+#> $ x                       <dbl> -2.053842
+#> $ y                       <dbl> 5.333202
+#> $ betweenness             <dbl> 0.2034076
+#> $ degree                  <dbl> 69
 ```
 
 ## Step 5: Visualization
@@ -237,7 +224,6 @@ provides three visualization functions that all work directly with the
 First, we extract the final node and edge tables for plotting.
 
 ``` r
-
 mapLayout <- ComplexMap::getNodeTable(complexMapObject)
 networkEdges <- ComplexMap::getEdgeTable(complexMapObject)
 ```
@@ -248,7 +234,6 @@ This version is useful for a clean overview, using a discrete color
 legend to represent the functional domains.
 
 ``` r
-
 if (nrow(mapLayout) > 0) {
   ComplexMap::visualizeMapWithLegend(mapLayout, networkEdges)
 }
@@ -265,12 +250,10 @@ For deep exploration, an interactive HTML widget is ideal. You can zoom,
 pan, and hover over nodes to see detailed tooltips.
 
 ``` r
-
 # visNetwork is required for this plot
 if (requireNamespace("visNetwork", quietly = TRUE) && nrow(mapLayout) > 0) {
   ComplexMap::visualizeMapInteractive(mapLayout, networkEdges)
 }
-#> Generating interactive visNetwork plot...
 ```
 
 ## Conclusion

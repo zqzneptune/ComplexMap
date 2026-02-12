@@ -13,6 +13,7 @@ createComplexMap(
   gmt,
   similarityMethod = "jaccard",
   alpha = 0.75,
+  ifRefineCpx = FALSE,
   verbose = TRUE,
   ...
 )
@@ -42,6 +43,13 @@ createComplexMap(
   functional similarity in the network layout. Defaults to \*\*0.75\*\*
   (75% physical, 25% functional).
 
+- ifRefineCpx:
+
+  Logical. If \*\*TRUE\*\*, executes Step 1 to refine the input complex
+  list (merge redundant complexes). If \*\*FALSE\*\*, Step 1 is skipped,
+  and the raw \`complexList\` is used for downstream analysis. Defaults
+  to \*\*FALSE\*\*.
+
 - verbose:
 
   A logical value indicating whether to print progress messages.
@@ -49,9 +57,10 @@ createComplexMap(
 - ...:
 
   Additional arguments passed to core functions: - \`minSize\`,
-  \`maxSize\`, \`mergeThreshold\` (for \`refineComplexList\`) -
-  \`pAdjustMethod\`, \`pValueCutoff\` (for \`runComplexEnrichment\`) -
-  \`geneSetDb\` (for \`generateNodeAttributes\` semantic clustering)
+  \`maxSize\`, \`mergeThreshold\` (for \`refineComplexList\` if
+  \`ifRefineCpx = TRUE\`) - \`pAdjustMethod\`, \`pValueCutoff\` (for
+  \`runComplexEnrichment\`) - \`geneSetDb\` (for
+  \`generateNodeAttributes\` semantic clustering)
 
 ## Value
 
@@ -61,13 +70,13 @@ A validated \`ComplexMap\` S3 object.
 
 This function is tuned to generate a \*\*functionally diverse
 landscape\*\*. It enforces the following logic: 1. \*\*Refinement:\*\*
-Uses Jaccard similarity to merge only highly redundant complexes,
-preserving biological variants (subsets/supersets). 2.
-\*\*Enrichment:\*\* Calculates 'Fold Enrichment' to prioritize specific
-biological functions over generic ones. 3. \*\*Network:\*\* Builds the
-layout primarily based on \*\*Physical Composition\*\* (alpha = 0.75),
-using functional annotations only to group related clusters, not to
-collapse them.
+(Optional) Uses Jaccard similarity to merge only highly redundant
+complexes, preserving biological variants (subsets/supersets).
+Controlled by \`ifRefineCpx\`. 2. \*\*Enrichment:\*\* Calculates 'Fold
+Enrichment' to prioritize specific biological functions over generic
+ones. 3. \*\*Network:\*\* Builds the layout primarily based on
+\*\*Physical Composition\*\* (alpha = 0.75), using functional
+annotations only to group related clusters, not to collapse them.
 
 ## Author
 

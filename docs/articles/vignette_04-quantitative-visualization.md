@@ -18,7 +18,6 @@ your own **complex-level** quantitative data.
 This workflow requires the following packages:
 
 ``` r
-
 library(ComplexMap)
 library(dplyr)
 ```
@@ -30,7 +29,6 @@ provides the stable network topology and layout that will serve as the
 canvas for our quantitative data.
 
 ``` r
-
 # Load the package's demo complexes and example GMT file
 data(demoComplexes)
 gmtPath <- getExampleGmt()
@@ -49,7 +47,7 @@ node_table <- getNodeTable(cm_obj)
 edge_table <- getEdgeTable(cm_obj)
 
 cat("Generated a base map with", nrow(node_table), "nodes.\n")
-#> Generated a base map with 510 nodes.
+#> Generated a base map with 622 nodes.
 ```
 
 ### Step 2: Prepare Your Quantitative Data
@@ -64,7 +62,6 @@ Let’s create some sample data representing a “purity score” for a subset
 of our complexes.
 
 ``` r
-
 if (nrow(node_table) > 0) {
   # Create sample complex-level data
   set.seed(123) # for reproducibility
@@ -80,14 +77,14 @@ if (nrow(node_table) > 0) {
   head(complex_quant_data)
 }
 #> # A tibble: 6 × 2
-#>   complexId   purity_score
-#>   <chr>              <dbl>
-#> 1 CpxMap_0290        0.561
-#> 2 CpxMap_0029        0.780
-#> 3 CpxMap_0440        0.603
-#> 4 CpxMap_0177        0.564
-#> 5 CpxMap_0451        0.877
-#> 6 CpxMap_0336        0.948
+#>   complexId purity_score
+#>   <chr>            <dbl>
+#> 1 C_199            0.551
+#> 2 C_450            0.717
+#> 3 C_344            0.992
+#> 4 C_162            0.947
+#> 5 C_322            0.943
+#> 6 C_569            0.588
 ```
 
 ### Step 3: Join Quantitative Data to the Node Table
@@ -97,7 +94,6 @@ node table. We use a `left_join` to ensure all original nodes are kept,
 even those without quantitative data.
 
 ``` r
-
 if (exists("complex_quant_data")) {
   # Join the quantitative data to the main node table
   nodes_with_quant <- node_table %>%
@@ -109,14 +105,14 @@ if (exists("complex_quant_data")) {
   nodes_with_quant <- node_table
 }
 #> # A tibble: 6 × 3
-#>   complexId   primaryFunctionalDomain     purity_score
-#>   <chr>       <chr>                              <dbl>
-#> 1 CpxMap_0414 BIOCARTA_CIRCADIAN_PATHWAY            NA
-#> 2 CpxMap_0401 BIOCARTA_RNA_PATHWAY                  NA
-#> 3 CpxMap_0359 BIOCARTA_AGPCR_PATHWAY                NA
-#> 4 CpxMap_0501 BIOCARTA_SUMO_PATHWAY                 NA
-#> 5 CpxMap_0508 Unenriched                            NA
-#> 6 CpxMap_0090 BIOCARTA_SALMONELLA_PATHWAY           NA
+#>   complexId primaryFunctionalDomain    purity_score
+#>   <chr>     <chr>                             <dbl>
+#> 1 C_17      BIOCARTA_CDC42RAC_PATHWAY            NA
+#> 2 C_527     BIOCARTA_CIRCADIAN_PATHWAY           NA
+#> 3 C_472     BIOCARTA_AGPCR_PATHWAY               NA
+#> 4 C_621     Unenriched                           NA
+#> 5 C_514     BIOCARTA_RNA_PATHWAY                 NA
+#> 6 C_619     BIOCARTA_SAM68_PATHWAY               NA
 ```
 
 ### Step 4: Visualize the Map Using Any Function
@@ -132,7 +128,6 @@ significantly. The function will automatically generate a continuous
 color bar legend for our `purity_score`.
 
 ``` r
-
 if (nrow(nodes_with_quant) > 0 && "purity_score" %in% names(nodes_with_quant)) {
   visualizeMapDirectLabels(
     layoutDf = nodes_with_quant,
@@ -157,7 +152,6 @@ When `color.by` is specified, it overrides the default discrete legend
 (for functional domains) and instead creates a continuous color bar.
 
 ``` r
-
 if (nrow(nodes_with_quant) > 0 && "purity_score" %in% names(nodes_with_quant)) {
   visualizeMapWithLegend(
     layoutDf = nodes_with_quant,
@@ -182,7 +176,6 @@ The same principle applies to the interactive plot. By specifying
 the quantitative value to the hover tooltip**.
 
 ``` r
-
 if (nrow(nodes_with_quant) > 0 && "purity_score" %in% names(nodes_with_quant)) {
   visualizeMapInteractive(
     layoutDf = nodes_with_quant,

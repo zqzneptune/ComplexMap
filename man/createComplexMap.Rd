@@ -9,6 +9,7 @@ createComplexMap(
   gmt,
   similarityMethod = "jaccard",
   alpha = 0.75,
+  ifRefineCpx = FALSE,
   verbose = TRUE,
   ...
 )
@@ -27,10 +28,14 @@ Avoid "overlap" if you wish to see specific pathways distinct from generic ones.
 versus functional similarity in the network layout. Defaults to **0.75**
 (75\% physical, 25\% functional).}
 
+\item{ifRefineCpx}{Logical. If **TRUE**, executes Step 1 to refine the input
+complex list (merge redundant complexes). If **FALSE**, Step 1 is skipped,
+and the raw `complexList` is used for downstream analysis. Defaults to **FALSE**.}
+
 \item{verbose}{A logical value indicating whether to print progress messages.}
 
 \item{...}{Additional arguments passed to core functions:
-- `minSize`, `maxSize`, `mergeThreshold` (for `refineComplexList`)
+- `minSize`, `maxSize`, `mergeThreshold` (for `refineComplexList` if `ifRefineCpx = TRUE`)
 - `pAdjustMethod`, `pValueCutoff` (for `runComplexEnrichment`)
 - `geneSetDb` (for `generateNodeAttributes` semantic clustering)}
 }
@@ -45,8 +50,8 @@ refinement, enrichment, network construction, and topology calculation.
 \details{
 This function is tuned to generate a **functionally diverse landscape**.
 It enforces the following logic:
-1.  **Refinement:** Uses Jaccard similarity to merge only highly redundant complexes,
-    preserving biological variants (subsets/supersets).
+1.  **Refinement:** (Optional) Uses Jaccard similarity to merge only highly redundant complexes,
+    preserving biological variants (subsets/supersets). Controlled by `ifRefineCpx`.
 2.  **Enrichment:** Calculates 'Fold Enrichment' to prioritize specific biological
     functions over generic ones.
 3.  **Network:** Builds the layout primarily based on **Physical Composition**

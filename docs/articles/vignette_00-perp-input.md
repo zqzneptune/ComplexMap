@@ -33,7 +33,6 @@ from various sources and, crucially, how to handle and convert
 identifiers to ensure they match your input data.
 
 ``` r
-
 # For this tutorial, we will assume our input complex list uses Gene Symbols.
 myComplexes <- list(
   CPLX1 = c("POLR2A", "POLR2B", "POLR2C"),
@@ -63,21 +62,18 @@ First, get the path to the example GMT file included with the package.
 This file uses Gene Symbols.
 
 ``` r
-
 gmtPath <- ComplexMap::getExampleGmt()
 ```
 
 Load the GMT from the file path.
 
 ``` r
-
 gmtFromFile <- ComplexMap::getGmtFromFile(gmtPath, verbose = FALSE)
 ```
 
 Let’s inspect the identifiers:
 
 ``` r
-
 # First 5 genes in the first gene set:
 utils::head(gmtFromFile[[1]], 5)
 #> [1] "ATF2"  "CHUK"  "IFNG"  "IKBKB" "IL2"
@@ -95,7 +91,6 @@ the MSigDB collections. Our
 function simplifies this process.
 
 ``` r
-
 # Fetch the Hallmark gene sets for Human
 # This requires the `msigdbr` package
 if (requireNamespace("msigdbr", quietly = TRUE)) {
@@ -118,7 +113,6 @@ way to get functional annotations. These databases, however, typically
 use stable database identifiers, not gene symbols.
 
 ``` r
-
 # This requires an organism annotation package, e.g., org.Hs.eg.db for human
 if (requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
   # Fetch Biological Process (BP) terms
@@ -149,7 +143,6 @@ match the stable IDs from the annotation database. The
 function is perfect for this.
 
 ``` r
-
 if (requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
   # Get all unique symbols from our complex list
   allSymbols <- unique(unlist(myComplexes))
@@ -194,7 +187,6 @@ Similarly, the `reactome.db` package provides pathway annotations, which
 also use Entrez IDs.
 
 ``` r
-
 if (requireNamespace("reactome.db", quietly = TRUE) && 
     requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
       

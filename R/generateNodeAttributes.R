@@ -1,6 +1,7 @@
 utils::globalVariables(c("domainId", "Description", "p.adjust", "complexId",
                          "primaryFunctionalDomain", "topEnrichedFunctions",
-                         "colorHex", "proteinCount", "Fold", "score", "as"))
+                         "colorHex", "proteinCount", "Fold", "score", "as",
+                         "domainLabel", "topIdx", "baseColor", "head"))
 
 #' Generate Node Attributes for a Complex Network
 #'
@@ -95,47 +96,48 @@ generateNodeAttributes <- function(complexes, enrichments,
     dplyr::left_join(domainLabels, by = "domainId")
   
   # --- 3. Calculate Per-Complex Attributes (Weighted by Specificity) ---
+  # [REFACTOR START] -----------------------------------------------------------
+  # Logic changed: Instead of blending colors, we now strictly assign the color 
+  # of the dominant functional cluster. This ensures 1:1 mapping between 
+  # Primary Function and Color.
+  
   allEnrichDf <- dplyr::bind_rows(lapply(names(enrichments), function(cid) {
     df <- enrichments[[cid]]
     if (!"p.adjust" %in% names(df)) df$p.adjust <- NA_real_
     if (!"Fold" %in% names(df)) df$Fold <- 1.0
     
     # Calculate Specificity Score
-    # Score = -log10(p) * log2(Fold). 
-    # High Fold (Specific) gets a massive boost over generic low-p terms.
     df %>% dplyr::mutate(
       complexId = cid,
       score = -log10(pmax(p.adjust, 1e-300)) * log2(pmax(Fold, 1.1))
     )
   })) %>%
     dplyr::left_join(termToDomainMap, by = c("ID" = "term")) %>%
+    # Join domainColors here so every term knows its Cluster Label and Base Color
     dplyr::left_join(domainColors, by = "domainId")
   
   complexSummary <- allEnrichDf %>%
     dplyr::group_by(complexId) %>%
-    dplyr::group_map(.keep = TRUE, .f = function(df, key) {
+    dplyr::summarise(
+      # Find the index of the highest scoring term for this complex
+      topIdx = which.max(score)[1],
       
-      # Label: Pick the term with the absolute highest Specificity Score
-      primary <- if (nrow(df) > 0) {
-        df$Description[which.max(df$score)][1]
-      } else NA_character_
+      # Assign Primary Function: Use the DOMAIN LABEL (Cluster Representative).
+      # This ensures that even if the specific terms differ slightly, if they 
+      # belong to the same cluster, they get the same Label and Color.
+      primaryFunctionalDomain = domainLabel[topIdx],
       
-      # Top Functions: Top 3 by score
-      topFuncs <- if (nrow(df) > 0 && "Description" %in% names(df)) {
-        paste(utils::head(df$Description[order(df$score, decreasing = TRUE)], 3),
-              collapse = "; ")
-      } else NA_character_
+      # Assign Color: Strictly use the Base Color of that Domain.
+      # No blending. This guarantees consistency with the primary function.
+      colorHex = baseColor[topIdx],
       
-      # Color: Blend based on Specificity Score
-      colorHex <- .blendColorsLAB(df)
+      # Keep specific details in the 'topEnrichedFunctions' text
+      topEnrichedFunctions = paste(unique(head(Description[order(score, decreasing = TRUE)], 3)), collapse = "; "),
       
-      tibble::tibble(
-        complexId = unique(df$complexId),
-        primaryFunctionalDomain = as.character(primary),
-        topEnrichedFunctions = as.character(topFuncs),
-        colorHex = colorHex
-      )
-    }) %>% dplyr::bind_rows()
+      .groups = "drop"
+    )
+  # [REFACTOR END] -------------------------------------------------------------
+  
   
   # --- 4. Finalize ---
   complexMeta <- tibble::tibble(

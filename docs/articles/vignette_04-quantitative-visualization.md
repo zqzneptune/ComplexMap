@@ -105,14 +105,14 @@ if (exists("complex_quant_data")) {
   nodes_with_quant <- node_table
 }
 #> # A tibble: 6 × 3
-#>   complexId primaryFunctionalDomain    purity_score
-#>   <chr>     <chr>                             <dbl>
-#> 1 C_17      BIOCARTA_CDC42RAC_PATHWAY            NA
-#> 2 C_527     BIOCARTA_CIRCADIAN_PATHWAY           NA
-#> 3 C_472     BIOCARTA_AGPCR_PATHWAY               NA
-#> 4 C_621     Unenriched                           NA
-#> 5 C_514     BIOCARTA_RNA_PATHWAY                 NA
-#> 6 C_619     BIOCARTA_SAM68_PATHWAY               NA
+#>   complexId primaryFunctionalDomain      purity_score
+#>   <chr>     <chr>                               <dbl>
+#> 1 C_17      BIOCARTA_SALMONELLA_PATHWAY            NA
+#> 2 C_527     BIOCARTA_SAM68_PATHWAY                 NA
+#> 3 C_472     BIOCARTA_SALMONELLA_PATHWAY            NA
+#> 4 C_621     Unenriched                             NA
+#> 5 C_514     BIOCARTA_DNAFRAGMENT_PATHWAY           NA
+#> 6 C_619     BIOCARTA_SAM68_PATHWAY                 NA
 ```
 
 ### Step 4: Visualize the Map Using Any Function

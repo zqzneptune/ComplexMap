@@ -40,9 +40,16 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.2" id="complexmap-112---2026-02-11">ComplexMap 1.1.2 - 2026-02-11<a class="anchor" aria-label="anchor" href="#complexmap-112---2026-02-11"></a></h2>
-<ul><li><p>[createComplexMap] Added ifRefineCpx parameter (default: FALSE).</p></li>
-<li><p>Logic Change: Step 1 (Complex Refinement) is now conditional. By default, the raw input list is processed without merging. Set ifRefineCpx = TRUE to enable the refinement/merging step.</p></li>
+<ul><li>
+<p><strong>[createComplexMap]</strong> Added ifRefineCpx parameter (default: FALSE).</p>
+<ul><li><p>Logic Change: Step 1 (Complex Refinement) is now conditional. By default, the raw input list is processed without merging. Set ifRefineCpx = TRUE to enable the refinement/merging step.</p></li>
 <li><p>Logging: Updated verbose messages to explicitly state whether refinement is being executed or skipped.</p></li>
+</ul></li>
+<li>
+<p><strong>[generateNodeAttributes]</strong> Enforced strict 1:1 mapping between Primary Function and Node Color.</p>
+<ul><li><p><strong>Logic Change:</strong> Removed the weighted color blending logic (<code>.blendColorsLAB</code>).</p></li>
+<li><p><strong>New Behavior:</strong> A complex’s color is now determined solely by the identity of its <strong>Primary Functional Domain</strong>. This ensures that all nodes labeled with the same primary function share the exact same hex color code, eliminating visual ambiguity caused by secondary functional variations.</p></li>
+</ul></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.1" id="complexmap-111---2025-12-02">ComplexMap 1.1.1 - 2025-12-02<a class="anchor" aria-label="anchor" href="#complexmap-111---2025-12-02"></a></h2>

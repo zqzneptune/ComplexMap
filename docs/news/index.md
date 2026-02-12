@@ -2,14 +2,26 @@
 
 ## ComplexMap 1.1.2 - 2026-02-11
 
-- \[createComplexMap\] Added ifRefineCpx parameter (default: FALSE).
+- **\[createComplexMap\]** Added ifRefineCpx parameter (default: FALSE).
 
-- Logic Change: Step 1 (Complex Refinement) is now conditional. By
-  default, the raw input list is processed without merging. Set
-  ifRefineCpx = TRUE to enable the refinement/merging step.
+  - Logic Change: Step 1 (Complex Refinement) is now conditional. By
+    default, the raw input list is processed without merging. Set
+    ifRefineCpx = TRUE to enable the refinement/merging step.
 
-- Logging: Updated verbose messages to explicitly state whether
-  refinement is being executed or skipped.
+  - Logging: Updated verbose messages to explicitly state whether
+    refinement is being executed or skipped.
+
+- **\[generateNodeAttributes\]** Enforced strict 1:1 mapping between
+  Primary Function and Node Color.
+
+  - **Logic Change:** Removed the weighted color blending logic
+    (`.blendColorsLAB`).
+
+  - **New Behavior:** A complex’s color is now determined solely by the
+    identity of its **Primary Functional Domain**. This ensures that all
+    nodes labeled with the same primary function share the exact same
+    hex color code, eliminating visual ambiguity caused by secondary
+    functional variations.
 
 ## ComplexMap 1.1.1 - 2025-12-02
 

@@ -80,6 +80,7 @@ complexMapObject <- ComplexMap::createComplexMap(
 #> Step 4: Generating node attributes...
 #> Generating node attributes (prioritizing functional specificity)...
 #>     -> Clustering 239 terms using co-occurrence (jaccard)
+#> Metric: 'jaccard' with unit: 'log'; comparing: 239 vectors
 #>     -> Generating diverse palette: 25 functional domains (Average Linkage).
 #> 
 #> Step 5: Computing map topology...
@@ -99,7 +100,7 @@ complexMapObject
 #> # ComplexMap Object (Physical-First Layout)
 #> # ── Physical Structure: 622 nodes, 1681 edges (2.70 edges/node)
 #> # ── Functional Landscape:
-#> #    • Diversity: 126 distinct functional domains (colors)
+#> #    • Diversity: 25 distinct functional domains (colors)
 #> #    • Coverage:  42.4% of complexes annotated
 #> # ── Accessors: `getNodeTable()`, `getEdgeTable()`
 #> # ── Analysis:  `summarizeThemes()` to identify physical machines.
@@ -129,16 +130,16 @@ themeSummary %>%
 
 | themeId | themeLabel | themePurity | nodeCount | edgeCount |
 |---:|:---|---:|---:|---:|
-| 2 | BIOCARTA_CELL2CELL_PATHWAY / BIOCARTA_DNAFRAGMENT_PATHWAY | 0.10 | 60 | 167 |
-| 1 | BIOCARTA_SALMONELLA_PATHWAY / BIOCARTA_PTDINS_PATHWAY | 0.14 | 38 | 128 |
-| 4 | BIOCARTA_KREB_PATHWAY / BIOCARTA_MALATEX_PATHWAY | 0.33 | 38 | 58 |
-| 6 | BIOCARTA_TID_PATHWAY / BIOCARTA_BTG2_PATHWAY | 0.24 | 36 | 87 |
-| 5 | BIOCARTA_CPSF_PATHWAY / BIOCARTA_LIS1_PATHWAY | 0.15 | 35 | 71 |
-| 7 | BIOCARTA_PROTEASOME_PATHWAY / BIOCARTA_ERAD_PATHWAY | 0.37 | 31 | 101 |
-| 9 | BIOCARTA_IRES_PATHWAY / BIOCARTA_MCM_PATHWAY | 0.20 | 29 | 78 |
-| 10 | BIOCARTA_RANMS_PATHWAY / BIOCARTA_NPC_PATHWAY | 0.32 | 29 | 110 |
-| 13 | BIOCARTA_MTA3_PATHWAY / BIOCARTA_PRC2_PATHWAY | 0.33 | 23 | 42 |
-| 16 | BIOCARTA_EDG1_PATHWAY | 1.00 | 22 | 24 |
+| 2 | BIOCARTA_SALMONELLA_PATHWAY / BIOCARTA_DNAFRAGMENT_PATHWAY | 0.35 | 60 | 167 |
+| 1 | BIOCARTA_SALMONELLA_PATHWAY | 0.93 | 38 | 128 |
+| 4 | BIOCARTA_MALATEX_PATHWAY | 0.93 | 38 | 58 |
+| 6 | BIOCARTA_PELP1_PATHWAY | 0.52 | 36 | 87 |
+| 5 | BIOCARTA_SAM68_PATHWAY | 0.55 | 35 | 71 |
+| 7 | BIOCARTA_AMAN_PATHWAY | 0.63 | 31 | 101 |
+| 9 | BIOCARTA_SALMONELLA_PATHWAY | 0.55 | 29 | 78 |
+| 10 | BIOCARTA_RAN_PATHWAY | 0.64 | 29 | 110 |
+| 13 | BIOCARTA_PELP1_PATHWAY | 0.60 | 23 | 42 |
+| 16 | BIOCARTA_SALMONELLA_PATHWAY | 1.00 | 22 | 24 |
 
 The result is a table listing each theme, its descriptive label (derived
 from the most frequent functions within the theme), and its size in
@@ -179,9 +180,9 @@ if (nrow(nodes) > 0) {
 #> Dynamically querying for a protein found in the map: PIK3CB
 ```
 
-| complexId | primaryFunctionalDomain   | proteins      |
-|:----------|:--------------------------|:--------------|
-| C_17      | BIOCARTA_CDC42RAC_PATHWAY | PIK3CB,PIK3R1 |
+| complexId | primaryFunctionalDomain     | proteins      |
+|:----------|:----------------------------|:--------------|
+| C_17      | BIOCARTA_SALMONELLA_PATHWAY | PIK3CB,PIK3R1 |
 
 #### 4.2 Querying for a Specific Complex
 
@@ -201,13 +202,14 @@ if (nrow(nodes) > 0) {
   dplyr::glimpse(complex_data)
 }
 #> Rows: 1
-#> Columns: 11
+#> Columns: 12
 #> $ complexId               <chr> "C_17"
 #> $ proteinCount            <int> 2
 #> $ proteins                <chr> "PIK3CB,PIK3R1"
-#> $ primaryFunctionalDomain <chr> "BIOCARTA_CDC42RAC_PATHWAY"
+#> $ topIdx                  <int> 6
+#> $ primaryFunctionalDomain <chr> "BIOCARTA_SALMONELLA_PATHWAY"
+#> $ colorHex                <chr> "#DC716C"
 #> $ topEnrichedFunctions    <chr> "BIOCARTA_CDC42RAC_PATHWAY; BIOCARTA_PLC_PATHW…
-#> $ colorHex                <chr> "#D8746B"
 #> $ sizeMapping             <dbl> 1
 #> $ x                       <dbl> -2.053842
 #> $ y                       <dbl> 5.333202

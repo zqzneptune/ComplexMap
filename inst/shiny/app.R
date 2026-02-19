@@ -80,10 +80,14 @@ ui <- fluidPage(
       # Functional domain filter
       if (length(domains) > 0) {
         div(class = "cm-section",
-          tags$label("Functional Domain", class = "cm-label"),
-          selectInput("domain_filter", label = NULL,
-            choices = c("All" = "", domains), selected = ""
-          )
+            tags$label("Functional Domain", class = "cm-label"),
+            selectInput("domain_filter", label = NULL,
+                        choices = c("All" = "", domains), selected = ""
+            ),
+            # --- ADD THIS: The Legend Container ---
+            div(class = "cm-legend-container",
+                uiOutput("network_legend")
+            )
         )
       },
 
@@ -310,11 +314,22 @@ server <- function(input, output, session) {
           status
       )
   })
-  # ── Label toggle → JS ──────────────────────────────────────────────────────
-  # FIX: Use session$onFlushed to ensure the first message is sent only after
-  # Shiny has finished its initial render and the JS/Cytoscape instance is ready.
-  # Subsequent toggles fire immediately via observeEvent as normal.
-  
+  output$network_legend <- renderUI({
+    # Get unique domain-color pairs from the node data
+    df_legend <- nodes_df[!duplicated(nodes_df$primaryFunctionalDomain), 
+                          c("primaryFunctionalDomain", "colorHex")]
+    df_legend <- df_legend[order(df_legend$primaryFunctionalDomain), ]
+    
+    # Create the legend list
+    tags$ul(class = "cm-legend-list",
+            apply(df_legend, 1, function(row) {
+              tags$li(
+                tags$span(class = "cm-legend-dot", style = paste0("background-color:", row["colorHex"])),
+                tags$span(class = "cm-legend-text", row["primaryFunctionalDomain"])
+              )
+            })
+    )
+  })
   # session$onFlushed must be called at the top level of server, NOT inside
   # observe() or any other reactive context. once = TRUE fires only after the
   # first complete render, guaranteeing Cytoscape is mounted before we send.

@@ -27,6 +27,9 @@ ui <- fluidPage(
     tags$script(src = "layout-base.js"),
     tags$script(src = "cose-base.js"),
     tags$script(src = "cytoscape-fcose.min.js"),
+    # Cola specific: Engine first, then Wrapper
+    tags$script(src = "cola.min.js"),        # The Engine
+    tags$script(src = "cytoscape-cola.js"),  # The Wrapper
     tags$script(src = "cytoscape-svg.min.js"),
 
     # Inject network data before complexmap.js loads
@@ -51,11 +54,16 @@ ui <- fluidPage(
 
       # Layout selector
       div(class = "cm-section",
-        tags$label("Layout", class = "cm-label"),
-        selectInput("layout_choice", label = NULL,
-          choices  = c("Preset (FR)" = "preset", "fCoSE" = "fcose"),
-          selected = "preset"
-        )
+          tags$label("Layout", class = "cm-label"),
+          selectInput("layout_choice", label = NULL,
+                      choices  = c(
+                        "Preset (FR)" = "preset", 
+                        "fCoSE"       = "fcose",
+                        "Cola"        = "cola",    # ADDED THIS
+                        "CoSE"        = "cose"     # ADDED THIS (Built-in)
+                      ),
+                      selected = "preset"
+          )
       ),
 
       # Edge weight filter

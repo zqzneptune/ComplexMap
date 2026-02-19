@@ -7,11 +7,29 @@
     "use strict";
 
     // ── Register extensions ──────────────────────────────────────────────────
-    if (typeof cytoscapeFcose !== "undefined" && typeof cytoscape !== "undefined") {
-        cytoscape.use(cytoscapeFcose);
-    }
-    if (typeof cytoscapeSvg !== "undefined" && typeof cytoscape !== "undefined") {
-        cytoscape.use(cytoscapeSvg);
+    // Each block checks if the extension script is loaded before registering it.
+    
+    if (typeof cytoscape !== "undefined") {
+        
+        // 1. fCoSE (Fast Compound Spring Embedder)
+        if (typeof cytoscapeFcose !== "undefined") {
+            cytoscape.use(cytoscapeFcose);
+        }
+
+        // 2. Cola (Constraint-based Layout)
+        // Note: 'cytoscapeCola' is the function from cytoscape-cola.js
+        // It requires 'cola' (the engine) to be globally available.
+        if (typeof cytoscapeCola !== "undefined") {
+            cytoscape.use(cytoscapeCola);
+        }
+
+        // 3. SVG Export
+        if (typeof cytoscapeSvg !== "undefined") {
+            cytoscape.use(cytoscapeSvg);
+        }
+        
+    } else {
+        console.error("Cytoscape core not found. Extensions could not be registered.");
     }
 
     // ── Global state ─────────────────────────────────────────────────────────
@@ -135,23 +153,34 @@
         if (!cy) return;
         currentLayout = name;
 
-        var layoutOptions = { name: name, animate: true, animationDuration: 600 };
+        var layoutOptions = { 
+            name: name, 
+            animate: true, 
+            animationDuration: 600 
+        };
 
         if (name === "preset") {
-            layoutOptions.name = "preset";
             layoutOptions.positions = function (node) {
                 return {
                     x: node.data("_preset_x") || node.position("x"),
                     y: node.data("_preset_y") || node.position("y")
                 };
             };
-        } else if (name === "fcose") {
+        } 
+        else if (name === "fcose") {
             layoutOptions.quality = "proof";
             layoutOptions.randomize = true;
-            layoutOptions.animate = true;
-            layoutOptions.fit = true;
-            layoutOptions.padding = 50;
             layoutOptions.nodeSeparation = 100;
+        } 
+        else if (name === "cola") {
+            // Cola works best with specific spacing
+            layoutOptions.nodeSpacing = 45;
+            layoutOptions.edgeLength = 100;
+            layoutOptions.maxSimulationTime = 2000;
+        } 
+        else if (name === "cose") {
+            // Built-in CoSE requires higher repulsion for clear biological maps
+            layoutOptions.nodeRepulsion = 400000;
             layoutOptions.idealEdgeLength = 100;
         }
 

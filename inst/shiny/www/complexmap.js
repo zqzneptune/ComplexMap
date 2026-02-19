@@ -288,14 +288,17 @@
     }
 
     // ── Label toggle ──────────────────────────────────────────────────────────
-    // FIX: removed syncLabelState() entirely — initial state is now pushed by
-    // R via session$onFlushed, which fires only after Cytoscape is ready.
-    // toggleLabels() is the single source of truth for label visibility.
     function toggleLabels(show) {
         if (!cy) return;
         labelsVisible = show;
-        cy.nodes().style("label", show ? "data(label)" : "");
-        console.log("Label toggle called:", show ? "showing" : "hiding", "labels");
+
+        // We update the 'label' property of the base 'node' selector in the stylesheet
+        cy.style()
+            .selector("node")
+            .style("label", show ? "data(label)" : "")
+            .update(); // The .update() call forces Cytoscape to re-calculate styles
+
+        console.log("Label toggle:", show ? "ON" : "OFF");
     }
 
     // ── PNG / SVG export ──────────────────────────────────────────────────────
@@ -388,9 +391,13 @@
             highlightProtein(msg.query);
         });
 
-        // Single handler for both initial state and subsequent toggles
         Shiny.addCustomMessageHandler("toggle_labels", function (msg) {
-            toggleLabels(msg.show);
+            // If cy isn't ready yet, wait 200ms and try again
+            if (!cy) {
+                setTimeout(function() { toggleLabels(msg.show); }, 200);
+            } else {
+                toggleLabels(msg.show);
+            }
         });
 
         Shiny.addCustomMessageHandler("export_png", function (msg) {

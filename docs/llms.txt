@@ -5,48 +5,44 @@ stable](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecy
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**ComplexMap** is an R package that provides a complete, end-to-end
-workflow for the analysis of protein complex datasets. It is designed to
-take a raw list of putative protein complexes and transform it into a
-fully annotated, publication-ready functional map.
+**ComplexMap** is a systems biology R package for the analysis of
+protein complex landscapes. It transforms raw lists of putative
+complexes into interactive, functionally annotated maps that preserve
+the delicate balance between physical composition and biological
+hierarchy.
 
-## Core Features
+## Core Features (v2.0)
 
-- **Integrated Workflow:** Go from a raw complex list to a final network
-  map with a single function,
-  [`createComplexMap()`](https://zqzneptune.github.io/ComplexMap/reference/createComplexMap.md).
-
-- **Diversity-Focused Refinement:** Defaults to a conservative
-  **Jaccard** similarity metric to merge only highly redundant
-  complexes, preserving biologically meaningful variants like
-  sub-complexes. Other metrics (**Matching Score**, **Simpson**, or
-  **Dice**) are available for more aggressive merging.
-
-- **Functional Enrichment:** Annotate complexes using gene sets from
-  local files, MSigDB, Gene Ontology, or Reactome.
-
-- **Powerful Visualizations:** Generate static (`ggplot2`) and
-  interactive (`visNetwork`) plots to explore the functional landscape.
-
-- **Quantitative Data Integration:** Map your own experimental data
-  (e.g., protein abundance, fold-change) directly onto network nodes as
-  a continuous color gradient in any of the visualization functions.
-
-- **Robust Benchmarking:** Optimize refinement parameters with
-  [`benchmarkParameters()`](https://zqzneptune.github.io/ComplexMap/reference/benchmarkParameters.md)
-  and evaluate results against a reference standard like CORUM using
-  [`evaluateComplexes()`](https://zqzneptune.github.io/ComplexMap/reference/evaluateComplexes.md).
+- **Physical-First Architecture:** Layouts are driven primarily by
+  **Physical Composition** (shared proteins), ensuring that
+  sub-complexes and variants are preserved rather than collapsed into
+  generic functional blobs.
+- **Interactive Explorer:** Built-in **Cytoscape.js** engine via Shiny.
+  Explore your landscape with high-performance zooming, filtering, and
+  real-time node inspection.
+- **Diversity-First Refinement:** Defaults to conservative **Jaccard**
+  similarity (threshold 0.90) to merge only true synonyms while keeping
+  distinct biological states separate.
+- **Specificity-Driven Annotation:** Automatically groups functional
+  terms into diverse domains and calculates **Specificity Scores**
+  (`-log10(p) * log2(Fold)`) to prioritize unique labels over generic
+  terms.
+- **Systems Biology Dashboard:** S3 print methods provide immediate
+  feedback on the health of your map (Functional Diversity vs. Physical
+  Density).
+- **Robust Evaluation:** Compare predictions against gold standards
+  (e.g., CORUM) using **Maximum Matching Ratio (MMR)**, PPV, and
+  Sensitivity.
 
 ------------------------------------------------------------------------
 
 ## Installation
 
-You can install the stable version of **ComplexMap** from GitHub. The
-installer will automatically handle all required dependencies from CRAN
-and Bioconductor.
+You can install the stable version of **ComplexMap** from GitHub.
 
 ``` r
-# If you don't have remotes installed: install.packages("remotes")
+
+# install.packages("remotes")
 remotes::install_github("zqzneptune/ComplexMap")
 ```
 
@@ -54,97 +50,104 @@ remotes::install_github("zqzneptune/ComplexMap")
 
 ## Workflow at a Glance
 
-This example demonstrates the core workflow, from loading data to
-visualization.
+This example demonstrates the complete workflow from raw complexes to an
+interactive map.
 
 ``` r
+
 library(ComplexMap)
-library(dplyr)
 
-# 1. Load the example complex list and a gene set file
+# 1. Load demo complexes and example GMT
 data("demoComplexes", package = "ComplexMap")
-gmt_file <- ComplexMap::getExampleGmt()
-gmt <- ComplexMap::getGmtFromFile(gmt_file, verbose = FALSE)
+gmt_file <- getExampleGmt()
+gmt <- getGmtFromFile(gmt_file, verbose = FALSE)
 
-# 2. Run the entire workflow
-# The default similarityMethod is "jaccard" to preserve diversity.
-cm_obj <- ComplexMap::createComplexMap(
-  complexList = demoComplexes,
+# 2. Build the ComplexMap
+# alpha = 0.75 prioritizes physical structure in the layout
+cmap <- createComplexMap(
+  complexList = demoComplexes[1:250], 
   gmt = gmt,
-  mergeThreshold = 0.9, # Strict default
-  verbose = FALSE # Set to TRUE to see workflow steps
+  ifRefineCpx = TRUE,
+  alpha = 0.75,
+  verbose = TRUE
 )
 
-# 3. Print the resulting object for a high-level summary
-cm_obj
+# 3. Inspect the Dashboard
+cmap
 #> # ComplexMap Object (Physical-First Layout)
-#> # ── Physical Structure: 375 nodes, 893 edges (2.38 edges/node)
-#> # ── Functional Landscape:
-#> #    • Diversity: 21 distinct functional domains (colors)
-#> #    • Coverage:  70.1% of complexes annotated
-#> # ── Accessors: `getNodeTable()`, `getEdgeTable()`
-#> # ── Analysis:  `summarizeThemes()` to identify physical machines.
+#> # -- Physical Structure: 224 nodes, 412 edges (1.84 edges/node)
+#> # -- Functional Landscape:
+#> #    * Diversity: 25 distinct functional domains (colors)
+#> #    * Coverage:  42.5% of complexes annotated
+#> # -- Accessors: `getNodeTable()`, `getEdgeTable()`
+#> # -- Explore:   `explore(cmap)` to launch interactive viewer.
 
-# 4. Visualize the map
-node_tbl <- ComplexMap::getNodeTable(cm_obj)
-edge_tbl <- ComplexMap::getEdgeTable(cm_obj)
-
-ComplexMap::visualizeMapWithLegend(node_tbl, edge_tbl)
+# 4. Explore Interactively
+explore(cmap)
 ```
-
-![](reference/figures/README-example.png)
 
 ------------------------------------------------------------------------
 
-## Exploring the Results
+## Targeted Exploration
 
-The `ComplexMap` object can be easily analyzed with downstream
-functions.
+### Powerful Querying
 
-### Summarize Biological Themes
-
-Identify the major biological themes (network modules) using community
-detection and add them directly to the map object for easy querying.
+The `queryMap` function supports exact matches for Complex IDs or regex
+searches for protein members.
 
 ``` r
-cm_obj <- ComplexMap::summarizeThemes(cm_obj, verbose = FALSE)
 
-# Show the 10 largest themes by querying the object's node table
-ComplexMap::getNodeTable(cm_obj) %>%
-  dplyr::count(themeLabel, sort = TRUE, name = "nodeCount") %>%
-  dplyr::slice_head(n = 10)
+# Find all complexes containing the protein SMAD4
+res <- queryMap(cmap, query = "SMAD4", type = "protein")
+
+# View the dominant functions and membership
+dplyr::select(res, complexId, primaryFunctionalDomain, proteinCount)
 ```
 
-### Query the Map
+### External Export
 
-Programmatically find specific complexes of interest.
+Export your landscape to standard formats for high-resolution
+publication figures in **Cytoscape Desktop** or **Gephi**.
 
 ``` r
-# Find the complex with the ID "CpxMap_0001"
-result <- ComplexMap::queryMap(cm_obj, query = "CpxMap_0001", type = "complex")
 
-# Show some of its key attributes
-dplyr::select(result, complexId, primaryFunctionalDomain, proteinCount, degree, themeLabel)
+# Exports node and edge TSVs sanitized for Cytoscape Desktop
+exportNetwork(cmap, filePrefix = "human_proteome_map", format = "cytoscape")
+
+# Export as GraphML
+exportNetwork(cmap, filePrefix = "human_proteome_map", format = "graphml")
+```
+
+## Performance Benchmarking
+
+Optimize your refinement strategy by testing multiple thresholds against
+a reference set (e.g., CORUM).
+
+``` r
+
+data("referenceComplexes", package = "ComplexMap")
+
+bench <- benchmarkParameters(
+  complexList = demoComplexes[1:100],
+  referenceComplexes = referenceComplexes,
+  threshold_range = seq(0.7, 1.0, by = 0.05)
+)
 ```
 
 ## Citation
 
-If you use ComplexMap in your research, please cite the publication
-(link to be added upon publication).
+If you use ComplexMap in your research, please cite:
 
-For now, you can cite the package itself:
-
-Qingzhou Zhang (2025). ComplexMap: A Toolset for the Functional Analysis
-and Visualization of Protein Complex Data. R package version 1.1.1.
-<https://github.com/zqzneptune/ComplexMap>
+Qingzhou Zhang (2026). **ComplexMap: A Toolset for the Functional
+Analysis and Interactive Visualization of Protein Complex Landscapes.**
+R package version 2.0.0. <https://github.com/zqzneptune/ComplexMap>
 
 ## Contributing
 
-Please note that the ComplexMap project is released with a [Contributor
-Code of
+The ComplexMap project is released with a [Contributor Code of
 Conduct](https://contributor-covenant.org/version/2/1/code_of_conduct/code_of_conduct.md).
-By contributing to this project, you agree to abide by its terms. We
-welcome bug reports, feature requests, and pull requests.
+We welcome bug reports, feature requests, and pull requests via GitHub
+issues.
 
 # Package index
 
@@ -162,8 +165,10 @@ welcome bug reports, feature requests, and pull requests.
   : Example Protein Complex List
 - [`evaluateComplexes()`](https://zqzneptune.github.io/ComplexMap/reference/evaluateComplexes.md)
   : Evaluate Predicted Protein Complexes Against a Reference Set
+- [`explore()`](https://zqzneptune.github.io/ComplexMap/reference/explore.md)
+  : Explore a ComplexMap Object Interactively
 - [`exportNetwork()`](https://zqzneptune.github.io/ComplexMap/reference/exportNetwork.md)
-  : Export a ComplexMap Network for External Tools (Cytoscape)
+  : Export a ComplexMap Network for External Tools
 - [`generateNodeAttributes()`](https://zqzneptune.github.io/ComplexMap/reference/generateNodeAttributes.md)
   : Generate Node Attributes for a Complex Network
 - [`getEdgeTable()`](https://zqzneptune.github.io/ComplexMap/reference/getEdgeTable.md)
@@ -182,6 +187,8 @@ welcome bug reports, feature requests, and pull requests.
   : Fetch Reactome Pathway Gene Sets
 - [`print(`*`<ComplexMap>`*`)`](https://zqzneptune.github.io/ComplexMap/reference/print.ComplexMap.md)
   : Print Method for a ComplexMap Object
+- [`pruneNetwork()`](https://zqzneptune.github.io/ComplexMap/reference/pruneNetwork.md)
+  : Prune Network Edges Before Cytoscape Export
 - [`qcComplexList()`](https://zqzneptune.github.io/ComplexMap/reference/qcComplexList.md)
   : Perform Quality Control on a List of Protein Complexes
 - [`queryMap()`](https://zqzneptune.github.io/ComplexMap/reference/queryMap.md)
@@ -192,14 +199,12 @@ welcome bug reports, feature requests, and pull requests.
   : Refine a List of Protein Complexes by Size and Redundancy
 - [`runComplexEnrichment()`](https://zqzneptune.github.io/ComplexMap/reference/runComplexEnrichment.md)
   : Run Gene Set Enrichment Analysis on a List of Complexes
-- [`summarizeThemes()`](https://zqzneptune.github.io/ComplexMap/reference/summarizeThemes.md)
-  : Summarize Major Biological Themes in a Complex Map
-- [`visualizeMapDirectLabels()`](https://zqzneptune.github.io/ComplexMap/reference/visualizeMapDirectLabels.md)
-  : Visualize a Complex Map with Direct Node Labels
-- [`visualizeMapInteractive()`](https://zqzneptune.github.io/ComplexMap/reference/visualizeMapInteractive.md)
-  : Visualize a Complex Map Interactively
-- [`visualizeMapWithLegend()`](https://zqzneptune.github.io/ComplexMap/reference/visualizeMapWithLegend.md)
-  : Visualize a Complex Map with a Color Legend
+- [`runComplexMapApp()`](https://zqzneptune.github.io/ComplexMap/reference/runComplexMapApp.md)
+  : Run the ComplexMap Interactive Explorer
+- [`scaleLayoutForCytoscape()`](https://zqzneptune.github.io/ComplexMap/reference/scaleLayoutForCytoscape.md)
+  : Scale Layout Coordinates for Cytoscape.js
+- [`toCytoscapeJSON()`](https://zqzneptune.github.io/ComplexMap/reference/toCytoscapeJSON.md)
+  : Export a ComplexMap Object to Cytoscape.js JSON
 
 # Articles
 
@@ -209,7 +214,3 @@ welcome bug reports, feature requests, and pull requests.
   Data](https://zqzneptune.github.io/ComplexMap/articles/vignette_01-prep-input.md):
 - [2. Start a Typical
   Workflow](https://zqzneptune.github.io/ComplexMap/articles/vignette_02-workflow.md):
-- [3. Advanced Analysis and
-  Visualization](https://zqzneptune.github.io/ComplexMap/articles/vignette_03-advanced-analysis.md):
-- [4. Visualizing Quantitative
-  Data](https://zqzneptune.github.io/ComplexMap/articles/vignette_04-quantitative-visualization.md):

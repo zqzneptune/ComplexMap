@@ -14,6 +14,7 @@ createComplexMap(
   similarityMethod = "jaccard",
   alpha = 0.75,
   ifRefineCpx = FALSE,
+  layout_seed = 123,
   verbose = TRUE,
   ...
 )
@@ -49,6 +50,10 @@ createComplexMap(
   list (merge redundant complexes). If \*\*FALSE\*\*, Step 1 is skipped,
   and the raw \`complexList\` is used for downstream analysis. Defaults
   to \*\*FALSE\*\*.
+
+- layout_seed:
+
+  Integer seed for reproducible layout. Defaults to 123.
 
 - verbose:
 

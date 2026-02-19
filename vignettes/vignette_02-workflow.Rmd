@@ -15,159 +15,134 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 library(dplyr)
+library(ComplexMap)
 ```
 
 # Introduction
 
-Protein complexes are the functional machinery of the cell. High-throughput experimental methods can identify hundreds of putative protein complexes in a single experiment. The `ComplexMap` package provides a comprehensive, end-to-end workflow to process, analyze, annotate, and visualize such a dataset.
+Protein complexes are the functional machinery of the cell. High-throughput experimental methods can identify hundreds of putative protein complexes in a single experiment. The `ComplexMap` package provides a comprehensive, end-to-end workflow to process, analyze, annotate, and visualize such datasets.
 
-This vignette demonstrates the main analysis workflow using the high-level `createComplexMap()` wrapper function. We will use a dataset of human soluble protein complexes, originally published in 2012 [A census of human soluble protein complexes](https://doi.org/10.1016/j.cell.2012.08.011), to perform a complete analysis from start to finish. We will then showcase the downstream analysis functions for interpreting and exploring the results.
+The version 2.0 workflow is built around a **Physical-First** philosophy: we prioritize the physical composition (protein identity) of complexes to define the map's layout, while using functional enrichment to provide a "color landscape" that highlights biological diversity without collapsing distinct sub-complexes into generic blobs.
 
 # Step 1: Loading Data
 
-The `ComplexMap` package includes the `demoComplexes` dataset, a list of 622 putative human protein complexes. We will also load an example gene set (GMT) file for functional annotation.
+The `ComplexMap` package includes the `demoComplexes` dataset (622 putative human complexes). We also provide a helper to locate an example BioCarta gene set (GMT) file.
 
 ```{r load-data}
-# Load the example complex list shipped with the package
-utils::data("demoComplexes", package = "ComplexMap")
+# Load example complexes
+data("demoComplexes", package = "ComplexMap")
 
-# Get the path to the example GMT file and load it
-gmtPath <- ComplexMap::getExampleGmt()
-biocartaGmt <- ComplexMap::getGmtFromFile(gmtPath, verbose = FALSE)
+# Access the included example GMT file (BioCarta)
+gmtPath <- getExampleGmt()
+biocartaGmt <- getGmtFromFile(gmtPath, verbose = FALSE)
+
+# Preview the input
+message(sprintf("Loaded %d complexes and %d gene sets.", 
+                length(demoComplexes), length(biocartaGmt)))
 ```
 
 # Step 2: Running the Main Workflow
 
-The core of the package is the `createComplexMap()` function. This single wrapper function handles all the essential processing steps:
+The core of the package is the `createComplexMap()` function. This high-level wrapper handles:
 
-1.  **Quality Control & Refinement**: Filters complexes by size and merges highly redundant ones (defaulting to Jaccard similarity > 0.90).
-2.  **Functional Enrichment**: Annotates each complex with biological functions, prioritizing specificity.
-3.  **Network Construction**: Builds a similarity network based on shared proteins (physical) and functions.
-4.  **Attribute & Topology Generation**: Calculates node colors, sizes, and layout coordinates for visualization.
+1.  **Refinement**: (Optional) Merges highly redundant complexes to clean the input.
 
-We can pass parameters to the underlying functions directly into this wrapper.
+2.  **Functional Enrichment**: Calculates p-values and **Fold Enrichment** for every complex.
+
+3.  **Network Construction**: Links complexes based on shared proteins (`alpha=0.75` gives 75% weight to physical overlap).
+
+4.  **Semantic Clustering**: Groups functional terms to assign a consistent color palette that maximizes diversity.
+
+5.  **Topology Calculation**: Runs a Fruchterman-Reingold layout and calculates centrality metrics (betweenness and degree).
 
 ```{r create-map, message=TRUE}
-# Run the entire workflow with a single command
-complexMapObject <- ComplexMap::createComplexMap(
-  complexList = demoComplexes,
+# Run the entire workflow
+# We use a subset of 200 complexes for this vignette demonstration
+cmap <- createComplexMap(
+  complexList = demoComplexes[1:200],
   gmt = biocartaGmt,
-  mergeThreshold = 0.90, # Strict merging to preserve variants
-  alpha = 0.75,          # Prioritize physical composition in layout
+  ifRefineCpx = TRUE,    # Clean up redundancy
+  mergeThreshold = 0.90, # Only merge nearly identical complexes
+  alpha = 0.75,          # Layout priority: 75% Physical, 25% Functional
   verbose = TRUE
 )
 ```
 
-The output, `complexMapObject`, is a formal `ComplexMap` S3 object that contains the complete results of the analysis. Printing the object gives a high-level systems biology dashboard.
+### The Systems Biology Dashboard
+
+One of the key features of the `ComplexMap` object is its `print` method, which provides immediate feedback on the "health" of your landscape.
 
 ```{r print-object}
-# Print the object to see a summary
-complexMapObject
+# Inspect the resulting object
+print(cmap)
 ```
 
-# Step 3: Summarizing Biological Themes
+**What to look for:**
 
-A key goal of the map is to identify major biological themes. The `summarizeThemes()` function uses community detection algorithms to find densely connected network modules (physical neighborhoods) and provides a summary.
+- **Diversity**: A high count of distinct functional domains indicates a specific, high-resolution map.
 
-```{r summarize-themes}
-# To get the summary table, we set add_to_object = FALSE
-themeSummary <- ComplexMap::summarizeThemes(
-  complexMapObject,
-  verbose = FALSE,
-  add_to_object = FALSE
-)
+- **Coverage**: Shows what percentage of your experimental data could be biologically annotated.
 
-# Display the top 10 largest themes
-themeSummary %>%
-  dplyr::arrange(dplyr::desc(nodeCount)) %>%
-  utils::head(10) %>%
-  knitr::kable()
-```
-The result is a table listing each theme, its descriptive label (derived from the most frequent functions within the theme), and its size in terms of nodes and edges.
+# Step 3: Exploring and Querying
 
-# Step 4: Exploring and Querying the Map
+You can interact with the map data using standard accessors or the targeted `queryMap` tool.
 
-The `queryMap()` function provides a powerful way to programmatically explore the results.
-
-### 4.1 Querying for a Specific Protein
-
-Let's find all complexes that contain the protein "SMAD4".
+### 3.1 Targeted Querying
+Let's find complexes containing **"SMAD4"** (a central mediator of TGF-beta signaling).
 
 ```{r query-protein}
-# To ensure our example is robust, let's find a protein to query
-# that is guaranteed to be in our final, refined map.
-nodes <- ComplexMap::getNodeTable(complexMapObject)
-if (nrow(nodes) > 0) {
-  first_protein_list <- nodes$proteins
-  query_protein <- strsplit(first_protein_list, ",")[[1]][1]
-  
-  message("Dynamically querying for a protein found in the map: ", query_protein)
-  
-  protein_complexes <- ComplexMap::queryMap(
-    complexMapObject,
-    query = query_protein,
-    type = "protein"
-  )
-  
-  # Show the primary functional domain of the resulting complexes
-  protein_complexes %>%
-    dplyr::select(complexId, primaryFunctionalDomain, proteins) %>%
+# Search for protein members
+smad_complexes <- queryMap(cmap, query = "SMAD4", type = "protein")
+
+if (nrow(smad_complexes) > 0) {
+  smad_complexes %>%
+    select(complexId, primaryFunctionalDomain, proteinCount) %>%
     knitr::kable()
+} else {
+  message("SMAD4 not found in this subset.")
 }
 ```
 
-### 4.2 Querying for a Specific Complex
+### 3.2 Accessing Tables
+The node and edge tables are available as tibbles for custom downstream analysis (e.g., in `ggplot2`).
 
-We can also retrieve the data for a single complex of interest.
+```{r tables}
+nodes <- getNodeTable(cmap)
+edges <- getEdgeTable(cmap)
 
-```{r query-complex}
-if (nrow(nodes) > 0) {
-  # Query for the first node in the table
-  first_complex_id <- nodes$complexId[1]
-  
-  complex_data <- ComplexMap::queryMap(
-    complexMapObject,
-    query = first_complex_id,
-    type = "complex"
-  )
-  
-  dplyr::glimpse(complex_data)
-}
+# Example: Top 3 most central complexes by betweenness
+nodes %>%
+  select(complexId, primaryFunctionalDomain, betweenness) %>%
+  arrange(desc(betweenness)) %>%
+  head(3)
 ```
 
-# Step 5: Visualization
+# Step 4: Interactive Visualization
 
-Finally, we can visualize the entire functional landscape. `ComplexMap` provides three visualization functions that all work directly with the `ComplexMap` object.
+In `ComplexMap >= 2.0.0`, static R plots have been replaced by a powerful interactive engine based on **Cytoscape.js**. 
 
-First, we extract the final node and edge tables for plotting.
+To launch the explorer, simply call `explore()` on your object. This will open a Shiny application where you can:
 
-```{r extract-tables}
-mapLayout <- ComplexMap::getNodeTable(complexMapObject)
-networkEdges <- ComplexMap::getEdgeTable(complexMapObject)
+1.  **Zoom and Pan** through the physical landscape.
+
+2.  **Filter** by functional domain or protein count.
+
+3.  **Inspect** specific nodes to see their full protein list and enrichment scores.
+
+```r
+# Launch the interactive viewer
+explore(cmap)
 ```
 
+# Step 5: Exporting to External Tools
 
-### 5.1 Static Plot with a Legend
+If you prefer to perform advanced network analysis in **Cytoscape Desktop** or **Gephi**, use `exportNetwork`. It sanitizes complex R data types into strings and writes standard TSV or GraphML files.
 
-This version is useful for a clean overview, using a discrete color legend to represent the functional domains.
-
-```{r vis-legend, fig.width=12, fig.height=9, fig.alt="A network plot of protein complexes where node color corresponds to a functional domain listed in a legend."}
-if (nrow(mapLayout) > 0) {
-  ComplexMap::visualizeMapWithLegend(mapLayout, networkEdges)
-}
-```
-
-### 5.2 Interactive Plot
-
-For deep exploration, an interactive HTML widget is ideal. You can zoom, pan, and hover over nodes to see detailed tooltips.
-
-```{r vis-interactive}
-# visNetwork is required for this plot
-if (requireNamespace("visNetwork", quietly = TRUE) && nrow(mapLayout) > 0) {
-  ComplexMap::visualizeMapInteractive(mapLayout, networkEdges)
-}
+```{r export, eval=FALSE}
+# Export for Cytoscape Desktop
+exportNetwork(cmap, filePrefix = "my_complex_landscape", format = "cytoscape")
 ```
 
 # Conclusion
 
-By using the main `createComplexMap()` wrapper, a complete analysis can be run in a single step. The resulting object can then be easily interpreted, queried, and visualized, providing a user-friendly and powerful platform for exploring the landscape of protein complexes.
+The `ComplexMap` workflow transforms a raw list of protein identifications into a structured, functional landscape. By prioritizing physical composition and enforcing functional diversity, it ensures that your map reflects the true biological complexity of the proteome.

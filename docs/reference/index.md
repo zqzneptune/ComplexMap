@@ -14,8 +14,10 @@
   : Example Protein Complex List
 - [`evaluateComplexes()`](https://zqzneptune.github.io/ComplexMap/reference/evaluateComplexes.md)
   : Evaluate Predicted Protein Complexes Against a Reference Set
+- [`explore()`](https://zqzneptune.github.io/ComplexMap/reference/explore.md)
+  : Explore a ComplexMap Object Interactively
 - [`exportNetwork()`](https://zqzneptune.github.io/ComplexMap/reference/exportNetwork.md)
-  : Export a ComplexMap Network for External Tools (Cytoscape)
+  : Export a ComplexMap Network for External Tools
 - [`generateNodeAttributes()`](https://zqzneptune.github.io/ComplexMap/reference/generateNodeAttributes.md)
   : Generate Node Attributes for a Complex Network
 - [`getEdgeTable()`](https://zqzneptune.github.io/ComplexMap/reference/getEdgeTable.md)
@@ -34,6 +36,8 @@
   : Fetch Reactome Pathway Gene Sets
 - [`print(`*`<ComplexMap>`*`)`](https://zqzneptune.github.io/ComplexMap/reference/print.ComplexMap.md)
   : Print Method for a ComplexMap Object
+- [`pruneNetwork()`](https://zqzneptune.github.io/ComplexMap/reference/pruneNetwork.md)
+  : Prune Network Edges Before Cytoscape Export
 - [`qcComplexList()`](https://zqzneptune.github.io/ComplexMap/reference/qcComplexList.md)
   : Perform Quality Control on a List of Protein Complexes
 - [`queryMap()`](https://zqzneptune.github.io/ComplexMap/reference/queryMap.md)
@@ -44,11 +48,9 @@
   : Refine a List of Protein Complexes by Size and Redundancy
 - [`runComplexEnrichment()`](https://zqzneptune.github.io/ComplexMap/reference/runComplexEnrichment.md)
   : Run Gene Set Enrichment Analysis on a List of Complexes
-- [`summarizeThemes()`](https://zqzneptune.github.io/ComplexMap/reference/summarizeThemes.md)
-  : Summarize Major Biological Themes in a Complex Map
-- [`visualizeMapDirectLabels()`](https://zqzneptune.github.io/ComplexMap/reference/visualizeMapDirectLabels.md)
-  : Visualize a Complex Map with Direct Node Labels
-- [`visualizeMapInteractive()`](https://zqzneptune.github.io/ComplexMap/reference/visualizeMapInteractive.md)
-  : Visualize a Complex Map Interactively
-- [`visualizeMapWithLegend()`](https://zqzneptune.github.io/ComplexMap/reference/visualizeMapWithLegend.md)
-  : Visualize a Complex Map with a Color Legend
+- [`runComplexMapApp()`](https://zqzneptune.github.io/ComplexMap/reference/runComplexMapApp.md)
+  : Run the ComplexMap Interactive Explorer
+- [`scaleLayoutForCytoscape()`](https://zqzneptune.github.io/ComplexMap/reference/scaleLayoutForCytoscape.md)
+  : Scale Layout Coordinates for Cytoscape.js
+- [`toCytoscapeJSON()`](https://zqzneptune.github.io/ComplexMap/reference/toCytoscapeJSON.md)
+  : Export a ComplexMap Object to Cytoscape.js JSON

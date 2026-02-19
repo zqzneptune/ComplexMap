@@ -4,7 +4,7 @@
 \alias{computeMapTopology}
 \title{Compute Network Topology and Layout Coordinates}
 \usage{
-computeMapTopology(nodeAttributes, network, verbose = TRUE)
+computeMapTopology(nodeAttributes, network, seed = 123, verbose = TRUE)
 }
 \arguments{
 \item{nodeAttributes}{A `tibble` or `data.frame` containing attributes for
@@ -13,6 +13,8 @@ matches the source/target columns in the `network` data.}
 
 \item{network}{A `tibble` or `data.frame` representing the network edges.
 Must contain columns for source, target, and edge `weight`.}
+
+\item{seed}{Integer seed for reproducible layout. Defaults to `123`.}
 
 \item{verbose}{A logical value indicating whether to print progress messages.
 Defaults to `TRUE`.}
@@ -34,16 +36,16 @@ performs the following steps:
 1.  Constructs an `igraph` graph object from the provided data.
 
 2.  Computes a force-directed layout using the Fruchterman-Reingold algorithm
-    via `ggraph::create_layout`. Edge weights are used to influence the
+    via `igraph::layout_with_fr`. Edge weights are used to influence the
     layout, pulling strongly connected nodes closer together.
-    
+
 3.  Calculates node centrality metrics:
 
     - **Betweenness Centrality:** Measures how often a node lies on the
       shortest path between other nodes (normalized).
-      
+
     - **Degree Centrality:** The number of edges connected to a node.
-    
+
 4.  Merges the layout coordinates and centrality scores back into the original
     node attribute table.
 }

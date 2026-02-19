@@ -1,80 +1,70 @@
-# ComplexMap 1.1.2 - 2026-02-11
+# ComplexMap 2.0.0 (2026-02-19)
 
-*   **[createComplexMap]** Added ifRefineCpx parameter (default: FALSE).
+## Major Changes (Physical-First Architecture)
 
-    *   Logic Change: Step 1 (Complex Refinement) is now conditional. By default, the raw input list is processed without merging. Set ifRefineCpx = TRUE to enable the refinement/merging step.
+*   **[Core Logic]** Shifted to a **Physical-First** landscape philosophy. The network layout now defaults to `alpha = 0.75`, giving 75% weight to physical protein composition to preserve biological specificity and sub-complex architecture.
+*   **[Interactive Layer]** Replaced all static plotting functions (`visualizeMapDirectLabels`, `visualizeMapWithLegend`) with a high-performance interactive engine based on **Cytoscape.js** and **Shiny**.
+*   **[Visualization]** Added `explore()` and `runComplexMapApp()` to launch the interactive viewer.
+*   **[S3 Object]** Overhauled the `print.ComplexMap` method to provide a "Systems Biology Dashboard" highlighting Functional Diversity, Annotation Coverage, and Physical Density.
+*   **[Clustering]** Updated functional clustering in `generateNodeAttributes` to use **Average Linkage** and a dynamic scaling factor to force functional diversity and prevent "monochromatic" maps.
 
-    *   Logging: Updated verbose messages to explicitly state whether refinement is being executed or skipped.
+## Improvements
 
-
-*   **[generateNodeAttributes]** Enforced strict 1:1 mapping between Primary Function and Node Color.
-
-    *   **Logic Change:** Removed the weighted color blending logic (`.blendColorsLAB`).
-
-    *   **New Behavior:** A complex's color is now determined solely by the identity of its **Primary Functional Domain**. This ensures that all nodes labeled with the same primary function share the exact same hex color code, eliminating visual ambiguity caused by secondary functional variations.
-
-# ComplexMap 1.1.1 - 2025-12-02
-
-This is a maintenance and stability release that addresses several critical bugs, improves cross-platform compatibility, and streamlines the advanced analysis workflow.
-
-## Workflow Enhancements
-
-*   The `summarizeThemes()` function has been significantly improved for a more intuitive user experience. It now accepts an `add_to_object` argument (defaulting to `TRUE`) that adds theme information (`themeId`, `themeLabel`, `themePurity`) directly to the `ComplexMap` object's node table. This makes querying by theme using `queryMap(..., type = "theme")` seamless and removes the need for manual data merging.
-
-## Major Improvements
-
-*   **Cross-Platform Parallel Processing:** The `evaluateComplexes` function has been refactored to use the `future.apply` backend, replacing the Unix-specific `parallel::mclapply`. This ensures that parallel computation now works reliably on all operating systems, including Windows.
+*   **[Export]** Enhanced `toCytoscapeJSON` with coordinate scaling and edge pruning to optimize browser performance for large networks.
+*   **[Export]** `exportNetwork` now supports GraphML and sanitizes R-specific data types for Cytoscape Desktop compatibility.
+*   **[Documentation]** Fully documented missing arguments (`layout_seed`, `...`) and updated vignettes to reflect the v2.0 API.
 
 ## Bug Fixes
 
-*   Fixed a critical runtime error in `visualizeMapInteractive` that caused the function to fail when the `color.by` argument was not specified. The function now correctly generates tooltips in all use cases.
+*   **[Metrics]** Fixed a critical indexing error in `evaluateComplexes` where the Maximum Matching Ratio (MMR) would return `NA` when predicted and reference lists differed in size.
+*   **[CRAN]** Eliminated non-ASCII characters in `complexmap_S3.R` and `qcComplexList.R` to ensure cross-platform portability.
+*   **[Architecture]** Fixed a corrupt lazy-load database issue by ensuring consistent namespace exports.
 
-*   Resolved a package build failure caused by an incorrect function call in the main workflow vignette (`vignette_02-workflow.Rmd`). The package can now be built and checked successfully.
+---
 
-*   Corrected a dependency issue where `evaluateComplexes` would fail if the `clue` package was not installed. `clue` has been moved from `Suggests` to `Imports` to guarantee its availability for this core function.
-
-## Documentation
-
-*   Updated the `README.md` to accurately reflect that `"jaccard"` is the default `similarityMethod`, aligning the documentation with the package's diversity-first refinement strategy.
-
-*   The advanced analysis vignette (`vignette_03-advanced-analysis.Rmd`) has been updated to demonstrate the new, streamlined workflow for theme analysis using the refactored `summarizeThemes()` function.
-
-*   Synchronized versioning and dates across all documentation files (`DESCRIPTION`, `README.md`) for consistency.
-
-# ComplexMap 1.1.0 - 2025-11-15
+# ComplexMap 1.1.2 (2026-02-11)
 
 ## Added
-
-*   **Quantitative Data Visualization:** All three visualization functions (`visualizeMapDirectLabels`, `visualizeMapWithLegend`, `visualizeMapInteractive`) now support a `color.by` argument to map continuous experimental data directly onto node colors.
-
-*   **Robust Parameter Benchmarking:** Added a new `benchmarkParameters()` function to systematically test and optimize `mergeThreshold` values against a reference complex set.
-
-*   **New Similarity Metrics:** Added `dice` and `matching_score` similarity options to `refineComplexList` for more flexible complex merging.
-
-*   **New Vignette:** Added a comprehensive vignette (`04-quantitative-visualization.Rmd`) to demonstrate the new quantitative data workflow.
+*   **[createComplexMap]** Added `ifRefineCpx` parameter (default: `FALSE`). Step 1 (Complex Refinement) is now conditional, allowing users to process raw input lists without automatic merging.
 
 ## Changed
+*   **[generateNodeAttributes]** Enforced a strict 1:1 mapping between Primary Function and Node Color. Removed the weighted color blending logic to ensure visual consistency across the functional landscape.
+*   **[Logging]** Updated verbose messaging to explicitly state refinement status during the workflow.
 
-*   **New Default Metric:** The default `similarityMethod` in `refineComplexList` is now `"matching_score"` to better align refinement logic with the standard MMR evaluation metric.
+---
 
-*   **Enhanced Traceability:** `refineComplexList` now returns a `mergeMap` tibble, providing a clear and reproducible map from original to merged complex IDs.
+# ComplexMap 1.1.1 (2025-12-02)
 
-*   **Improved QC Report:** Overhauled the output of `qcComplexList` to be a user-friendly, formatted report with clear warnings and visual cues, rather than raw R output.
+## Major Improvements
+*   **[Parallelism]** Refactored `evaluateComplexes` to use `future.apply` instead of `parallel::mclapply`, enabling reliable multi-core computation on Windows.
+*   **[Workflow]** Improved `summarizeThemes()` to accept `add_to_object = TRUE`, allowing theme metadata to be stored directly within the S3 object.
 
-*   **Metric Renaming:** Renamed the `"overlap"` similarity metric to `"simpson"` for clarity and correctness.
+## Bug Fixes
+*   **[Dependencies]** Moved `clue` from `Suggests` to `Imports` to ensure the Hungarian algorithm is always available for MMR calculation.
+*   **[UI]** Fixed a runtime error in the interactive viewer when the `color.by` argument was null.
+*   **[Vignettes]** Resolved build failures in `vignette_02-workflow.Rmd` caused by incorrect internal function calls.
 
-## Fixed
+---
 
-*   Resolved `R CMD check` errors in vignettes caused by excessive parallel core usage in examples (`nCores` is now limited).
+# ComplexMap 1.1.0 (2025-11-15)
 
-*   Fixed data type mismatches in vignettes that occurred when joining `igraph` membership objects with `dplyr` tibbles.
+## Added
+*   **[Benchmarking]** Introduced `benchmarkParameters()` to systematically optimize `mergeThreshold` values against reference complexes.
+*   **[Metrics]** Added `dice` and `matching_score` similarity options to `refineComplexList`.
+*   **[Quantitative]** Added support for a `color.by` argument in visualization functions to map continuous experimental data to node colors.
 
-# ComplexMap 1.0.0
+## Changed
+*   **[Defaults]** Updated the default `similarityMethod` in `refineComplexList` to `"matching_score"`.
+*   **[Traceability]** `refineComplexList` now returns a `mergeMap` tibble for reproducibility.
+*   **[QC]** Overhauled `qcComplexList` output to provide a formatted diagnostic report instead of raw R output.
+*   **[Terminology]** Renamed the `"overlap"` similarity metric to `"simpson"` for scientific accuracy.
 
-* Initial stable release.
-* Complete refactoring of the codebase to adhere to Bioconductor standards.
-* Introduction of the `ComplexMap` S3 object for a structured workflow.
-* Added high-level wrapper `createComplexMap()` for end-to-end analysis.
-* Added new functions for analysis and exploration: `summarizeThemes()`, `queryMap()`, and `exportNetwork()`.
-* Added three comprehensive vignettes.
-* Numerous bug fixes and improvements to robustness.
+---
+
+# ComplexMap 1.0.0 (2025-10-10)
+
+*   **Initial stable release.**
+*   Introduced the `ComplexMap` S3 object for structured proteomics workflows.
+*   Added the high-level `createComplexMap()` wrapper.
+*   Implemented core analysis suite: `summarizeThemes()`, `queryMap()`, and `exportNetwork()`.
+*   Released comprehensive documentation and three introductory vignettes.

@@ -7,7 +7,7 @@ network data for visualization.
 ## Usage
 
 ``` r
-computeMapTopology(nodeAttributes, network, verbose = TRUE)
+computeMapTopology(nodeAttributes, network, seed = 123, verbose = TRUE)
 ```
 
 ## Arguments
@@ -22,6 +22,10 @@ computeMapTopology(nodeAttributes, network, verbose = TRUE)
 
   A \`tibble\` or \`data.frame\` representing the network edges. Must
   contain columns for source, target, and edge \`weight\`.
+
+- seed:
+
+  Integer seed for reproducible layout. Defaults to \`123\`.
 
 - verbose:
 
@@ -43,7 +47,7 @@ and performs the following steps:
 1\. Constructs an \`igraph\` graph object from the provided data.
 
 2\. Computes a force-directed layout using the Fruchterman-Reingold
-algorithm via \`ggraph::create_layout\`. Edge weights are used to
+algorithm via \`igraph::layout_with_fr\`. Edge weights are used to
 influence the layout, pulling strongly connected nodes closer together.
 
 3\. Calculates node centrality metrics:
@@ -89,7 +93,7 @@ print(masterLayout)
 #> # A tibble: 3 × 6
 #>   complexId proteinCount      x     y betweenness degree
 #>   <chr>            <dbl>  <dbl> <dbl>       <dbl>  <dbl>
-#> 1 Cpx2                 8 -0.181 1.27            1      2
-#> 2 Cpx1                10  0.971 1.69            0      1
-#> 3 Cpx3                12 -1.47  0.805           0      1
+#> 1 Cpx2                 8 1.05    4.15           1      2
+#> 2 Cpx1                10 0.0791  3.41           0      1
+#> 3 Cpx3                12 2.14    4.97           0      1
 ```

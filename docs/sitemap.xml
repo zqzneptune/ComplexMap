@@ -1,15 +1,9 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://zqzneptune.github.io/ComplexMap/404.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/LICENSE-text.html</loc></url>
-<url><loc>https://zqzneptune.github.io/ComplexMap/LICENSE.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/articles/index.html</loc></url>
-<url><loc>https://zqzneptune.github.io/ComplexMap/articles/vignette_00-perp-input.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/articles/vignette_01-prep-input.html</loc></url>
-<url><loc>https://zqzneptune.github.io/ComplexMap/articles/vignette_01-workflow.html</loc></url>
-<url><loc>https://zqzneptune.github.io/ComplexMap/articles/vignette_02-advanced-analysis.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/articles/vignette_02-workflow.html</loc></url>
-<url><loc>https://zqzneptune.github.io/ComplexMap/articles/vignette_03-advanced-analysis.html</loc></url>
-<url><loc>https://zqzneptune.github.io/ComplexMap/articles/vignette_04-quantitative-visualization.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/authors.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/index.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/news/index.html</loc></url>
@@ -18,13 +12,9 @@
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/computeMapTopology.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/createComplexMap.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/demoComplexes.html</loc></url>
-<url><loc>https://zqzneptune.github.io/ComplexMap/reference/dot-apply_color_mapping.html</loc></url>
-<url><loc>https://zqzneptune.github.io/ComplexMap/reference/dot-apply_theme.html</loc></url>
-<url><loc>https://zqzneptune.github.io/ComplexMap/reference/dot-build_base_graph.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/dot-calculateSimilarity.html</loc></url>
-<url><loc>https://zqzneptune.github.io/ComplexMap/reference/dot-create_label_data.html</loc></url>
-<url><loc>https://zqzneptune.github.io/ComplexMap/reference/dot-create_tooltip.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/evaluateComplexes.html</loc></url>
+<url><loc>https://zqzneptune.github.io/ComplexMap/reference/explore.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/exportNetwork.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/generateNodeAttributes.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/getEdgeTable.html</loc></url>
@@ -37,14 +27,15 @@
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/index.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/pipe.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/print.ComplexMap.html</loc></url>
+<url><loc>https://zqzneptune.github.io/ComplexMap/reference/pruneNetwork.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/qcComplexList.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/queryMap.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/referenceComplexes.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/refineComplexList.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/runComplexEnrichment.html</loc></url>
+<url><loc>https://zqzneptune.github.io/ComplexMap/reference/runComplexMapApp.html</loc></url>
+<url><loc>https://zqzneptune.github.io/ComplexMap/reference/scaleLayoutForCytoscape.html</loc></url>
 <url><loc>https://zqzneptune.github.io/ComplexMap/reference/summarizeThemes.html</loc></url>
-<url><loc>https://zqzneptune.github.io/ComplexMap/reference/visualizeMapDirectLabels.html</loc></url>
-<url><loc>https://zqzneptune.github.io/ComplexMap/reference/visualizeMapInteractive.html</loc></url>
-<url><loc>https://zqzneptune.github.io/ComplexMap/reference/visualizeMapWithLegend.html</loc></url>
+<url><loc>https://zqzneptune.github.io/ComplexMap/reference/toCytoscapeJSON.html</loc></url>
 </urlset>
 

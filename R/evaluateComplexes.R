@@ -150,6 +150,8 @@ evaluateComplexes <- function(predictedComplexes, referenceComplexes,
   # Vectorized calculation of the overlap matrix
   overlapMatrix <- (intersectionMatrix^2) / outer(predSizes, refSizes)
   overlapMatrix[is.nan(overlapMatrix)] <- 0
+  # Ensure no infinite values (e.g. division by zero)
+  overlapMatrix[!is.finite(overlapMatrix)] <- 0
   
   # Pad the smaller dimension with zeros for the solver
   maxDim <- max(numPredicted, numReference)
@@ -160,14 +162,22 @@ evaluateComplexes <- function(predictedComplexes, referenceComplexes,
   }
   
   # Solve maximum weighted bipartite matching
-  assignment <- clue::solve_LSAP(overlapMatrix, maximum=TRUE)
+  # Convert assignment to standard integer vector to avoid S3 class issues
+  assignment <- as.integer(clue::solve_LSAP(overlapMatrix, maximum = TRUE))
   
-  # Vectorized calculation of total weight for valid assignments
-  validRows <- seq_len(numPredicted)[assignment <= numReference]
-  matchedPairs <- cbind(validRows, assignment[validRows])
-  totalWeight <- sum(overlapMatrix[matchedPairs])
+  # --- FIXED INDEXING LOGIC ---
+  # We only care about the rows corresponding to our actual predicted complexes
+  rowIdx <- seq_len(numPredicted)
+  colIdx <- assignment[rowIdx]
+  
+  # Filter for assignments that match an actual reference complex (not a padded column)
+  is_valid_match <- colIdx <= numReference
+  
+  # Extract and sum weights using a matrix index
+  totalWeight <- sum(overlapMatrix[cbind(rowIdx[is_valid_match], colIdx[is_valid_match])])
   
   MMR <- totalWeight / numReference
+  # ----------------------------
   
   if (verbose) message("\n--- Evaluation Complete ---\n")
   

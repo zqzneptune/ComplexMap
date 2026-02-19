@@ -1,4 +1,4 @@
-# Export a ComplexMap Network for External Tools (Cytoscape)
+# Export a ComplexMap Network for External Tools
 
 Exports the \`ComplexMap\` nodes and edges to compatible file formats,
 preserving systems biology attributes like Specificity Scores and
@@ -27,7 +27,10 @@ exportNetwork(
 
 - format:
 
-  Output format. Currently supports "cytoscape" (TSV).
+  Output format. One of: - \`"cytoscape"\`: Writes separate node and
+  edge TSV files for Cytoscape Desktop. - \`"graphml"\`: Writes a
+  GraphML file (via \`igraph\`). - \`"tsv"\`: Writes a single
+  node-attribute TSV file.
 
 - verbose:
 
@@ -40,10 +43,10 @@ None (Writes files to disk).
 ## Details
 
 \*\*Systems Biology Rationale:\*\* To verify the landscape in external
-tools (e.g., Cytoscape), this function ensures that the specific
+tools (e.g., Cytoscape Desktop), this function ensures that the specific
 calculated attributes are correctly formatted:
 
-\- \*\*\`score\`\*\*: The Specificity Score (Size/Color mapping). -
+\- \*\*\`score\`\*\*: The Specificity Score. -
 \*\*\`primaryFunctionalDomain\`\*\*: The Specific Label. -
 \*\*\`colorHex\`\*\*: The calculated blended color.
 

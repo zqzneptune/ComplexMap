@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ComplexMap</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -20,8 +20,6 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/vignette_01-prep-input.html">1. Preparing Your Input Data</a></li>
     <li><a class="dropdown-item" href="../articles/vignette_02-workflow.html">2. Start a Typical Workflow</a></li>
-    <li><a class="dropdown-item" href="../articles/vignette_03-advanced-analysis.html">3. Advanced Analysis and Visualization</a></li>
-    <li><a class="dropdown-item" href="../articles/vignette_04-quantitative-visualization.html">4. Visualizing Quantitative Data</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://zqzneptune.github.io" aria-label="Home page"><span class="fa fa-home"></span></a></li>
@@ -39,74 +37,103 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.2" id="complexmap-112---2026-02-11">ComplexMap 1.1.2 - 2026-02-11<a class="anchor" aria-label="anchor" href="#complexmap-112---2026-02-11"></a></h2>
-<ul><li>
-<p><strong>[createComplexMap]</strong> Added ifRefineCpx parameter (default: FALSE).</p>
-<ul><li><p>Logic Change: Step 1 (Complex Refinement) is now conditional. By default, the raw input list is processed without merging. Set ifRefineCpx = TRUE to enable the refinement/merging step.</p></li>
-<li><p>Logging: Updated verbose messages to explicitly state whether refinement is being executed or skipped.</p></li>
-</ul></li>
-<li>
-<p><strong>[generateNodeAttributes]</strong> Enforced strict 1:1 mapping between Primary Function and Node Color.</p>
-<ul><li><p><strong>Logic Change:</strong> Removed the weighted color blending logic (<code>.blendColorsLAB</code>).</p></li>
-<li><p><strong>New Behavior:</strong> A complex’s color is now determined solely by the identity of its <strong>Primary Functional Domain</strong>. This ensures that all nodes labeled with the same primary function share the exact same hex color code, eliminating visual ambiguity caused by secondary functional variations.</p></li>
-</ul></li>
-</ul></div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.1" id="complexmap-111---2025-12-02">ComplexMap 1.1.1 - 2025-12-02<a class="anchor" aria-label="anchor" href="#complexmap-111---2025-12-02"></a></h2>
-<p>This is a maintenance and stability release that addresses several critical bugs, improves cross-platform compatibility, and streamlines the advanced analysis workflow.</p>
+<h2 class="pkg-version" data-toc-text="2.0.0" id="complexmap-200-2026-02-19">ComplexMap 2.0.0 (2026-02-19)<a class="anchor" aria-label="anchor" href="#complexmap-200-2026-02-19"></a></h2>
 <div class="section level3">
-<h3 id="workflow-enhancements-1-1-1">Workflow Enhancements<a class="anchor" aria-label="anchor" href="#workflow-enhancements-1-1-1"></a></h3>
-<ul><li>The <code><a href="../reference/summarizeThemes.html">summarizeThemes()</a></code> function has been significantly improved for a more intuitive user experience. It now accepts an <code>add_to_object</code> argument (defaulting to <code>TRUE</code>) that adds theme information (<code>themeId</code>, <code>themeLabel</code>, <code>themePurity</code>) directly to the <code>ComplexMap</code> object’s node table. This makes querying by theme using <code>queryMap(..., type = "theme")</code> seamless and removes the need for manual data merging.</li>
+<h3 id="major-changes-physical-first-architecture-2-0-0">Major Changes (Physical-First Architecture)<a class="anchor" aria-label="anchor" href="#major-changes-physical-first-architecture-2-0-0"></a></h3>
+<ul><li>
+<strong>[Core Logic]</strong> Shifted to a <strong>Physical-First</strong> landscape philosophy. The network layout now defaults to <code>alpha = 0.75</code>, giving 75% weight to physical protein composition to preserve biological specificity and sub-complex architecture.</li>
+<li>
+<strong>[Interactive Layer]</strong> Replaced all static plotting functions (<code>visualizeMapDirectLabels</code>, <code>visualizeMapWithLegend</code>) with a high-performance interactive engine based on <strong>Cytoscape.js</strong> and <strong>Shiny</strong>.</li>
+<li>
+<strong>[Visualization]</strong> Added <code><a href="../reference/explore.html">explore()</a></code> and <code><a href="../reference/runComplexMapApp.html">runComplexMapApp()</a></code> to launch the interactive viewer.</li>
+<li>
+<strong>[S3 Object]</strong> Overhauled the <code>print.ComplexMap</code> method to provide a “Systems Biology Dashboard” highlighting Functional Diversity, Annotation Coverage, and Physical Density.</li>
+<li>
+<strong>[Clustering]</strong> Updated functional clustering in <code>generateNodeAttributes</code> to use <strong>Average Linkage</strong> and a dynamic scaling factor to force functional diversity and prevent “monochromatic” maps.</li>
 </ul></div>
+<div class="section level3">
+<h3 id="improvements-2-0-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-0-0"></a></h3>
+<ul><li>
+<strong>[Export]</strong> Enhanced <code>toCytoscapeJSON</code> with coordinate scaling and edge pruning to optimize browser performance for large networks.</li>
+<li>
+<strong>[Export]</strong> <code>exportNetwork</code> now supports GraphML and sanitizes R-specific data types for Cytoscape Desktop compatibility.</li>
+<li>
+<strong>[Documentation]</strong> Fully documented missing arguments (<code>layout_seed</code>, <code>...</code>) and updated vignettes to reflect the v2.0 API.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-2-0-0">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-0-0"></a></h3>
+<ul><li>
+<strong>[Metrics]</strong> Fixed a critical indexing error in <code>evaluateComplexes</code> where the Maximum Matching Ratio (MMR) would return <code>NA</code> when predicted and reference lists differed in size.</li>
+<li>
+<strong>[CRAN]</strong> Eliminated non-ASCII characters in <code>complexmap_S3.R</code> and <code>qcComplexList.R</code> to ensure cross-platform portability.</li>
+<li>
+<strong>[Architecture]</strong> Fixed a corrupt lazy-load database issue by ensuring consistent namespace exports.</li>
+</ul><hr></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.2" id="complexmap-112-2026-02-11">ComplexMap 1.1.2 (2026-02-11)<a class="anchor" aria-label="anchor" href="#complexmap-112-2026-02-11"></a></h2>
+<div class="section level3">
+<h3 id="added-1-1-2">Added<a class="anchor" aria-label="anchor" href="#added-1-1-2"></a></h3>
+<ul><li>
+<strong>[createComplexMap]</strong> Added <code>ifRefineCpx</code> parameter (default: <code>FALSE</code>). Step 1 (Complex Refinement) is now conditional, allowing users to process raw input lists without automatic merging.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="changed-1-1-2">Changed<a class="anchor" aria-label="anchor" href="#changed-1-1-2"></a></h3>
+<ul><li>
+<strong>[generateNodeAttributes]</strong> Enforced a strict 1:1 mapping between Primary Function and Node Color. Removed the weighted color blending logic to ensure visual consistency across the functional landscape.</li>
+<li>
+<strong>[Logging]</strong> Updated verbose messaging to explicitly state refinement status during the workflow.</li>
+</ul><hr></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.1" id="complexmap-111-2025-12-02">ComplexMap 1.1.1 (2025-12-02)<a class="anchor" aria-label="anchor" href="#complexmap-111-2025-12-02"></a></h2>
 <div class="section level3">
 <h3 id="major-improvements-1-1-1">Major Improvements<a class="anchor" aria-label="anchor" href="#major-improvements-1-1-1"></a></h3>
 <ul><li>
-<strong>Cross-Platform Parallel Processing:</strong> The <code>evaluateComplexes</code> function has been refactored to use the <code>future.apply</code> backend, replacing the Unix-specific <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply</a></code>. This ensures that parallel computation now works reliably on all operating systems, including Windows.</li>
+<strong>[Parallelism]</strong> Refactored <code>evaluateComplexes</code> to use <code>future.apply</code> instead of <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply</a></code>, enabling reliable multi-core computation on Windows.</li>
+<li>
+<strong>[Workflow]</strong> Improved <code>summarizeThemes()</code> to accept <code>add_to_object = TRUE</code>, allowing theme metadata to be stored directly within the S3 object.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-1-1-1">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-1"></a></h3>
-<ul><li><p>Fixed a critical runtime error in <code>visualizeMapInteractive</code> that caused the function to fail when the <code>color.by</code> argument was not specified. The function now correctly generates tooltips in all use cases.</p></li>
-<li><p>Resolved a package build failure caused by an incorrect function call in the main workflow vignette (<code>vignette_02-workflow.Rmd</code>). The package can now be built and checked successfully.</p></li>
-<li><p>Corrected a dependency issue where <code>evaluateComplexes</code> would fail if the <code>clue</code> package was not installed. <code>clue</code> has been moved from <code>Suggests</code> to <code>Imports</code> to guarantee its availability for this core function.</p></li>
-</ul></div>
-<div class="section level3">
-<h3 id="documentation-1-1-1">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-1-1"></a></h3>
-<ul><li><p>Updated the <code>README.md</code> to accurately reflect that <code>"jaccard"</code> is the default <code>similarityMethod</code>, aligning the documentation with the package’s diversity-first refinement strategy.</p></li>
-<li><p>The advanced analysis vignette (<code>vignette_03-advanced-analysis.Rmd</code>) has been updated to demonstrate the new, streamlined workflow for theme analysis using the refactored <code><a href="../reference/summarizeThemes.html">summarizeThemes()</a></code> function.</p></li>
-<li><p>Synchronized versioning and dates across all documentation files (<code>DESCRIPTION</code>, <code>README.md</code>) for consistency.</p></li>
-</ul></div>
+<ul><li>
+<strong>[Dependencies]</strong> Moved <code>clue</code> from <code>Suggests</code> to <code>Imports</code> to ensure the Hungarian algorithm is always available for MMR calculation.</li>
+<li>
+<strong>[UI]</strong> Fixed a runtime error in the interactive viewer when the <code>color.by</code> argument was null.</li>
+<li>
+<strong>[Vignettes]</strong> Resolved build failures in <code>vignette_02-workflow.Rmd</code> caused by incorrect internal function calls.</li>
+</ul><hr></div>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.0" id="complexmap-110---2025-11-15">ComplexMap 1.1.0 - 2025-11-15<a class="anchor" aria-label="anchor" href="#complexmap-110---2025-11-15"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.1.0" id="complexmap-110-2025-11-15">ComplexMap 1.1.0 (2025-11-15)<a class="anchor" aria-label="anchor" href="#complexmap-110-2025-11-15"></a></h2>
 <div class="section level3">
 <h3 id="added-1-1-0">Added<a class="anchor" aria-label="anchor" href="#added-1-1-0"></a></h3>
-<ul><li><p><strong>Quantitative Data Visualization:</strong> All three visualization functions (<code>visualizeMapDirectLabels</code>, <code>visualizeMapWithLegend</code>, <code>visualizeMapInteractive</code>) now support a <code>color.by</code> argument to map continuous experimental data directly onto node colors.</p></li>
-<li><p><strong>Robust Parameter Benchmarking:</strong> Added a new <code><a href="../reference/benchmarkParameters.html">benchmarkParameters()</a></code> function to systematically test and optimize <code>mergeThreshold</code> values against a reference complex set.</p></li>
-<li><p><strong>New Similarity Metrics:</strong> Added <code>dice</code> and <code>matching_score</code> similarity options to <code>refineComplexList</code> for more flexible complex merging.</p></li>
-<li><p><strong>New Vignette:</strong> Added a comprehensive vignette (<code>04-quantitative-visualization.Rmd</code>) to demonstrate the new quantitative data workflow.</p></li>
+<ul><li>
+<strong>[Benchmarking]</strong> Introduced <code><a href="../reference/benchmarkParameters.html">benchmarkParameters()</a></code> to systematically optimize <code>mergeThreshold</code> values against reference complexes.</li>
+<li>
+<strong>[Metrics]</strong> Added <code>dice</code> and <code>matching_score</code> similarity options to <code>refineComplexList</code>.</li>
+<li>
+<strong>[Quantitative]</strong> Added support for a <code>color.by</code> argument in visualization functions to map continuous experimental data to node colors.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="changed-1-1-0">Changed<a class="anchor" aria-label="anchor" href="#changed-1-1-0"></a></h3>
-<ul><li><p><strong>New Default Metric:</strong> The default <code>similarityMethod</code> in <code>refineComplexList</code> is now <code>"matching_score"</code> to better align refinement logic with the standard MMR evaluation metric.</p></li>
-<li><p><strong>Enhanced Traceability:</strong> <code>refineComplexList</code> now returns a <code>mergeMap</code> tibble, providing a clear and reproducible map from original to merged complex IDs.</p></li>
-<li><p><strong>Improved QC Report:</strong> Overhauled the output of <code>qcComplexList</code> to be a user-friendly, formatted report with clear warnings and visual cues, rather than raw R output.</p></li>
-<li><p><strong>Metric Renaming:</strong> Renamed the <code>"overlap"</code> similarity metric to <code>"simpson"</code> for clarity and correctness.</p></li>
-</ul></div>
-<div class="section level3">
-<h3 id="fixed-1-1-0">Fixed<a class="anchor" aria-label="anchor" href="#fixed-1-1-0"></a></h3>
-<ul><li><p>Resolved <code>R CMD check</code> errors in vignettes caused by excessive parallel core usage in examples (<code>nCores</code> is now limited).</p></li>
-<li><p>Fixed data type mismatches in vignettes that occurred when joining <code>igraph</code> membership objects with <code>dplyr</code> tibbles.</p></li>
-</ul></div>
+<ul><li>
+<strong>[Defaults]</strong> Updated the default <code>similarityMethod</code> in <code>refineComplexList</code> to <code>"matching_score"</code>.</li>
+<li>
+<strong>[Traceability]</strong> <code>refineComplexList</code> now returns a <code>mergeMap</code> tibble for reproducibility.</li>
+<li>
+<strong>[QC]</strong> Overhauled <code>qcComplexList</code> output to provide a formatted diagnostic report instead of raw R output.</li>
+<li>
+<strong>[Terminology]</strong> Renamed the <code>"overlap"</code> similarity metric to <code>"simpson"</code> for scientific accuracy.</li>
+</ul><hr></div>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.0" id="complexmap-100">ComplexMap 1.0.0<a class="anchor" aria-label="anchor" href="#complexmap-100"></a></h2>
-<ul><li>Initial stable release.</li>
-<li>Complete refactoring of the codebase to adhere to Bioconductor standards.</li>
-<li>Introduction of the <code>ComplexMap</code> S3 object for a structured workflow.</li>
-<li>Added high-level wrapper <code><a href="../reference/createComplexMap.html">createComplexMap()</a></code> for end-to-end analysis.</li>
-<li>Added new functions for analysis and exploration: <code><a href="../reference/summarizeThemes.html">summarizeThemes()</a></code>, <code><a href="../reference/queryMap.html">queryMap()</a></code>, and <code><a href="../reference/exportNetwork.html">exportNetwork()</a></code>.</li>
-<li>Added three comprehensive vignettes.</li>
-<li>Numerous bug fixes and improvements to robustness.</li>
+<h2 class="pkg-version" data-toc-text="1.0.0" id="complexmap-100-2025-10-10">ComplexMap 1.0.0 (2025-10-10)<a class="anchor" aria-label="anchor" href="#complexmap-100-2025-10-10"></a></h2>
+<ul><li><strong>Initial stable release.</strong></li>
+<li>Introduced the <code>ComplexMap</code> S3 object for structured proteomics workflows.</li>
+<li>Added the high-level <code><a href="../reference/createComplexMap.html">createComplexMap()</a></code> wrapper.</li>
+<li>Implemented core analysis suite: <code>summarizeThemes()</code>, <code><a href="../reference/queryMap.html">queryMap()</a></code>, and <code><a href="../reference/exportNetwork.html">exportNetwork()</a></code>.</li>
+<li>Released comprehensive documentation and three introductory vignettes.</li>
 </ul></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
@@ -117,7 +144,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.9000.</p>
 </div>
 
     </footer></div>

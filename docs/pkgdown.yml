@@ -1,12 +1,10 @@
-pandoc: 3.6.3
-pkgdown: 2.2.0
-pkgdown_sha: ~
+pandoc: 3.8.3
+pkgdown: 2.2.0.9000
+pkgdown_sha: f3ec6e2bb122e10436eccda7b221e297ab9d395a
 articles:
   vignette_01-prep-input: vignette_01-prep-input.html
   vignette_02-workflow: vignette_02-workflow.html
-  vignette_03-advanced-analysis: vignette_03-advanced-analysis.html
-  vignette_04-quantitative-visualization: vignette_04-quantitative-visualization.html
-last_built: 2026-02-12T04:09Z
+last_built: 2026-02-19T14:40Z
 urls:
   reference: https://zqzneptune.github.io/ComplexMap/reference
   article: https://zqzneptune.github.io/ComplexMap/articles

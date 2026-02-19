@@ -11,13 +11,13 @@ Source:
 [`DESCRIPTION`](https://github.com/zqzneptune/ComplexMap/blob/HEAD/DESCRIPTION)
 
 Zhang Q (2026). *ComplexMap: A Toolset for the Functional Analysis and
-Visualization of Protein Complex Data*. R package version 1.1.2,
-<https://zqzneptune.github.io/ComplexMap>.
+Interactive Visualization of Protein Complex Data*. R package version
+2.0.0, <https://zqzneptune.github.io/ComplexMap>.
 
     @Manual{,
-      title = {ComplexMap: A Toolset for the Functional Analysis and Visualization of Protein Complex Data},
+      title = {ComplexMap: A Toolset for the Functional Analysis and Interactive Visualization of Protein Complex Data},
       author = {Qingzhou Zhang},
       year = {2026},
-      note = {R package version 1.1.2},
+      note = {R package version 2.0.0},
       url = {https://zqzneptune.github.io/ComplexMap},
     }

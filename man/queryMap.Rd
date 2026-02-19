@@ -11,17 +11,15 @@ queryMap(complexMapObject, query, type)
 
 \item{query}{Search string.}
 
-\item{type}{"protein", "complex", or "theme".}
+\item{type}{"protein" or "complex".}
 }
 \value{
 A tibble of matching nodes.
 }
 \description{
-Targeted querying of complexes, proteins, or themes.
+Targeted querying of complexes or proteins.
 }
 \details{
 - `type="protein"`: Regex search for protein members.
 - `type="complex"`: Exact match for Complex ID.
-- `type="theme"`: Exact match for Theme Label. Requires `summarizeThemes()`
-  to be run on the object first with `add_to_object = TRUE`.
 }

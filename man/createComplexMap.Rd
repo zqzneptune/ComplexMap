@@ -10,6 +10,7 @@ createComplexMap(
   similarityMethod = "jaccard",
   alpha = 0.75,
   ifRefineCpx = FALSE,
+  layout_seed = 123,
   verbose = TRUE,
   ...
 )
@@ -31,6 +32,8 @@ versus functional similarity in the network layout. Defaults to **0.75**
 \item{ifRefineCpx}{Logical. If **TRUE**, executes Step 1 to refine the input
 complex list (merge redundant complexes). If **FALSE**, Step 1 is skipped,
 and the raw `complexList` is used for downstream analysis. Defaults to **FALSE**.}
+
+\item{layout_seed}{Integer seed for reproducible layout. Defaults to 123.}
 
 \item{verbose}{A logical value indicating whether to print progress messages.}
 

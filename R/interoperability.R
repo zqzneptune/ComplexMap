@@ -1,4 +1,4 @@
-#' Export a ComplexMap Network for External Tools (Cytoscape)
+#' Export a ComplexMap Network for External Tools
 #'
 #' @description
 #' Exports the `ComplexMap` nodes and edges to compatible file formats, preserving
@@ -6,19 +6,22 @@
 #'
 #' @details
 #' **Systems Biology Rationale:**
-#' To verify the landscape in external tools (e.g., Cytoscape), this function
+#' To verify the landscape in external tools (e.g., Cytoscape Desktop), this function
 #' ensures that the specific calculated attributes are correctly formatted:
-#' 
-#' - **`score`**: The Specificity Score (Size/Color mapping).
+#'
+#' - **`score`**: The Specificity Score.
 #' - **`primaryFunctionalDomain`**: The Specific Label.
 #' - **`colorHex`**: The calculated blended color.
-#' 
+#'
 #' It performs a "Sanitization" step to convert any R-specific list columns
 #' into semi-colon separated strings and fills `NA` values to ensure safe import.
 #'
 #' @param complexMapObject A `ComplexMap` object.
 #' @param filePrefix Character string for output filenames (e.g., "results/my_map").
-#' @param format Output format. Currently supports "cytoscape" (TSV).
+#' @param format Output format. One of:
+#'   - `"cytoscape"`: Writes separate node and edge TSV files for Cytoscape Desktop.
+#'   - `"graphml"`: Writes a GraphML file (via `igraph`).
+#'   - `"tsv"`: Writes a single node-attribute TSV file.
 #' @param verbose Logical.
 #'
 #' @return None (Writes files to disk).
@@ -62,28 +65,39 @@ exportNetwork <- function(complexMapObject, filePrefix, format = "cytoscape",
   if (format == "cytoscape") {
     nodeFile <- paste0(filePrefix, "_nodes.tsv")
     edgeFile <- paste0(filePrefix, "_edges.tsv")
-    
+
     if (verbose) {
-      message("Exporting to Cytoscape format...")
+      message("Exporting to Cytoscape format (node + edge TSV)...")
       message(sprintf(" -> Nodes: %s (%d records)", nodeFile, nrow(nodes_clean)))
-      
-      # Verify Key Attributes
-      if ("score" %in% names(nodes_clean)) {
-        message("    \u2713 Specificity Scores included (map this to Node Size/Color)")
-      }
-      if ("colorHex" %in% names(nodes_clean)) {
-        message("    \u2713 Blended Colors included (map this to Node Fill Color)")
-      }
-      
       message(sprintf(" -> Edges: %s (%d records)", edgeFile, nrow(edges_clean)))
     }
-    
+
     utils::write.table(nodes_clean, file = nodeFile, sep = "\t", row.names = FALSE, quote = FALSE)
     utils::write.table(edges_clean, file = edgeFile, sep = "\t", row.names = FALSE, quote = FALSE)
-    
+
+  } else if (format == "graphml") {
+    outFile <- paste0(filePrefix, ".graphml")
+
+    if (verbose) message(sprintf("Exporting to GraphML: %s", outFile))
+
+    graphObj <- igraph::graph_from_data_frame(
+      d = edges_clean[
+        c("source_complex_id", "target_complex_id",
+          setdiff(names(edges_clean), c("source_complex_id", "target_complex_id")))],
+      vertices = nodes_clean,
+      directed = FALSE
+    )
+    igraph::write_graph(graphObj, file = outFile, format = "graphml")
+
+  } else if (format == "tsv") {
+    nodeFile <- paste0(filePrefix, "_nodes.tsv")
+
+    if (verbose) message(sprintf("Exporting node TSV: %s (%d records)", nodeFile, nrow(nodes_clean)))
+    utils::write.table(nodes_clean, file = nodeFile, sep = "\t", row.names = FALSE, quote = FALSE)
+
   } else {
-    stop(sprintf("Unsupported format '%s'. Use 'cytoscape'.", format))
+    stop(sprintf("Unsupported format '%s'. Use 'cytoscape', 'graphml', or 'tsv'.", format))
   }
-  
+
   if (verbose) message("Export complete.")
 }

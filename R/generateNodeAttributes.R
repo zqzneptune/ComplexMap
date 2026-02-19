@@ -56,8 +56,7 @@ generateNodeAttributes <- function(complexes, enrichments,
       proteins = proteinStr,
       primaryFunctionalDomain = "Unenriched",
       topEnrichedFunctions = NA_character_,
-      colorHex = "#CCCCCC",
-      sizeMapping = log2(pmax(1, lengths(complexes)))
+      colorHex = "#CCCCCC"
     ))
   }
   
@@ -151,8 +150,7 @@ generateNodeAttributes <- function(complexes, enrichments,
     dplyr::mutate(
       primaryFunctionalDomain = dplyr::coalesce(primaryFunctionalDomain, "Unenriched"),
       topEnrichedFunctions = dplyr::coalesce(topEnrichedFunctions, NA_character_),
-      colorHex = dplyr::coalesce(colorHex, "#CCCCCC"),
-      sizeMapping = log2(pmax(1, proteinCount))
+      colorHex = dplyr::coalesce(colorHex, "#CCCCCC")
     )
   
   return(finalDf)

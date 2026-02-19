@@ -1,4 +1,5 @@
 utils::globalVariables(c("betweenness", "degree"))
+
 #' Compute Network Topology and Layout Coordinates
 #'
 #' @description
@@ -9,20 +10,20 @@ utils::globalVariables(c("betweenness", "degree"))
 #' @details
 #' This function takes a node attribute table and an edge list (network) and
 #' performs the following steps:
-#' 
+#'
 #' 1.  Constructs an `igraph` graph object from the provided data.
-#' 
+#'
 #' 2.  Computes a force-directed layout using the Fruchterman-Reingold algorithm
-#'     via `ggraph::create_layout`. Edge weights are used to influence the
+#'     via `igraph::layout_with_fr`. Edge weights are used to influence the
 #'     layout, pulling strongly connected nodes closer together.
-#'     
+#'
 #' 3.  Calculates node centrality metrics:
-#' 
+#'
 #'     - **Betweenness Centrality:** Measures how often a node lies on the
 #'       shortest path between other nodes (normalized).
-#'       
+#'
 #'     - **Degree Centrality:** The number of edges connected to a node.
-#'     
+#'
 #' 4.  Merges the layout coordinates and centrality scores back into the original
 #'     node attribute table.
 #'
@@ -31,6 +32,7 @@ utils::globalVariables(c("betweenness", "degree"))
 #'   matches the source/target columns in the `network` data.
 #' @param network A `tibble` or `data.frame` representing the network edges.
 #'   Must contain columns for source, target, and edge `weight`.
+#' @param seed Integer seed for reproducible layout. Defaults to `123`.
 #' @param verbose A logical value indicating whether to print progress messages.
 #'   Defaults to `TRUE`.
 #'
@@ -65,15 +67,14 @@ utils::globalVariables(c("betweenness", "degree"))
 #'
 #' @export
 #'
-computeMapTopology <- function(nodeAttributes, network, verbose=TRUE) {
+computeMapTopology <- function(nodeAttributes, network, seed = 123, verbose = TRUE) {
   if (verbose) {
     message("Computing map topology (layout and centrality)...")
   }
-  
+
   # Handle cases with empty input data gracefully
   if (nrow(nodeAttributes) == 0 || nrow(network) == 0) {
     warning("Cannot compute topology with empty node or edge lists.")
-    # Return a dataframe with the right columns but no data
     return(
       nodeAttributes %>%
         dplyr::mutate(
@@ -82,39 +83,38 @@ computeMapTopology <- function(nodeAttributes, network, verbose=TRUE) {
         )
     )
   }
-  
-  # Create the graph object, ensuring the node ID column is correctly identified
-  # igraph uses the first column of the vertices df as the name by default.
-  # Assuming the first column of nodeAttributes holds the complex IDs.
+
+  # Create the graph object
   graphObj <- igraph::graph_from_data_frame(
-    d=network, vertices=nodeAttributes, directed=FALSE
+    d = network, vertices = nodeAttributes, directed = FALSE
   )
-  
-  # 1. Compute the force-directed layout
-  layoutData <- ggraph::create_layout(
-    graphObj, layout='fr', weights=igraph::E(graphObj)$weight
+
+  # 1. Compute the force-directed layout using igraph directly (no ggraph dependency)
+  set.seed(seed)
+  layoutMatrix <- igraph::layout_with_fr(
+    graphObj,
+    weights = igraph::E(graphObj)$weight
   )
-  
+
   # 2. Compute centrality metrics
-  betweennessScores <- igraph::betweenness(graphObj, normalized=TRUE)
-  degreeScores <- igraph::degree(graphObj)
-  
+  betweennessScores <- igraph::betweenness(graphObj, normalized = TRUE)
+  degreeScores      <- igraph::degree(graphObj)
+
   # 3. Combine everything into the final master dataframe
-  # The first column of nodeAttributes must be the complex_id for this to work
   idColName <- names(nodeAttributes)[1]
-  
+
   masterLayoutDf <- nodeAttributes %>%
     dplyr::mutate(
-      x = layoutData$x,
-      y = layoutData$y,
+      x           = layoutMatrix[, 1],
+      y           = layoutMatrix[, 2],
       betweenness = betweennessScores[!!rlang::sym(idColName)],
-      degree = degreeScores[!!rlang::sym(idColName)]
+      degree      = degreeScores[!!rlang::sym(idColName)]
     ) %>%
     dplyr::arrange(dplyr::desc(betweenness), dplyr::desc(degree))
-  
+
   if (verbose) {
     message("Topology computation complete.")
   }
-  
+
   return(masterLayoutDf)
 }

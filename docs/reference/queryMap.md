@@ -1,6 +1,6 @@
 # Query a ComplexMap Object
 
-Targeted querying of complexes, proteins, or themes.
+Targeted querying of complexes or proteins.
 
 ## Usage
 
@@ -20,7 +20,7 @@ queryMap(complexMapObject, query, type)
 
 - type:
 
-  "protein", "complex", or "theme".
+  "protein" or "complex".
 
 ## Value
 
@@ -29,6 +29,4 @@ A tibble of matching nodes.
 ## Details
 
 \- \`type="protein"\`: Regex search for protein members. -
-\`type="complex"\`: Exact match for Complex ID. - \`type="theme"\`:
-Exact match for Theme Label. Requires \`summarizeThemes()\` to be run on
-the object first with \`add_to_object = TRUE\`.
+\`type="complex"\`: Exact match for Complex ID.

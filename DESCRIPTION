@@ -1,19 +1,19 @@
 Package: ComplexMap
-Title: A Toolset for the Functional Analysis and Visualization of Protein Complex Data
-Version: 1.1.2
-Date: 2025-11-15
+Title: A Toolset for the Functional Analysis and Interactive Visualization of Protein Complex Data
+Version: 2.0.0
+Date: 2026-02-18
 Authors@R: 
     person(given = "Qingzhou",
            family = "Zhang",
            role = c("aut", "cre"),
            email = "zqzneptune@hotmail.com",
            comment = c(ORCID = "0000-0001-9540-2624"))
-Description: Provides a comprehensive workflow for the quality control, 
-    refinement, functional enrichment, and network-based analysis of protein 
-    complex datasets. ComplexMap allows for the quantitative evaluation of 
-    predicted complexes against a reference and provides powerful static and 
-    interactive visualization methods to explore the functional landscape of 
-    a protein complex map.
+Description: Provides a comprehensive workflow for the quality control,
+    refinement, functional enrichment, and network-based analysis of protein
+    complex datasets. ComplexMap allows for the quantitative evaluation of
+    predicted complexes against a reference and provides an interactive
+    Cytoscape.js-powered Shiny explorer to navigate the functional landscape
+    of a protein complex map.
 URL: https://zqzneptune.github.io/ComplexMap, https://github.com/zqzneptune/ComplexMap
 BugReports: https://github.com/zqzneptune/ComplexMap/issues
 License: MIT + file LICENSE
@@ -27,30 +27,27 @@ Imports:
     dplyr,
     future,
     future.apply,
-    ggplot2,
-    ggraph,
     GO.db,
     igraph,
+    jsonlite,
     magrittr,
     Matrix,
     msigdbr,
     RColorBrewer,
     reactome.db,
     rlang,
-    scales,
+    shiny,
     stringr,
     tibble,
-    tidyr,
-    tidygraph
+    tidyr
 Suggests:
     colorspace,
-    ggrepel,
     knitr,
     org.Hs.eg.db,
     philentropy,
     progressr,
     rmarkdown,
-    visNetwork
+    testthat (>= 3.0.0)
 BiocViews:
     Software,
     Proteomics,
@@ -60,3 +57,4 @@ BiocViews:
     GeneSetEnrichment
 LazyData: true
 VignetteBuilder: knitr
+Config/testthat/edition: 3

@@ -29,6 +29,7 @@
 #'   complex list (merge redundant complexes). If **FALSE**, Step 1 is skipped,
 #'   and the raw `complexList` is used for downstream analysis. Defaults to **FALSE**.
 #' @param verbose A logical value indicating whether to print progress messages.
+#' @param layout_seed Integer seed for reproducible layout. Defaults to 123.
 #' @param ... Additional arguments passed to core functions:
 #'   - `minSize`, `maxSize`, `mergeThreshold` (for `refineComplexList` if `ifRefineCpx = TRUE`)
 #'   - `pAdjustMethod`, `pValueCutoff` (for `runComplexEnrichment`)
@@ -39,10 +40,11 @@
 #' @author Qingzhou Zhang <zqzneptune@hotmail.com>
 #'
 #' @export
-createComplexMap <- function(complexList, gmt, 
+createComplexMap <- function(complexList, gmt,
                              similarityMethod = "jaccard",
                              alpha = 0.75,
                              ifRefineCpx = FALSE,
+                             layout_seed = 123,
                              verbose = TRUE, ...) {
   
   # Capture additional arguments
@@ -118,13 +120,18 @@ createComplexMap <- function(complexList, gmt,
   if (verbose) message("\nStep 5: Computing map topology...")
   topoArgs <- list(
     nodeAttributes = nodeAttributes,
-    network = networkEdges,
-    verbose = verbose
+    network        = networkEdges,
+    seed           = layout_seed,
+    verbose        = verbose
   )
   finalNodes <- do.call(computeMapTopology, topoArgs)
-  
+
   if (verbose) message("\n--- ComplexMap Workflow Complete ---")
-  
+
   # --- 6. Construct and Return Final S3 Object ---
-  .new_ComplexMap(nodes = finalNodes, edges = networkEdges)
+  .new_ComplexMap(
+    nodes       = finalNodes,
+    edges       = networkEdges,
+    layout_info = list(method = "fr", seed = layout_seed, scaling = "raw")
+  )
 }

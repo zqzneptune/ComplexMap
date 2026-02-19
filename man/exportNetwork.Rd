@@ -2,7 +2,7 @@
 % Please edit documentation in R/interoperability.R
 \name{exportNetwork}
 \alias{exportNetwork}
-\title{Export a ComplexMap Network for External Tools (Cytoscape)}
+\title{Export a ComplexMap Network for External Tools}
 \usage{
 exportNetwork(
   complexMapObject,
@@ -16,7 +16,10 @@ exportNetwork(
 
 \item{filePrefix}{Character string for output filenames (e.g., "results/my_map").}
 
-\item{format}{Output format. Currently supports "cytoscape" (TSV).}
+\item{format}{Output format. One of:
+- `"cytoscape"`: Writes separate node and edge TSV files for Cytoscape Desktop.
+- `"graphml"`: Writes a GraphML file (via `igraph`).
+- `"tsv"`: Writes a single node-attribute TSV file.}
 
 \item{verbose}{Logical.}
 }
@@ -29,10 +32,10 @@ systems biology attributes like Specificity Scores and Functional Domains.
 }
 \details{
 **Systems Biology Rationale:**
-To verify the landscape in external tools (e.g., Cytoscape), this function
+To verify the landscape in external tools (e.g., Cytoscape Desktop), this function
 ensures that the specific calculated attributes are correctly formatted:
 
-- **`score`**: The Specificity Score (Size/Color mapping).
+- **`score`**: The Specificity Score.
 - **`primaryFunctionalDomain`**: The Specific Label.
 - **`colorHex`**: The calculated blended color.
 

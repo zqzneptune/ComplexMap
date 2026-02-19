@@ -15,21 +15,23 @@
 #'
 #' @keywords internal
 #' @noRd
-.new_ComplexMap <- function(nodes, edges) {
+.new_ComplexMap <- function(nodes, edges,
+                            layout_info = list(method = "fr", seed = 123, scaling = "raw")) {
   # 1. Validation
   required_node_cols <- c("complexId", "primaryFunctionalDomain", "colorHex")
   missing_cols <- setdiff(required_node_cols, names(nodes))
-  
+
   if (length(missing_cols) > 0) {
-    stop("Invalid ComplexMap node table. Missing columns: ", 
+    stop("Invalid ComplexMap node table. Missing columns: ",
          paste(missing_cols, collapse = ", "), call. = FALSE)
   }
-  
+
   # 2. Construction
   structure(
     list(
-      nodes = nodes,
-      edges = edges
+      nodes       = nodes,
+      edges       = edges,
+      layout_info = layout_info
     ),
     class = "ComplexMap"
   )
@@ -77,16 +79,16 @@ print.ComplexMap <- function(x, ...) {
   
   # Dashboard Output
   cat("# ComplexMap Object (Physical-First Layout)\n")
-  cat(sprintf("# \u2500\u2500 Physical Structure: %d nodes, %d edges (%s)\n", 
-              numNodes, numEdges, density_str))
+  cat(sprintf("# %s Physical Structure: %d nodes, %d edges (%s)\n", 
+              "--", numNodes, numEdges, density_str))
   
-  cat(sprintf("# \u2500\u2500 Functional Landscape:\n"))
-  cat(sprintf("#    \u2022 Diversity: %d distinct functional domains (colors)\n", numThemes))
-  cat(sprintf("#    \u2022 Coverage:  %.1f%% of complexes annotated\n", coverage_pct))
+  cat(sprintf("# %s Functional Landscape:\n", "--"))
+  cat(sprintf("#    * Diversity: %d distinct functional domains (colors)\n", numThemes))
+  cat(sprintf("#    * Coverage:  %.1f%% of complexes annotated\n", coverage_pct))
   
   # Hints
-  cat("# \u2500\u2500 Accessors: `getNodeTable()`, `getEdgeTable()`\n")
-  cat("# \u2500\u2500 Analysis:  `summarizeThemes()` to identify physical machines.\n")
+  cat("# -- Accessors: `getNodeTable()`, `getEdgeTable()`\n")
+  cat("# -- Explore:   `explore(cmap)` to launch interactive Cytoscape.js viewer.\n")
   
   invisible(x)
 }

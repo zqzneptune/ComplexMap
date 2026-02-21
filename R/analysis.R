@@ -1,4 +1,3 @@
-# ./ComplexMap/R/analysis.R
 utils::globalVariables(c("primaryFunctionalDomain", "nodeCount", "purity"))
 
 #' Query a ComplexMap Object

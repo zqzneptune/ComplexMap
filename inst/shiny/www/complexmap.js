@@ -62,14 +62,14 @@
                 return mapRange(ele.data("proteinCount") || 1, minProt, maxProt, 18, 80);
             },
             "label": "data(label)",
-            "color": "#ffffff",
+            "color": "#333333",
             "font-size": 9,
             "text-valign": "center",
             "text-halign": "center",
             "text-wrap": "wrap",
             "text-max-width": "80px",
-            "border-width": 1.5,
-            "border-color": "rgba(255,255,255,0.25)",
+            "border-width": 0.75,
+            "border-color": "rgba(92,124,250,0.3)",
             "transition-property": "opacity, background-color, width, height",
             "transition-duration": "200ms"
         }
@@ -94,8 +94,8 @@
     var selectedStyle = {
         selector: "node:selected",
         style: {
-            "border-width": 3,
-            "border-color": "#00d9ff",
+            "border-width": 1,
+            "border-color": "#FFFF00",
             "background-color": "data(colorHex)"
         }
     };
@@ -108,8 +108,8 @@
     var highlightedStyle = {
         selector: ".highlighted",
         style: {
-            "border-width": 3,
-            "border-color": "#FFD700",
+            "border-width": 1,
+            "border-color": "#FFFF00",
             "opacity": 1
         }
     };
@@ -311,7 +311,7 @@
             return;
         }
         try {
-            var dataUrl = cy.png({ full: true, scale: 2, bg: "#1a1d2e" });
+            var dataUrl = cy.png({ full: true, scale: 1, bg: "#ffffff" });
             var link = document.createElement("a");
             link.download = "complexmap.png";
             link.href = dataUrl;
@@ -352,7 +352,7 @@
         }
 
         try {
-            var svgContent = cy.svg({ full: true, bg: "#1a1d2e" });
+            var svgContent = cy.svg({ full: true, bg: "#ffffff" });
             var blob = new Blob([svgContent], { type: "image/svg+xml;charset=utf-8" });
             var url = URL.createObjectURL(blob);
             var link = document.createElement("a");

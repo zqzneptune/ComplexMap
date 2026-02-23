@@ -56,23 +56,17 @@
 </h1></div>
 <p><a href="https://lifecycle.r-lib.org/articles/stages.html" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-green.svg" alt="Lifecycle: stable"></a> <a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></p>
 <p><strong>ComplexMap</strong> is a systems biology R package for the analysis of protein complex landscapes. It transforms raw lists of putative complexes into interactive, functionally annotated maps that preserve the delicate balance between physical composition and biological hierarchy.</p>
+<p>That makes perfect sense and aligns exactly with your <code>createComplexMap(..., ifRefineCpx = FALSE)</code> default and your custom hypergeometric test logic in <code>runComplexEnrichment</code>.</p>
+<p>Here is the updated and polished feature list incorporating those crucial details:</p>
 <div class="section level2">
 <h2 id="core-features-v20">Core Features (v2.0)<a class="anchor" aria-label="anchor" href="#core-features-v20"></a>
 </h2>
-<ul>
-<li>
-<strong>Physical-First Architecture:</strong> Layouts are driven primarily by <strong>Physical Composition</strong> (shared proteins), ensuring that sub-complexes and variants are preserved rather than collapsed into generic functional blobs.</li>
-<li>
-<strong>Interactive Explorer:</strong> Built-in <strong>Cytoscape.js</strong> engine via Shiny. Explore your landscape with high-performance zooming, filtering, and real-time node inspection.</li>
-<li>
-<strong>Diversity-First Refinement:</strong> Defaults to conservative <strong>Jaccard</strong> similarity (threshold 0.90) to merge only true synonyms while keeping distinct biological states separate.</li>
-<li>
-<strong>Specificity-Driven Annotation:</strong> Automatically groups functional terms into diverse domains and calculates <strong>Specificity Scores</strong> (<code>-log10(p) * log2(Fold)</code>) to prioritize unique labels over generic terms.</li>
-<li>
-<strong>Systems Biology Dashboard:</strong> S3 print methods provide immediate feedback on the health of your map (Functional Diversity vs. Physical Density).</li>
-<li>
-<strong>Robust Evaluation:</strong> Compare predictions against gold standards (e.g., CORUM) using <strong>Maximum Matching Ratio (MMR)</strong>, PPV, and Sensitivity.</li>
-</ul>
+<p><strong>Species-Agnostic, Specificity-Driven Annotation:</strong> Enrichment works with any organism or identifier type (e.g., Symbol, Uniprot, Entrez)—as long as the IDs in your complexes match your gene sets. Automatically clusters functional terms into semantic domains and calculates <strong>Specificity Scores</strong> (<code>-log10(p.adjust) * log2(Fold)</code>) to prioritize highly specific biological labels over broad terms.</p>
+<p><strong>Optional Diversity-First Refinement:</strong> Turned off by default in the main pipeline to strictly preserve your raw input. When enabled, it uses a conservative <strong>Jaccard</strong> similarity (threshold 0.90) to merge only true synonyms, safely preserving distinct biological sub-complexes and variants.</p>
+<p><strong>Physical-First Architecture:</strong> Layouts are driven primarily by <strong>Physical Composition</strong> (75% shared proteins), ensuring that physical variants are positioned by true structural overlap rather than being visually pulled together by generic functional annotations.</p>
+<p><strong>Interactive Explorer:</strong> Built-in <strong>Cytoscape.js</strong> engine via Shiny. Explore your complex-complex landscape with high-performance zooming, filtering, and real-time node inspection.</p>
+<p><strong>Systems Biology Dashboard:</strong> S3 print methods provide immediate console feedback on the health of your map (Functional Diversity vs. Physical Density).</p>
+<p><strong>Robust Evaluation:</strong> Compare predictions against gold standards (e.g., CORUM) using <strong>Maximum Matching Ratio (MMR)</strong>, Accuracy, PPV, and Sensitivity.</p>
 <hr>
 </div>
 <div class="section level2">

@@ -47,63 +47,59 @@ ui <- fluidPage(
 
   # ── Layout: sidebar + main
   div(class = "cm-wrapper",
-
-    # ── Sidebar ──────────────────────────────────────────────────────────────
-    div(class = "cm-sidebar",
-      div(class = "cm-logo", "ComplexMap", tags$span("Explorer")),
-
-      # Layout selector
-      div(class = "cm-section",
-          tags$label("Layout", class = "cm-label"),
-          selectInput("layout_choice", label = NULL,
-                      choices  = c(
-                        "Preset (FR)" = "preset", 
-                        "fCoSE"       = "fcose",
-                        "Cola"        = "cola",    # ADDED THIS
-                        "CoSE"        = "cose"     # ADDED THIS (Built-in)
-                      ),
-                      selected = "preset"
-          )
-      ),
-
-      # Edge weight filter
-      div(class = "cm-section",
-        tags$label("Min. Edge Weight", class = "cm-label"),
-        sliderInput("edge_weight_min", label = NULL,
-          min = floor(min_weight * 10) / 10,
-          max = ceiling(max_weight * 10) / 10,
-          value = floor(min_weight * 10) / 10,
-          step = 0.01
-        )
-      ),
-
-      # Functional domain filter
-      if (length(domains) > 0) {
-        div(class = "cm-section",
-            tags$label("Functional Domain", class = "cm-label"),
-            selectInput("domain_filter", label = NULL,
-                        choices = c("All" = "", domains), selected = ""
-            ),
-            # --- ADD THIS: The Legend Container ---
-            div(class = "cm-legend-container",
-                uiOutput("network_legend")
-            )
-        )
-      },
-
-      # Protein search
-      div(class = "cm-section",
-          tags$label("Search Protein", class = "cm-label"),
-          div(class = "cm-search-wrapper",
-              div(class = "cm-search-row",
-                  div(style = "position: relative; flex: 1;",
-                      textInput("protein_search", label = NULL, placeholder = "e.g. TP53"),
-                      tags$ul(id = "protein_suggestions", class = "cm-suggestions")
-                  )
-              ),
-              uiOutput("protein_search_status")
+      
+      # ── Sidebar ──────────────────────────────────────────────────────────────
+      div(class = "cm-sidebar",
+          div(class = "cm-logo", "ComplexMap", tags$span("Explorer")),
+          
+          # Layout selector
+          div(class = "cm-section",
+              tags$label("Switch Layout", class = "cm-label"),
+              selectInput("layout_choice", label = NULL,
+                          choices  = c(
+                            "Preset (FR)" = "preset", 
+                            "fCoSE"       = "fcose",
+                            "Cola"        = "cola",
+                            "CoSE"        = "cose"
+                          ),
+                          selected = "preset"
+              )
           ),
-          tags$script(HTML("
+          
+          # Edge weight filter
+          div(class = "cm-section",
+              tags$label("Filter Edges by Weight", class = "cm-label"),
+              sliderInput("edge_weight_min", label = NULL,
+                          min = floor(min_weight * 10) / 10,
+                          max = ceiling(max_weight * 10) / 10,
+                          value = floor(min_weight * 10) / 10,
+                          step = 0.01
+              )
+          ),
+          
+          # Functional domain filter (Legend removed from here)
+          if (length(domains) > 0) {
+            div(class = "cm-section",
+                tags$label("Highlight Functional Domain", class = "cm-label"),
+                selectInput("domain_filter", label = NULL,
+                            choices = c("All" = "", domains), selected = ""
+                )
+            )
+          },
+          
+          # Protein search
+          div(class = "cm-section",
+              tags$label("Search Protein", class = "cm-label"),
+              div(class = "cm-search-wrapper",
+                  div(class = "cm-search-row",
+                      div(style = "position: relative; flex: 1;",
+                          textInput("protein_search", label = NULL, placeholder = "e.g. TP53"),
+                          tags$ul(id = "protein_suggestions", class = "cm-suggestions")
+                      )
+                  ),
+                  uiOutput("protein_search_status")
+              ),
+              tags$script(HTML("
         (function() {
           var allProteins = window.complexmapProteins || [];
           var input      = null;
@@ -207,53 +203,122 @@ ui <- fluidPage(
           }
         })();
       "))
-      ),
-
-      # Label toggle
-      div(class = "cm-section",
-        checkboxInput("show_labels", "Show node labels", value = TRUE)
-      ),
-
-      tags$hr(class = "cm-divider"),
-
-      # Export buttons
-      div(class = "cm-section",
-        tags$label("Export", class = "cm-label"),
-        div(class = "cm-btn-group",
-          actionButton("export_png", "PNG", class = "cm-btn cm-btn-export"),
-          actionButton("export_svg", "SVG", class = "cm-btn cm-btn-export"),
-          downloadButton("export_json", "JSON", class = "cm-btn cm-btn-export"),
-          downloadButton("export_tsv",  "TSV",  class = "cm-btn cm-btn-export")
-        )
-      ),
-
-      # Export status message
-      div(class = "cm-section",
-        uiOutput("export_status")
-      ),
-
-      # Layout info
-      if (length(layout_info) > 0) {
-        div(class = "cm-info-footer",
-          sprintf("Layout: %s | Seed: %s",
-                  layout_info$method %||% "fr",
-                  layout_info$seed %||% "123")
-        )
-      }
-    ), # end sidebar
-
-    # ── Main canvas ──────────────────────────────────────────────────────────
-    div(class = "cm-main",
-      div(id = "cy"),
-
-      # Node detail panel (appears on node click)
-      conditionalPanel(
-        condition = "input.selected_node != ''",
-        div(class = "cm-detail-panel",
-          uiOutput("node_detail")
-        )
+          ),
+          
+          # Label toggle
+          div(class = "cm-section",
+              checkboxInput("show_labels", "Show node labels", value = TRUE)
+          ),
+          
+          tags$hr(class = "cm-divider"),
+          
+          # Export buttons
+          div(class = "cm-section",
+              tags$label("Export", class = "cm-label"),
+              div(class = "cm-btn-group",
+                  actionButton("export_png", "PNG", class = "cm-btn cm-btn-export"),
+                  actionButton("export_svg", "SVG", class = "cm-btn cm-btn-export"),
+                  downloadButton("export_json", "JSON", class = "cm-btn cm-btn-export"),
+                  downloadButton("export_tsv",  "TSV",  class = "cm-btn cm-btn-export")
+              )
+          ),
+          
+          # Export status message
+          div(class = "cm-section",
+              uiOutput("export_status")
+          ),
+          
+          # Layout info
+          if (length(layout_info) > 0) {
+            div(class = "cm-info-footer",
+                sprintf("Layout: %s | Seed: %s",
+                        layout_info$method %||% "fr",
+                        layout_info$seed %||% "123")
+            )
+          }
+      ), # end sidebar
+      
+      # ── Main canvas ──────────────────────────────────────────────────────────
+      div(class = "cm-main",
+          
+          # 1. Sidebar Toggle Button
+          tags$button(
+            id = "sidebar_toggle", 
+            class = "cm-toggle-btn", 
+            HTML('<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>')
+          ),
+          
+          # 2. Floating Color Legend
+          if (length(domains) > 0) {
+            div(class = "cm-floating-legend",
+                div(class = "cm-legend-header", "Color Legend"),
+                uiOutput("network_legend")
+            )
+          },
+          
+          # 3. Cytoscape Container
+          div(id = "cy"),
+          
+          # 4. Node Detail Panel
+          conditionalPanel(
+            condition = "typeof input.selected_node !== 'undefined' && input.selected_node !== ''",
+            div(class = "cm-detail-panel",
+                uiOutput("node_detail")
+            )
+          ),
+          
+          # 5. Toggle Behavior & Auto-hide Logic
+          tags$script(HTML("
+            document.addEventListener('DOMContentLoaded', function() {
+              var btn = document.getElementById('sidebar_toggle');
+              var sidebar = document.querySelector('.cm-sidebar');
+              var inactivityTimer;
+    
+              function toggleSidebar(forceCollapse) {
+                if (!sidebar) return;
+                
+                if (typeof forceCollapse === 'boolean') {
+                  if (forceCollapse) sidebar.classList.add('collapsed');
+                  else sidebar.classList.remove('collapsed');
+                } else {
+                  sidebar.classList.toggle('collapsed');
+                }
+                
+                // Wait for CSS transition (0.3s) to finish, then force Cytoscape to resize
+                setTimeout(function() {
+                  // Dispatching a window resize event natively forces Cytoscape to update
+                  // its internal bounds, fixing any offset issues after the layout shifts.
+                  window.dispatchEvent(new Event('resize'));
+                }, 310);
+              }
+    
+              if (btn && sidebar) {
+                btn.addEventListener('click', function(e) {
+                  toggleSidebar();
+                  resetTimer(); // User click resets the timer
+                });
+              }
+    
+              function resetTimer() {
+                clearTimeout(inactivityTimer);
+                // Auto-hide the sidebar after 10 seconds (10000 ms) of inactivity
+                inactivityTimer = setTimeout(function() {
+                  if (sidebar && !sidebar.classList.contains('collapsed')) {
+                    toggleSidebar(true);
+                  }
+                }, 3000);
+              }
+    
+              // Listen for any user activity on the page to reset the auto-hide timer
+              ['mousemove', 'mousedown', 'keypress', 'touchstart', 'scroll'].forEach(function(evt) {
+                document.addEventListener(evt, resetTimer, true);
+              });
+    
+              // Start the timer on initial load
+              resetTimer();
+            });
+          "))
       )
-    )
   ) # end wrapper
 )
 

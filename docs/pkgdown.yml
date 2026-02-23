@@ -4,7 +4,7 @@ pkgdown_sha: f3ec6e2bb122e10436eccda7b221e297ab9d395a
 articles:
   vignette_01-prep-input: vignette_01-prep-input.html
   vignette_02-workflow: vignette_02-workflow.html
-last_built: 2026-02-21T21:20Z
+last_built: 2026-02-23T17:41Z
 urls:
   reference: https://zqzneptune.github.io/ComplexMap/reference
   article: https://zqzneptune.github.io/ComplexMap/articles

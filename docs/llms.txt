@@ -11,28 +11,44 @@ complexes into interactive, functionally annotated maps that preserve
 the delicate balance between physical composition and biological
 hierarchy.
 
+That makes perfect sense and aligns exactly with your
+`createComplexMap(..., ifRefineCpx = FALSE)` default and your custom
+hypergeometric test logic in `runComplexEnrichment`.
+
+Here is the updated and polished feature list incorporating those
+crucial details:
+
 ## Core Features (v2.0)
 
-- **Physical-First Architecture:** Layouts are driven primarily by
-  **Physical Composition** (shared proteins), ensuring that
-  sub-complexes and variants are preserved rather than collapsed into
-  generic functional blobs.
-- **Interactive Explorer:** Built-in **Cytoscape.js** engine via Shiny.
-  Explore your landscape with high-performance zooming, filtering, and
-  real-time node inspection.
-- **Diversity-First Refinement:** Defaults to conservative **Jaccard**
-  similarity (threshold 0.90) to merge only true synonyms while keeping
-  distinct biological states separate.
-- **Specificity-Driven Annotation:** Automatically groups functional
-  terms into diverse domains and calculates **Specificity Scores**
-  (`-log10(p) * log2(Fold)`) to prioritize unique labels over generic
-  terms.
-- **Systems Biology Dashboard:** S3 print methods provide immediate
-  feedback on the health of your map (Functional Diversity vs. Physical
-  Density).
-- **Robust Evaluation:** Compare predictions against gold standards
-  (e.g., CORUM) using **Maximum Matching Ratio (MMR)**, PPV, and
-  Sensitivity.
+**Species-Agnostic, Specificity-Driven Annotation:** Enrichment works
+with any organism or identifier type (e.g., Symbol, Uniprot, Entrez)—as
+long as the IDs in your complexes match your gene sets. Automatically
+clusters functional terms into semantic domains and calculates
+**Specificity Scores** (`-log10(p.adjust) * log2(Fold)`) to prioritize
+highly specific biological labels over broad terms.
+
+**Optional Diversity-First Refinement:** Turned off by default in the
+main pipeline to strictly preserve your raw input. When enabled, it uses
+a conservative **Jaccard** similarity (threshold 0.90) to merge only
+true synonyms, safely preserving distinct biological sub-complexes and
+variants.
+
+**Physical-First Architecture:** Layouts are driven primarily by
+**Physical Composition** (75% shared proteins), ensuring that physical
+variants are positioned by true structural overlap rather than being
+visually pulled together by generic functional annotations.
+
+**Interactive Explorer:** Built-in **Cytoscape.js** engine via Shiny.
+Explore your complex-complex landscape with high-performance zooming,
+filtering, and real-time node inspection.
+
+**Systems Biology Dashboard:** S3 print methods provide immediate
+console feedback on the health of your map (Functional Diversity
+vs. Physical Density).
+
+**Robust Evaluation:** Compare predictions against gold standards (e.g.,
+CORUM) using **Maximum Matching Ratio (MMR)**, Accuracy, PPV, and
+Sensitivity.
 
 ------------------------------------------------------------------------
 

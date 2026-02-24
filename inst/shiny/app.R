@@ -306,7 +306,7 @@ ui <- fluidPage(
                   if (sidebar && !sidebar.classList.contains('collapsed')) {
                     toggleSidebar(true);
                   }
-                }, 3000);
+                }, 10000);
               }
     
               // Listen for any user activity on the page to reset the auto-hide timer
